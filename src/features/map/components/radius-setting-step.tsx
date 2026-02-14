@@ -1,10 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import {
-  useWizardStore,
-  WizardStep,
-} from "@/features/analysis/stores/wizard-store";
+import { useRouter } from "next/navigation";
+import { useWizardStore } from "@/features/analysis/stores/wizard-store";
 import { DEFAULT_MAP_ZOOM } from "@/features/onboarding/constants/regions";
 import { useGeolocation } from "../hooks/use-geolocation";
 import { useNearbyPlaces } from "../hooks/use-nearby-places";
@@ -13,10 +11,12 @@ import { RadiusBottomSheet } from "@/features/analysis/components/radius-bottom-
 
 /** Step 5: 반경 설정 + 경쟁업체 표시 (중심 고정, 반경만 조절) */
 export function RadiusSettingStep() {
+  const router = useRouter();
   const { position } = useGeolocation();
-  const { selectedLocation, selectedIndustry, selectedRegion, setSelectedLocation, setStep } =
+  const { selectedLocation, selectedIndustry, selectedRegion, setSelectedLocation } =
     useWizardStore();
   const [radius, setRadius] = useState(100);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const initialCenter = selectedLocation ?? position;
 
@@ -32,8 +32,11 @@ export function RadiusSettingStep() {
     setRadius(newRadius);
   }, []);
 
-  // 분석 시작 — 고정된 중심 위치를 저장 후 진행
-  const handleAnalyze = useCallback(() => {
+  // 분석 시작 — POST /api/analyze → 결과 페이지로 이동
+  const handleAnalyze = useCallback(async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
     setSelectedLocation({
       latitude: initialCenter.latitude,
       longitude: initialCenter.longitude,
@@ -41,14 +44,46 @@ export function RadiusSettingStep() {
         selectedLocation?.address ??
         `${initialCenter.latitude.toFixed(4)}, ${initialCenter.longitude.toFixed(4)}`,
     });
-    setStep(WizardStep.ANALYZING);
-  }, [initialCenter, selectedLocation, setSelectedLocation, setStep]);
 
-  // 주소 표시: 기존 selectedLocation에서 가져오기
+    try {
+      const res = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          address:
+            selectedLocation?.address ??
+            `${initialCenter.latitude.toFixed(4)}, ${initialCenter.longitude.toFixed(4)}`,
+          latitude: initialCenter.latitude,
+          longitude: initialCenter.longitude,
+          industryCode: selectedIndustry?.code ?? "",
+          industryName: selectedIndustry?.name ?? "",
+          radius,
+        }),
+      });
+
+      if (!res.ok) {
+        setIsSubmitting(false);
+        return;
+      }
+
+      const data = await res.json();
+      router.push(`/analyze/${data.id}`);
+    } catch {
+      setIsSubmitting(false);
+    }
+  }, [
+    isSubmitting,
+    initialCenter,
+    selectedLocation,
+    selectedIndustry,
+    radius,
+    setSelectedLocation,
+    router,
+  ]);
+
+  // 주소 표시
   const displayAddress =
-    selectedLocation?.name ??
-    selectedLocation?.address ??
-    "";
+    selectedLocation?.name ?? selectedLocation?.address ?? "";
 
   return (
     <div className="fixed inset-0">

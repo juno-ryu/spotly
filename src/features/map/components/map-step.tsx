@@ -1,10 +1,8 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import {
-  useWizardStore,
-  WizardStep,
-} from "@/features/analysis/stores/wizard-store";
+import { useRouter } from "next/navigation";
+import { useWizardStore } from "@/features/analysis/stores/wizard-store";
 import { DEFAULT_MAP_ZOOM } from "@/features/onboarding/constants/regions";
 import { useGeolocation } from "../hooks/use-geolocation";
 import { useReverseGeocode } from "../hooks/use-reverse-geocode";
@@ -14,12 +12,9 @@ import { CenterPin } from "./center-pin";
 
 /** Step 4: 전체화면 지도 + 센터 핀 위치 선택 */
 export function MapStep() {
+  const router = useRouter();
   const { position } = useGeolocation();
-  const {
-    setSelectedLocation,
-    setStep,
-    selectedRegion,
-  } = useWizardStore();
+  const { setSelectedLocation, selectedRegion } = useWizardStore();
   const {
     result: geocodeResult,
     isLoading: isGeocoding,
@@ -70,7 +65,7 @@ export function MapStep() {
     [],
   );
 
-  // "여기서 분석하기" 확인 — LOCATION_INDUSTRY 스킵하고 RADIUS_SETTING으로
+  // "여기서 분석하기" 확인 → /radius 페이지로 이동
   const handleConfirm = useCallback(() => {
     setSelectedLocation({
       latitude: centerLatRef.current,
@@ -79,8 +74,8 @@ export function MapStep() {
         geocodeResult?.address ??
         `${centerLatRef.current.toFixed(4)}, ${centerLngRef.current.toFixed(4)}`,
     });
-    setStep(WizardStep.RADIUS_SETTING);
-  }, [geocodeResult, setSelectedLocation, setStep]);
+    router.push("/radius");
+  }, [geocodeResult, setSelectedLocation, router]);
 
   return (
     <div className="fixed inset-0">
