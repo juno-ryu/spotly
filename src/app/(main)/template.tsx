@@ -5,5 +5,9 @@ export default function MainTemplate({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="animate-in fade-in duration-200">{children}</div>;
+  return (
+    <div className="animate-[page-fade-in_200ms_ease-out_both]">
+      {children}
+    </div>
+  );
 }
