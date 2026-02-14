@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// 분석 요청 및 결과
+model AnalysisRequest {
+  id            String         @id @default(cuid())
+
+  // 사용자 입력
+  address       String         // 검색 주소 원문
+  latitude      Float          // 위도
+  longitude     Float          // 경도
+  industryCode  String         // 업종 코드 (한국표준산업분류)
+  industryName  String         // 업종명 (예: "치킨전문점")
+  radius        Int            // 분석 반경 (미터: 500, 1000, 3000)
+  regionCode    String?        // 법정동 코드 (Kakao 지오코딩에서 추출)
+
+  // 분석 상태
+  status        AnalysisStatus @default(PENDING)
+
+  // 분석 결과
+  totalScore    Float?         // 종합 점수 (0-100)
+  scoreDetail   Json?          // 세부 점수 { vitality, competition, survival, residential, income }
+  reportData    Json?          // 전체 원본 데이터 (NPS/NTS/부동산 응답 등)
+  aiSummary     String?        // AI 생성 분석 요약 텍스트
+  aiReportJson  Json?          // AI 리포트 구조화 데이터
+
+  // 메타
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([latitude, longitude])
+  @@index([industryCode])
+  @@index([createdAt(sort: Desc)])
+}
+
+enum AnalysisStatus {
+  PENDING    // 대기중
+  PROCESSING // 분석중
+  COMPLETED  // 완료
+  FAILED     // 실패
+}
+
+/// 공공 API 응답 캐시 (Redis 보조, 장기 보관용)
+model ApiCache {
+  id        String   @id @default(cuid())
+  cacheKey  String   @unique  // 예: "nps:search:11680:치킨"
+  source    String            // NPS, NTS, REAL_ESTATE, KOSIS
+  data      Json              // API 응답 원본
+  expiresAt DateTime          // 만료 시각
+  createdAt DateTime @default(now())
+
+  @@index([cacheKey])
+  @@index([source])
+  @@index([expiresAt])
+}
+
+/// 업종 분류 코드 (시드 데이터)
+model IndustryCategory {
+  code       String   @id       // 한국표준산업분류 코드 (예: "I56192")
+  name       String             // 업종명 (예: "치킨전문점")
+  parentCode String?            // 상위 분류 코드
+  level      Int                // 분류 수준 (1=대 2=중 3=소 4=세)
+  keywords   String[]           // 검색 키워드 (예: ["치킨", "닭", "프라이드"])
+  isPopular  Boolean  @default(false) // 인기 업종 여부 (UI 상단 노출)
+
+  @@index([parentCode])
+  @@index([isPopular])
+}

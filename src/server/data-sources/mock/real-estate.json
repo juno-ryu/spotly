@@ -1,0 +1,12 @@
+{
+  "items": [
+    { "dealAmount": "185,000", "buildYear": 2003, "dealYear": 2026, "dealMonth": 1, "dealDay": 5, "aptNm": "역삼래미안", "excluUseAr": 84.95, "floor": 12, "umdNm": "역삼동" },
+    { "dealAmount": "142,000", "buildYear": 1998, "dealYear": 2026, "dealMonth": 1, "dealDay": 12, "aptNm": "역삼아이파크", "excluUseAr": 59.98, "floor": 8, "umdNm": "역삼동" },
+    { "dealAmount": "210,000", "buildYear": 2010, "dealYear": 2026, "dealMonth": 1, "dealDay": 18, "aptNm": "개포래미안포레스트", "excluUseAr": 114.5, "floor": 15, "umdNm": "개포동" },
+    { "dealAmount": "98,000", "buildYear": 1995, "dealYear": 2025, "dealMonth": 12, "dealDay": 20, "aptNm": "대치삼성", "excluUseAr": 49.77, "floor": 5, "umdNm": "대치동" },
+    { "dealAmount": "165,000", "buildYear": 2005, "dealYear": 2025, "dealMonth": 12, "dealDay": 25, "aptNm": "도곡렉슬", "excluUseAr": 84.99, "floor": 10, "umdNm": "도곡동" },
+    { "dealAmount": "128,000", "buildYear": 2001, "dealYear": 2025, "dealMonth": 11, "dealDay": 8, "aptNm": "삼성동아이파크", "excluUseAr": 72.3, "floor": 7, "umdNm": "삼성동" },
+    { "dealAmount": "195,000", "buildYear": 2015, "dealYear": 2025, "dealMonth": 11, "dealDay": 15, "aptNm": "래미안대치팰리스", "excluUseAr": 94.62, "floor": 18, "umdNm": "대치동" },
+    { "dealAmount": "155,000", "buildYear": 2008, "dealYear": 2025, "dealMonth": 10, "dealDay": 3, "aptNm": "역삼자이", "excluUseAr": 84.95, "floor": 9, "umdNm": "역삼동" }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "items": [
+    {
+      "seq": "100001",
+      "wkplNm": "굽네치킨 역삼점",
+      "bzowrRgstNo": "123456****",
+      "wkplRoadNmDtlAddr": "서울특별시 강남구 역삼로 123",
+      "ldongAddrMgplDgCd": "11",
+      "ldongAddrMgplSgguCd": "680",
+      "ldongAddrMgplSgguEmdCd": "101",
+      "wkplJnngStcd": "1",
+      "wkplStylDvcd": "1",
+      "dataCrtYm": "202512"
+    },
+    {
+      "seq": "100002",
+      "wkplNm": "BBQ치킨 역삼역점",
+      "bzowrRgstNo": "234567****",
+      "wkplRoadNmDtlAddr": "서울특별시 강남구 테헤란로 234",
+      "ldongAddrMgplDgCd": "11",
+      "ldongAddrMgplSgguCd": "680",
+      "ldongAddrMgplSgguEmdCd": "101",
+      "wkplJnngStcd": "1",
+      "wkplStylDvcd": "2",
+      "dataCrtYm": "202512"
+    },
+    {
+      "seq": "100003",
+      "wkplNm": "교촌치킨 강남점",
+      "bzowrRgstNo": "345678****",
+      "wkplRoadNmDtlAddr": "서울특별시 강남구 강남대로 345",
+      "ldongAddrMgplDgCd": "11",
+      "ldongAddrMgplSgguCd": "680",
+      "ldongAddrMgplSgguEmdCd": "101",
+      "wkplJnngStcd": "1",
+      "wkplStylDvcd": "2",
+      "dataCrtYm": "202512"
+    },
+    {
+      "seq": "100004",
+      "wkplNm": "네네치킨 삼성점",
+      "bzowrRgstNo": "456789****",
+      "wkplRoadNmDtlAddr": "서울특별시 강남구 삼성로 456",
+      "ldongAddrMgplDgCd": "11",
+      "ldongAddrMgplSgguCd": "680",
+      "ldongAddrMgplSgguEmdCd": "105",
+      "wkplJnngStcd": "1",
+      "wkplStylDvcd": "2",
+      "dataCrtYm": "202512"
+    },
+    {
+      "seq": "100005",
+      "wkplNm": "호식이두마리치킨 역삼점",
+      "bzowrRgstNo": "567890****",
+      "wkplRoadNmDtlAddr": "서울특별시 강남구 역삼로 567",
+      "ldongAddrMgplDgCd": "11",
+      "ldongAddrMgplSgguCd": "680",
+      "ldongAddrMgplSgguEmdCd": "101",
+      "wkplJnngStcd": "1",
+      "wkplStylDvcd": "2",
+      "dataCrtYm": "202512"
+    },
+    {
+      "seq": "100006",
+      "wkplNm": "맘스터치 강남역점",
+      "bzowrRgstNo": "678901****",
+      "wkplRoadNmDtlAddr": "서울특별시 강남구 강남대로 678",
+      "ldongAddrMgplDgCd": "11",
+      "ldongAddrMgplSgguCd": "680",
+      "ldongAddrMgplSgguEmdCd": "101",
+      "wkplJnngStcd": "1",
+      "wkplStylDvcd": "1",
+      "dataCrtYm": "202512"
+    },
+    {
+      "seq": "100007",
+      "wkplNm": "처갓집양념치킨 역삼점",
+      "bzowrRgstNo": "789012****",
+      "wkplRoadNmDtlAddr": "서울특별시 강남구 논현로 789",
+      "ldongAddrMgplDgCd": "11",
+      "ldongAddrMgplSgguCd": "680",
+      "ldongAddrMgplSgguEmdCd": "101",
+      "wkplJnngStcd": "2",
+      "wkplStylDvcd": "2",
+      "dataCrtYm": "202512"
+    },
+    {
+      "seq": "100008",
+      "wkplNm": "페리카나 강남점",
+      "bzowrRgstNo": "890123****",
+      "wkplRoadNmDtlAddr": "서울특별시 강남구 봉은사로 890",
+      "ldongAddrMgplDgCd": "11",
+      "ldongAddrMgplSgguCd": "680",
+      "ldongAddrMgplSgguEmdCd": "105",
+      "wkplJnngStcd": "1",
+      "wkplStylDvcd": "2",
+      "dataCrtYm": "202512"
+    }
+  ]
+}

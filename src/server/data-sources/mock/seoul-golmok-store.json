@@ -1,0 +1,34 @@
+{
+  "list_total_count": 2,
+  "RESULT": { "CODE": "INFO-000", "MESSAGE": "정상 처리되었습니다." },
+  "row": [
+    {
+      "STDR_YYQU_CD": "20244",
+      "TRDAR_CD": "3111083",
+      "TRDAR_CD_NM": "GS강남아파트",
+      "SVC_INDUTY_CD": "CS100001",
+      "SVC_INDUTY_CD_NM": "치킨전문점",
+      "STOR_CO": 12,
+      "SIMILR_INDUTY_STOR_CO": 8,
+      "OPBIZ_RT": 8.3,
+      "OPBIZ_STOR_CO": 1,
+      "CLSBIZ_RT": 16.7,
+      "CLSBIZ_STOR_CO": 2,
+      "FRC_STOR_CO": 8
+    },
+    {
+      "STDR_YYQU_CD": "20244",
+      "TRDAR_CD": "3111084",
+      "TRDAR_CD_NM": "역삼역사거리",
+      "SVC_INDUTY_CD": "CS100001",
+      "SVC_INDUTY_CD_NM": "치킨전문점",
+      "STOR_CO": 18,
+      "SIMILR_INDUTY_STOR_CO": 14,
+      "OPBIZ_RT": 11.1,
+      "OPBIZ_STOR_CO": 2,
+      "CLSBIZ_RT": 5.6,
+      "CLSBIZ_STOR_CO": 1,
+      "FRC_STOR_CO": 12
+    }
+  ]
+}
