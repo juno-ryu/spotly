@@ -120,12 +120,14 @@ export async function searchBusinesses(params: {
   url.searchParams.set("numOfRows", String(params.size ?? 100));
   url.searchParams.set("dataType", "json");
 
+  console.log(`[API 요청] NPS 사업장 검색 — 시도:${sidoCode} 시군구:${sgguCode} 키워드:"${params.keyword ?? "전체"}"`);
   const res = await fetchWithRetry(url.toString());
   const data: DataGoKrResponse<NpsBusiness> = await res.json();
   const rawItems = data.response.body.items?.item ?? [];
   // 단건 응답 시 배열이 아닌 객체로 올 수 있음
   const itemArray = Array.isArray(rawItems) ? rawItems : [rawItems];
   const items = z.array(npsBusinessSchema).parse(itemArray);
+  console.log(`[API 응답] NPS 사업장 검색 — ${items.length}건 (전체 ${data.response.body.totalCount}건)`);
   return { items, totalCount: data.response.body.totalCount };
 }
 
@@ -141,13 +143,16 @@ export async function getBusinessDetail(seq: string): Promise<NpsDetail | null> 
   url.searchParams.set("seq", seq);
   url.searchParams.set("dataType", "json");
 
+  console.log(`[API 요청] NPS 사업장 상세 — seq:${seq}`);
   const res = await fetchWithRetry(url.toString());
   const data: DataGoKrResponse<NpsDetail> = await res.json();
   const rawItems = data.response.body.items?.item ?? [];
   const itemArray = Array.isArray(rawItems) ? rawItems : [rawItems];
   if (itemArray.length === 0) return null;
 
-  return npsDetailSchema.parse(itemArray[0]);
+  const detail = npsDetailSchema.parse(itemArray[0]);
+  console.log(`[API 응답] NPS 사업장 상세 — ${detail.wkplNm} (직원 ${detail.jnngpCnt ?? 0}명)`);
+  return detail;
 }
 
 /** 월별 가입자 변동 추이 조회 */
@@ -173,9 +178,12 @@ export async function getMonthlyTrend(
   url.searchParams.set("endYm", endYm);
   url.searchParams.set("dataType", "json");
 
+  console.log(`[API 요청] NPS 월별 추이 — seq:${seq} (${stYm}~${endYm})`);
   const res = await fetchWithRetry(url.toString());
   const data: DataGoKrResponse<NpsTrendItem> = await res.json();
   const rawItems = data.response.body.items?.item ?? [];
   const itemArray = Array.isArray(rawItems) ? rawItems : [rawItems];
-  return z.array(npsTrendItemSchema).parse(itemArray);
+  const items = z.array(npsTrendItemSchema).parse(itemArray);
+  console.log(`[API 응답] NPS 월별 추이 — ${items.length}개월 데이터`);
+  return items;
 }

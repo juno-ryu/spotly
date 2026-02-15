@@ -22,6 +22,7 @@ export default function IndustryPage() {
         name: industry.name,
         emoji: industry.emoji,
       });
+
       router.push("/region");
     },
     [setSelectedIndustry, router],

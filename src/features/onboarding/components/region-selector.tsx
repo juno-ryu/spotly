@@ -81,6 +81,7 @@ export function RegionSelector({
         latitude: result.latitude,
         longitude: result.longitude,
         zoom: DEFAULT_MAP_ZOOM,
+        districtCode: "",
       };
       addRecentRegion(region);
       onNext(region);
@@ -116,6 +117,7 @@ export function RegionSelector({
           latitude: pos.coords.latitude,
           longitude: pos.coords.longitude,
           zoom: DEFAULT_MAP_ZOOM,
+          districtCode: "",
         };
         addRecentRegion(customRegion);
         onNext(customRegion);

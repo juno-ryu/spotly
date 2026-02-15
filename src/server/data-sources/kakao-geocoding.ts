@@ -9,6 +9,7 @@ async function kakaoFetch<T>(path: string, params: Record<string, string>): Prom
   const url = new URL(`${KAKAO_BASE_URL}${path}`);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
 
+  console.log(`[API 요청] Kakao ${path} — ${JSON.stringify(params)}`);
   const res = await fetch(url.toString(), {
     headers: { Authorization: `KakaoAK ${process.env.KAKAO_REST_API_KEY}` },
   });
@@ -17,7 +18,9 @@ async function kakaoFetch<T>(path: string, params: Record<string, string>): Prom
     throw new Error(`Kakao API 오류: ${res.status} ${res.statusText}`);
   }
 
-  return res.json();
+  const data: KakaoResponse<T> = await res.json();
+  console.log(`[API 응답] Kakao ${path} — ${data.documents.length}건`);
+  return data;
 }
 
 /** 주소 → 좌표 변환 */

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useWizardStore } from "@/features/analysis/stores/wizard-store";
 import { DEFAULT_MAP_ZOOM } from "@/features/onboarding/constants/regions";
@@ -14,7 +14,8 @@ import { CenterPin } from "./center-pin";
 export function MapStep() {
   const router = useRouter();
   const { position } = useGeolocation();
-  const { setSelectedLocation, selectedRegion } = useWizardStore();
+  const { selectedRegion, selectedIndustry } =
+    useWizardStore();
   const {
     result: geocodeResult,
     isLoading: isGeocoding,
@@ -65,17 +66,22 @@ export function MapStep() {
     [],
   );
 
-  // "여기서 분석하기" 확인 → /radius 페이지로 이동
+  // "여기서 분석하기" 확인 → /radius 페이지로 searchParams와 함께 이동
   const handleConfirm = useCallback(() => {
-    setSelectedLocation({
-      latitude: centerLatRef.current,
-      longitude: centerLngRef.current,
+    const query = new URLSearchParams({
+      districtCode: geocodeResult?.districtCode ?? "",
+      dongName: geocodeResult?.dongName ?? "",
+      industryCode: selectedIndustry?.code ?? "",
+      industryName: selectedIndustry?.name ?? "",
+      lat: String(centerLatRef.current),
+      lng: String(centerLngRef.current),
       address:
         geocodeResult?.address ??
         `${centerLatRef.current.toFixed(4)}, ${centerLngRef.current.toFixed(4)}`,
+      zoom: String(initialZoom),
     });
-    router.push("/radius");
-  }, [geocodeResult, setSelectedLocation, router]);
+    router.push(`/radius?${query.toString()}`);
+  }, [geocodeResult, selectedIndustry, initialZoom, router]);
 
   return (
     <div className="fixed inset-0">

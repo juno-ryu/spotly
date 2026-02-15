@@ -20,6 +20,8 @@ export interface SelectedRegion {
   latitude: number;
   longitude: number;
   zoom: number;
+  /** 법정동코드 앞 5자리 (시군구) — 서버 프리페치에 사용 */
+  districtCode: string;
 }
 
 interface WizardState {

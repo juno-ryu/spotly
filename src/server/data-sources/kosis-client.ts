@@ -68,6 +68,7 @@ async function kosisRequest(params: {
     `endPrdDe=${params.endPrdDe}`,
   ].join("&");
 
+  console.log(`[API 요청] KOSIS — tblId:${params.tblId} 지역:${params.objL1} 항목:${params.itmId}`);
   const res = await fetch(`${KOSIS_BASE_URL}?${qs}`);
   if (!res.ok) throw new Error(`KOSIS API 오류: ${res.status}`);
 
@@ -79,7 +80,9 @@ async function kosisRequest(params: {
     throw new Error(`KOSIS API 에러: [${errData.err}] ${errData.errMsg}`);
   }
 
-  return z.array(kosisItemSchema).parse(data);
+  const items = z.array(kosisItemSchema).parse(data);
+  console.log(`[API 응답] KOSIS — ${items.length}건 (${params.tblId})`);
+  return items;
 }
 
 // ─── API 함수 ───

@@ -13,6 +13,8 @@ export const analysisRequestSchema = z.object({
     ),
   latitude: z.number().min(33).max(39),
   longitude: z.number().min(124).max(132),
+  /** 법정동코드 앞 5자리 (클라이언트에서 직접 전달, 없으면 서버 지오코딩 폴백) */
+  districtCode: z.string().trim().length(5).optional(),
 });
 export type AnalysisRequest = z.infer<typeof analysisRequestSchema>;
 
@@ -43,6 +45,21 @@ export const nearbyBusinessSchema = z.object({
 });
 export type NearbyBusiness = z.infer<typeof nearbyBusinessSchema>;
 
+/** 신뢰도 (v2) */
+export const scoreConfidenceSchema = z.object({
+  /** 종합 신뢰도 (0~1) */
+  overall: z.number().min(0).max(1),
+  /** 지표별 신뢰도 */
+  breakdown: z.object({
+    vitality: z.number().min(0).max(1),
+    competition: z.number().min(0).max(1),
+    survival: z.number().min(0).max(1),
+    residential: z.number().min(0).max(1),
+    income: z.number().min(0).max(1),
+  }),
+});
+export type ScoreConfidence = z.infer<typeof scoreConfidenceSchema>;
+
 /** 분석 결과 응답 */
 export const analysisResultSchema = z.object({
   id: z.string(),
@@ -52,6 +69,8 @@ export const analysisResultSchema = z.object({
   radius: z.number(),
   totalScore: z.number().nullable(),
   scoreDetail: scoreBreakdownSchema.nullable(),
+  /** 신뢰도 (v2, nullable — 이전 데이터 호환) */
+  confidence: scoreConfidenceSchema.nullable().optional(),
   nearbyBusinesses: z.array(nearbyBusinessSchema).nullable(),
   aiSummary: z.string().nullable(),
   createdAt: z.string(),

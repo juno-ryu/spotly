@@ -26,7 +26,9 @@ export default function RegionPage() {
         latitude: region.latitude,
         longitude: region.longitude,
         zoom: region.zoom,
+        districtCode: region.districtCode,
       });
+
       router.push("/map");
     },
     [setSelectedRegion, router],

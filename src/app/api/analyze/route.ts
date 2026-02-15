@@ -57,11 +57,10 @@ async function processAnalysis(id: string, input: AnalysisRequest) {
   });
 
   try {
-    // 좌표 → 법정동코드 추출
-    const region = await kakaoGeocoding.coordToRegion(
-      input.latitude,
-      input.longitude,
-    );
+    // 좌표 → 법정동코드 추출 (districtCode가 있으면 Kakao 지오코딩 스킵)
+    const region = input.districtCode
+      ? { districtCode: input.districtCode, code: input.districtCode + "00000" }
+      : await kakaoGeocoding.coordToRegion(input.latitude, input.longitude);
 
     // 데이터 수집 (병렬)
     const aggregated = await aggregateAnalysisData({
@@ -84,7 +83,10 @@ async function processAnalysis(id: string, input: AnalysisRequest) {
         regionCode: region.code,
         totalScore: score.total,
         scoreDetail: score.breakdown,
-        reportData: JSON.parse(JSON.stringify(aggregated)),
+        reportData: JSON.parse(JSON.stringify({
+          ...aggregated,
+          confidence: score.confidence,
+        })),
       },
     });
   } catch (error) {

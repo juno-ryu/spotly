@@ -1,4 +1,3 @@
-import { cachedFetch, CACHE_TTL } from "@/server/cache/redis";
 import * as npsClient from "@/server/data-sources/nps-client";
 import * as realEstateClient from "@/server/data-sources/real-estate-client";
 import * as kosisClient from "@/server/data-sources/kosis-client";
@@ -28,6 +27,22 @@ export interface AggregatedData {
   };
   /** 서울시 골목상권 데이터 (서울 한정, 선택) */
   golmok?: GolmokAggregated;
+  /** NPS API가 반환한 전체 사업장 수 (v2) */
+  totalBusinessCount: number;
+  /** 상세 조회한 사업장 수 (v2) */
+  sampledCount: number;
+  /** 전체 items 기반 모집단 생존율 0~1 (v2) */
+  populationSurvivalRate: number;
+  /** 12개월 추이 데이터 (v2: 모멘텀 계산용) */
+  monthlyTrendData: MonthlyTrendEntry[];
+}
+
+/** 월별 추이 엔트리 (v2) */
+export interface MonthlyTrendEntry {
+  /** 신규 가입자 수 */
+  newCount: number;
+  /** 퇴사자 수 */
+  lossCount: number;
 }
 
 export interface AggregatedBusiness {
@@ -48,7 +63,7 @@ function extractFulfilled<T>(result: PromiseSettledResult<T>): T | null {
 }
 
 /** 부동산 실거래 데이터 기준 년월 (YYYYMM, 2~3개월 전) */
-function getRecentDealYearMonth(): string {
+export function getRecentDealYearMonth(): string {
   const now = new Date();
   now.setMonth(now.getMonth() - 3); // 실거래 데이터는 2~3개월 지연
   return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -73,49 +88,23 @@ export async function aggregateAnalysisData(params: {
 
   // 1단계: NPS 검색 + 부동산 + KOSIS + 골목상권(서울만) 병렬 호출
   const basePromises = [
-    cachedFetch(
-      `nps:search:${params.regionCode}:${params.industryKeyword}`,
-      CACHE_TTL.NPS,
-      () =>
-        npsClient.searchBusinesses({
-          regionCode: params.regionCode,
-          keyword: params.industryKeyword,
-        }),
+    npsClient.searchBusinesses({
+      regionCode: params.regionCode,
+      keyword: params.industryKeyword,
+    }),
+    realEstateClient.getApartmentTransactions(
+      params.regionCode,
+      getRecentDealYearMonth(),
     ),
-    cachedFetch(
-      `realestate:${params.regionCode}:${getRecentDealYearMonth()}`,
-      CACHE_TTL.REAL_ESTATE,
-      () =>
-        realEstateClient.getApartmentTransactions(
-          params.regionCode,
-          getRecentDealYearMonth(),
-        ),
-    ),
-    cachedFetch(
-      `kosis:pop:${params.regionCode}`,
-      CACHE_TTL.KOSIS,
-      () => kosisClient.getPopulationByDistrict(params.regionCode),
-    ),
+    kosisClient.getPopulationByDistrict(params.regionCode),
   ] as const;
 
   // 서울 골목상권 3개 API (서울 지역만 호출)
   const golmokPromises = isSeoul
     ? ([
-        cachedFetch(
-          `golmok:sales:${params.industryKeyword}`,
-          CACHE_TTL.SEOUL,
-          () => golmokClient.getEstimatedSales({ industryKeyword: params.industryKeyword }),
-        ),
-        cachedFetch(
-          `golmok:store:${params.industryKeyword}`,
-          CACHE_TTL.SEOUL,
-          () => golmokClient.getStoreStatus({ industryKeyword: params.industryKeyword }),
-        ),
-        cachedFetch(
-          `golmok:change`,
-          CACHE_TTL.SEOUL,
-          () => golmokClient.getChangeIndex({}),
-        ),
+        golmokClient.getEstimatedSales({ industryKeyword: params.industryKeyword }),
+        golmokClient.getStoreStatus({ industryKeyword: params.industryKeyword }),
+        golmokClient.getChangeIndex({}),
       ] as const)
     : null;
 
@@ -151,23 +140,22 @@ export async function aggregateAnalysisData(params: {
   }
 
   const rawBusinesses = npsData?.items ?? [];
+  const totalBusinessCount = npsData?.totalCount ?? 0;
+
+  // v2: 전체 items 기반 모집단 생존율
+  const allActive = rawBusinesses.filter((b) => b.wkplJnngStcd === "1").length;
+  const populationSurvivalRate = rawBusinesses.length > 0
+    ? allActive / rawBusinesses.length
+    : 0;
 
   // 2단계: 상위 20개 사업장 상세 + 추이 동시 병렬 조회
   const top20 = rawBusinesses.slice(0, 20);
   const [detailResults, trendResults] = await Promise.all([
     Promise.allSettled(
-      top20.map((b) =>
-        cachedFetch(`nps:detail:${b.seq}`, CACHE_TTL.NPS, () =>
-          npsClient.getBusinessDetail(b.seq),
-        ),
-      ),
+      top20.map((b) => npsClient.getBusinessDetail(b.seq)),
     ),
     Promise.allSettled(
-      top20.map((b) =>
-        cachedFetch(`nps:trend:${b.seq}`, CACHE_TTL.NPS, () =>
-          npsClient.getMonthlyTrend(b.seq, 12),
-        ),
-      ),
+      top20.map((b) => npsClient.getMonthlyTrend(b.seq, 12)),
     ),
   ]);
 
@@ -182,10 +170,18 @@ export async function aggregateAnalysisData(params: {
     return { employeeCount: 0, adptDt: undefined };
   });
 
-  // 추이에서 순변동(신규-퇴사) 추출
+  // v2: 12개월 전체 추이 데이터를 집계하여 모멘텀 계산용으로 저장
+  const allTrendEntries: MonthlyTrendEntry[] = [];
   const monthlyTrends: number[][] = trendResults.map((r, i) => {
     const currentCount = details[i]?.employeeCount ?? 0;
     if (r.status === "fulfilled" && r.value.length > 0) {
+      // 전체 추이 데이터 수집 (v2)
+      for (const item of r.value) {
+        allTrendEntries.push({
+          newCount: item.nwAcqzrCnt,
+          lossCount: item.lssJnngpCnt,
+        });
+      }
       const trend = r.value[0];
       const netChange = trend.nwAcqzrCnt - trend.lssJnngpCnt;
       return [Math.max(0, currentCount - netChange), currentCount];
@@ -223,5 +219,9 @@ export async function aggregateAnalysisData(params: {
     centerLongitude: params.longitude,
     population: kosisData ?? undefined,
     golmok: golmokData,
+    totalBusinessCount,
+    sampledCount: top20.length,
+    populationSurvivalRate,
+    monthlyTrendData: allTrendEntries,
   };
 }

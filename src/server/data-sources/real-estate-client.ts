@@ -83,6 +83,7 @@ export async function getApartmentTransactions(
   const apiKey = process.env.DATA_GO_KR_API_KEY!;
   const url = `${REAL_ESTATE_BASE_URL}/getRTMSDataSvcAptTradeDev?serviceKey=${apiKey}&LAWD_CD=${lawdCd}&DEAL_YMD=${dealYmd}&pageNo=1&numOfRows=1000`;
 
+  console.log(`[API 요청] 부동산 실거래가 — 법정동:${lawdCd} 기간:${dealYmd}`);
   const res = await fetch(url, {
     headers: { "User-Agent": "Mozilla/5.0" },
   });
@@ -100,7 +101,9 @@ export async function getApartmentTransactions(
   const rawItems = parseXmlItems(xml);
   const trades = rawItems.map(xmlItemToTrade);
 
-  return z.array(apartmentTradeSchema).parse(trades);
+  const parsed = z.array(apartmentTradeSchema).parse(trades);
+  console.log(`[API 응답] 부동산 실거래가 — ${parsed.length}건`);
+  return parsed;
 }
 
 /** 평균 거래가 계산 (만원) */

@@ -45,7 +45,7 @@ declare global {
               },
             ) => void;
           };
-          /** 역지오코딩 서비스 */
+          /** 지오코딩 서비스 */
           Geocoder: new () => {
             /** 좌표 → 주소 변환 */
             coord2Address: (
@@ -53,6 +53,23 @@ declare global {
               lat: number,
               callback: (
                 result: KakaoGeocoderResult[],
+                status: string,
+              ) => void,
+            ) => void;
+            /** 좌표 → 행정구역 코드 변환 */
+            coord2RegionCode: (
+              lng: number,
+              lat: number,
+              callback: (
+                result: { region_type: string; code: string; address_name: string }[],
+                status: string,
+              ) => void,
+            ) => void;
+            /** 주소 → 좌표 변환 */
+            addressSearch: (
+              address: string,
+              callback: (
+                result: { x: string; y: string; address_name: string }[],
                 status: string,
               ) => void,
             ) => void;

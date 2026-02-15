@@ -337,7 +337,7 @@ export function RadiusMap({
     });
   }, [currentPosition]);
 
-  // 경쟁업체 마커 (places 변경 시 이전 마커 제거 후 재생성)
+  // NPS 사업장 마커 (places 또는 맵 로드 변경 시 재생성)
   useEffect(() => {
     if (!mapRef.current || !window.kakao?.maps) return;
     const kakao = window.kakao;
@@ -423,7 +423,7 @@ export function RadiusMap({
     return () => {
       kakao.maps.event.removeListener(map, "click", closeOverlay);
     };
-  }, [places]);
+  }, [places, isLoaded]);
 
   /** 현위치로 이동 */
   const moveToCurrentPosition = useCallback(() => {
