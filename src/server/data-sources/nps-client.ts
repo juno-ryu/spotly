@@ -11,9 +11,17 @@ const USE_MOCK =
 const FETCH_HEADERS = { "User-Agent": "Mozilla/5.0" } as const;
 
 const MAX_RETRIES = 3;
-const RETRY_DELAY_MS = 500;
+const INITIAL_DELAY_MS = 250;
+const MAX_DELAY_MS = 1500;
 
-/** data.go.kr 간헐적 502 대응 — 재시도 후 fetch */
+/** 지수 백오프 + 지터: 재시도 간격 최적화 */
+function getBackoffDelay(attempt: number): number {
+  const exponential = INITIAL_DELAY_MS * Math.pow(2, attempt - 1);
+  const capped = Math.min(exponential, MAX_DELAY_MS);
+  return Math.round(capped * (0.5 + Math.random() * 0.5));
+}
+
+/** data.go.kr 간헐적 502 대응 — 지수 백오프 재시도 */
 async function fetchWithRetry(url: string): Promise<Response> {
   let lastError: Error | null = null;
 
@@ -24,8 +32,9 @@ async function fetchWithRetry(url: string): Promise<Response> {
 
       // 502/503은 data.go.kr 일시적 오류 → 재시도
       if ((res.status === 502 || res.status === 503) && attempt < MAX_RETRIES) {
-        console.warn(`[NPS] ${res.status} 오류 (${attempt}/${MAX_RETRIES}), ${RETRY_DELAY_MS}ms 후 재시도`);
-        await new Promise((r) => setTimeout(r, RETRY_DELAY_MS * attempt));
+        const delay = getBackoffDelay(attempt);
+        console.warn(`[NPS] ${res.status} 오류 (${attempt}/${MAX_RETRIES}), ${delay}ms 후 재시도`);
+        await new Promise((r) => setTimeout(r, delay));
         continue;
       }
 
@@ -33,8 +42,9 @@ async function fetchWithRetry(url: string): Promise<Response> {
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
       if (attempt < MAX_RETRIES) {
-        console.warn(`[NPS] 요청 실패 (${attempt}/${MAX_RETRIES}), ${RETRY_DELAY_MS}ms 후 재시도`);
-        await new Promise((r) => setTimeout(r, RETRY_DELAY_MS * attempt));
+        const delay = getBackoffDelay(attempt);
+        console.warn(`[NPS] 요청 실패 (${attempt}/${MAX_RETRIES}), ${delay}ms 후 재시도`);
+        await new Promise((r) => setTimeout(r, delay));
         continue;
       }
     }

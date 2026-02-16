@@ -2,7 +2,7 @@
 
 import { memo, useEffect, useRef } from "react";
 import { useKakaoMap } from "@/features/map/components/kakao-map-provider";
-import type { NearbyBusiness } from "../schema";
+import { useNearbyPlaces } from "@/features/map/hooks/use-nearby-places";
 
 interface CompetitorMapProps {
   /** 분석 중심 위도 */
@@ -11,32 +11,32 @@ interface CompetitorMapProps {
   centerLng: number;
   /** 분석 반경 (미터) */
   radius: number;
-  /** 주변 사업장 목록 */
-  businesses: NearbyBusiness[];
+  /** 업종 키워드 (카카오 Places 검색용) */
+  keyword: string;
+  /** 전체 화면 배경 지도 모드 */
+  fullScreen?: boolean;
 }
 
-/** 상태별 마커 색상 */
-const STATUS_COLOR: Record<string, string> = {
-  active: "#3b82f6",    // 파란색
-  suspended: "#eab308", // 노란색
-  closed: "#6b7280",    // 회색
-};
+const MARKER_COLOR = "#7c3aed";
 
-const STATUS_LABEL: Record<string, string> = {
-  active: "활성",
-  suspended: "휴업",
-  closed: "폐업",
-};
-
-/** 경쟁업체 지도 시각화 */
+/** 경쟁업체 지도 시각화 (카카오 Places 클라이언트 검색) */
 export const CompetitorMap = memo(function CompetitorMap({
   centerLat,
   centerLng,
   radius,
-  businesses,
+  keyword,
+  fullScreen = false,
 }: CompetitorMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const { isLoaded } = useKakaoMap();
+
+  // 스텝 5(RadiusMap)와 동일한 훅으로 주변 업체 검색
+  const { places } = useNearbyPlaces({
+    keyword,
+    lat: centerLat,
+    lng: centerLng,
+    radius,
+  });
 
   useEffect(() => {
     if (!isLoaded || !mapRef.current || !window.kakao?.maps) return;
@@ -44,26 +44,30 @@ export const CompetitorMap = memo(function CompetitorMap({
     const kakao = window.kakao;
     const center = new kakao.maps.LatLng(centerLat, centerLng);
 
-    // 지도 생성
+    /* fullScreen: 바텀시트에 가려지므로 중심을 위쪽(북쪽)으로 보정 */
+    const adjustedCenter = fullScreen
+      ? new kakao.maps.LatLng(centerLat - (radius / 111320) * 1.5, centerLng)
+      : center;
+
     const map = new kakao.maps.Map(mapRef.current, {
-      center,
-      level: radius <= 500 ? 5 : radius <= 1000 ? 6 : 8,
+      center: adjustedCenter,
+      level: radius <= 500 ? 4 : radius <= 1000 ? 5 : 7,
     });
 
-    // 반경 원 오버레이 (setMap 사용 — Circle 생성자에 map 미지원)
+    /* 반경 원 — violet 톤으로 통일 */
     const circle = new kakao.maps.Circle({
       center,
       radius,
-      strokeWeight: 3,
-      strokeColor: "#3b82f6",
+      strokeWeight: 2,
+      strokeColor: "#7c3aed",
       strokeOpacity: 0.6,
       strokeStyle: "solid",
-      fillColor: "#3b82f6",
-      fillOpacity: 0.08,
+      fillColor: "#7c3aed",
+      fillOpacity: 0.1,
     });
     circle.setMap(map);
 
-    // 중심 마커 (선택 위치)
+    /* 중심 마커 (선택 위치) */
     new kakao.maps.Marker({
       position: center,
       map,
@@ -73,35 +77,25 @@ export const CompetitorMap = memo(function CompetitorMap({
       ),
     });
 
-    // 현재 열린 오버레이 추적 (마커 간 공유)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let activeOverlay: any = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const markers: any[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const overlays: any[] = [];
 
-    // 경쟁업체 마커 (좌표 없으면 중심점 주변에 분포)
-    businesses.forEach((biz, idx) => {
-      let lat = biz.latitude;
-      let lng = biz.longitude;
+    /* 카카오 Places 마커 — 스텝 5(RadiusMap)와 동일한 렌더링 */
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><circle cx="10" cy="10" r="8" fill="${MARKER_COLOR}" stroke="white" stroke-width="2"/></svg>`;
+    const markerImage = new kakao.maps.MarkerImage(
+      `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`,
+      new kakao.maps.Size(20, 20),
+      { offset: new kakao.maps.Point(10, 10) },
+    );
 
-      if (!lat || !lng) {
-        // 좌표 없는 사업장: 반경 내 랜덤 위치 생성 (시드 기반 일관성)
-        const angle = (idx * 137.508) % 360; // 황금각으로 균일 분포
-        const dist = (0.3 + (idx * 0.618) % 0.7) * radius; // 반경의 30~100%
-        const dLat = (dist * Math.cos(angle * Math.PI / 180)) / 111320;
-        const dLng = (dist * Math.sin(angle * Math.PI / 180)) / (111320 * Math.cos(centerLat * Math.PI / 180));
-        lat = centerLat + dLat;
-        lng = centerLng + dLng;
-      }
-
-      const position = new kakao.maps.LatLng(lat, lng);
-      const color = STATUS_COLOR[biz.status] ?? "#6b7280";
-      const label = STATUS_LABEL[biz.status] ?? biz.status;
-
-      // SVG 마커 (상태별 색상)
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><circle cx="10" cy="10" r="8" fill="${color}" stroke="white" stroke-width="2"/></svg>`;
-      const markerImage = new kakao.maps.MarkerImage(
-        `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`,
-        new kakao.maps.Size(20, 20),
-        { offset: new kakao.maps.Point(10, 10) },
+    places.forEach((place) => {
+      const position = new kakao.maps.LatLng(
+        parseFloat(place.y),
+        parseFloat(place.x),
       );
 
       const marker = new kakao.maps.Marker({
@@ -110,34 +104,20 @@ export const CompetitorMap = memo(function CompetitorMap({
         image: markerImage,
       });
 
-      // 커스텀 오버레이 (인포윈도우 대체 — 스타일 제어 용이)
       const overlayContent = document.createElement("div");
       overlayContent.innerHTML = `
         <div style="
-          padding:8px 12px;
-          font-size:13px;
-          min-width:150px;
-          color:#333;
-          background:#fff;
-          border-radius:8px;
-          border:1px solid #ddd;
-          box-shadow:0 2px 6px rgba(0,0,0,0.15);
-          white-space:nowrap;
-          transform:translateY(-100%);
-          margin-bottom:12px;
-          position:relative;
+          padding:8px 12px;font-size:13px;min-width:140px;max-width:220px;
+          color:#333;background:#fff;border-radius:8px;border:1px solid #ddd;
+          box-shadow:0 2px 6px rgba(0,0,0,0.15);transform:translateY(-100%);
+          margin-bottom:12px;position:relative;
         ">
-          <strong>${biz.name}</strong><br/>
-          직원 ${biz.employeeCount}명 · <span style="color:${color}">${label}</span>
+          <strong style="display:block;margin-bottom:2px;">${place.place_name}</strong>
+          <span style="color:#666;font-size:12px;">${place.road_address_name || place.address_name}</span>
           <div style="
-            position:absolute;
-            bottom:-8px;
-            left:50%;
-            transform:translateX(-50%);
-            width:0;height:0;
-            border-left:8px solid transparent;
-            border-right:8px solid transparent;
-            border-top:8px solid #fff;
+            position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
+            width:0;height:0;border-left:8px solid transparent;
+            border-right:8px solid transparent;border-top:8px solid #fff;
             filter:drop-shadow(0 1px 1px rgba(0,0,0,0.1));
           "></div>
         </div>
@@ -151,16 +131,15 @@ export const CompetitorMap = memo(function CompetitorMap({
       });
 
       kakao.maps.event.addListener(marker, "click", () => {
-        // 이전 오버레이 닫기
-        if (activeOverlay) {
-          activeOverlay.setMap(null);
-        }
+        if (activeOverlay) activeOverlay.setMap(null);
         overlay.setMap(map);
         activeOverlay = overlay;
       });
+
+      markers.push(marker);
+      overlays.push(overlay);
     });
 
-    // 지도 클릭 시 오버레이 닫기
     kakao.maps.event.addListener(map, "click", () => {
       if (activeOverlay) {
         activeOverlay.setMap(null);
@@ -168,13 +147,30 @@ export const CompetitorMap = memo(function CompetitorMap({
       }
     });
 
-    // 줌 컨트롤
-    map.addControl(
-      new kakao.maps.ZoomControl(),
-      kakao.maps.ControlPosition.RIGHT,
-    );
-  }, [isLoaded, centerLat, centerLng, radius, businesses]);
+    /* 줌 컨트롤 — fullScreen에서는 제거 */
+    if (!fullScreen) {
+      map.addControl(
+        new kakao.maps.ZoomControl(),
+        kakao.maps.ControlPosition.RIGHT,
+      );
+    }
 
+    // cleanup: 마커·오버레이·원 제거 (메모리 누수 방지)
+    return () => {
+      markers.forEach((m) => m.setMap(null));
+      overlays.forEach((o) => o.setMap(null));
+      if (activeOverlay) activeOverlay.setMap(null);
+      circle.setMap(null);
+    };
+  }, [isLoaded, centerLat, centerLng, radius, places, fullScreen]);
+
+  /* 전체 화면 모드 (배경 지도) */
+  if (fullScreen) {
+    if (!isLoaded) return <div className="absolute inset-0 bg-muted" />;
+    return <div ref={mapRef} className="absolute inset-0" />;
+  }
+
+  /* 기본 모드 (카드 내 임베드) */
   if (!isLoaded) {
     return (
       <div className="w-full h-[400px] bg-muted rounded-lg flex items-center justify-center">
@@ -189,16 +185,8 @@ export const CompetitorMap = memo(function CompetitorMap({
       {/* 범례 */}
       <div className="flex gap-4 text-sm text-muted-foreground">
         <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded-full bg-blue-500" />
-          활성
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded-full bg-yellow-500" />
-          휴업
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded-full bg-gray-500" />
-          폐업
+          <span className="inline-block w-3 h-3 rounded-full" style={{ background: MARKER_COLOR }} />
+          경쟁업체
         </span>
         <span className="flex items-center gap-1">
           <span className="inline-block w-3 h-3 text-yellow-400">★</span>

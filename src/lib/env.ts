@@ -35,6 +35,8 @@ const envSchema = z.object({
   SEOUL_OPEN_API_KEY: z.string().optional(),
   /** 통계청 KOSIS API 키 (선택) */
   KOSIS_API_KEY: z.string().optional(),
+  /** 공정거래위원회 가맹사업거래 API 키 (선택) */
+  FRANCHISE_OPEN_API_KEY: z.string().optional(),
 });
 
 export const env = envSchema.parse({
@@ -49,6 +51,7 @@ export const env = envSchema.parse({
   ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
   SEOUL_OPEN_API_KEY: process.env.SEOUL_OPEN_API_KEY,
   KOSIS_API_KEY: process.env.KOSIS_API_KEY,
+  FRANCHISE_OPEN_API_KEY: process.env.FRANCHISE_OPEN_API_KEY,
 });
 
 /** 외부 API 키 존재 여부 헬퍼 */
@@ -60,4 +63,5 @@ export const hasApiKey = {
   redis: Boolean(env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN),
   kosis: Boolean(env.KOSIS_API_KEY),
   seoul: Boolean(env.SEOUL_OPEN_API_KEY),
+  franchise: Boolean(env.FRANCHISE_OPEN_API_KEY),
 } as const;

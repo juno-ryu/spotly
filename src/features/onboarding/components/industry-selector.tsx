@@ -18,14 +18,14 @@ import {
 
 const HEADER_TEXT = "어떤 창업을 생각하고 계신가요?";
 const TYPING_SPEED = 33;
+import { GRADIENT_TEXT_STYLE as GRADIENT_STYLE } from "@/constants/site";
 
 interface IndustrySelectorProps {
   onNext: (industry: OnboardingIndustry) => void;
-  onBack: () => void;
 }
 
 /** Step 2: 업종 선택 — 검색 + 핫한 창업 아이템 추천 */
-export function IndustrySelector({ onNext, onBack }: IndustrySelectorProps) {
+export function IndustrySelector({ onNext }: IndustrySelectorProps) {
   const [selected, setSelected] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -181,9 +181,15 @@ export function IndustrySelector({ onNext, onBack }: IndustrySelectorProps) {
       {/* 대화 텍스트 — 타이핑 애니메이션 */}
       <div className="pt-16 pb-6">
         <h2 className="text-xl font-bold text-left leading-snug">
-          {headerText}
+          {headerText.split("창업").map((part, i, arr) =>
+            i < arr.length - 1 ? (
+              <span key={i}>{part}<span style={GRADIENT_STYLE}>창업</span></span>
+            ) : (
+              <span key={i}>{part}</span>
+            ),
+          )}
           {!headerDone && (
-            <span className="animate-blink-cursor font-normal text-pink-400">
+            <span className="animate-blink-cursor font-normal text-violet-400">
               _
             </span>
           )}
@@ -281,13 +287,6 @@ export function IndustrySelector({ onNext, onBack }: IndustrySelectorProps) {
         </div>
       )}
 
-      {/* 뒤로 버튼 */}
-      <div className="mt-auto pb-8 pt-4">
-        <Button variant="ghost" size="sm" onClick={onBack}>
-          <ArrowLeft className="h-4 w-4" />
-          뒤로
-        </Button>
-      </div>
 
       {/* 스크린리더 알림 */}
       <div aria-live="polite" className="sr-only">

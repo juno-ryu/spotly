@@ -8,7 +8,7 @@ const USE_MOCK =
 
 // ─── Zod 스키마 ───
 
-/** KOSIS API 응답 아이템 */
+/** KOSIS API 응답 아이템 (테이블마다 필드가 다를 수 있어 passthrough) */
 const kosisItemSchema = z.object({
   /** 항목 ID */
   ITM_ID: z.string(),
@@ -16,13 +16,13 @@ const kosisItemSchema = z.object({
   ITM_NM: z.string(),
   /** 데이터 값 (문자열) */
   DT: z.string(),
-  /** 분류코드 (시군구코드) */
+  /** 분류코드 (시군구/읍면동 코드) */
   C1: z.string(),
   /** 분류명 */
   C1_NM: z.string(),
   /** 통계표 ID */
   TBL_ID: z.string(),
-});
+}).passthrough();
 type KosisItem = z.infer<typeof kosisItemSchema>;
 
 /** 인구 데이터 */
@@ -31,6 +31,8 @@ export interface PopulationData {
   totalPopulation: number;
   /** 세대수 */
   households: number;
+  /** 동 단위 데이터 여부 (false면 시군구 단위 fallback) */
+  isDongLevel?: boolean;
 }
 
 // ─── 내부 유틸 ───
@@ -45,6 +47,7 @@ function parseKosisNumber(value: string): number {
 async function kosisRequest(params: {
   tblId: string;
   objL1: string;
+  objL2?: string;
   itmId: string;
   prdSe: string;
   startPrdDe: string;
@@ -54,7 +57,7 @@ async function kosisRequest(params: {
 
   // NOTE: URL.searchParams는 base64 키의 '='를 '%3D'로 인코딩하여 KOSIS가 거부함.
   // 쿼리스트링을 직접 조합하여 '='가 그대로 전달되도록 처리.
-  const qs = [
+  const parts = [
     `method=getList`,
     `apiKey=${apiKey}`,
     `format=json`,
@@ -66,7 +69,11 @@ async function kosisRequest(params: {
     `prdSe=${params.prdSe}`,
     `startPrdDe=${params.startPrdDe}`,
     `endPrdDe=${params.endPrdDe}`,
-  ].join("&");
+  ];
+  if (params.objL2 !== undefined) {
+    parts.push(`objL2=${params.objL2}`);
+  }
+  const qs = parts.join("&");
 
   console.log(`[API 요청] KOSIS — tblId:${params.tblId} 지역:${params.objL1} 항목:${params.itmId}`);
   const res = await fetch(`${KOSIS_BASE_URL}?${qs}`);
@@ -135,6 +142,58 @@ export async function getPopulationByDistrict(
       : 0;
 
   return { totalPopulation, households };
+}
+
+/**
+ * 읍면동별 인구 조회 (동 단위, 시군구 fallback)
+ * - DT_1B04005N: 행정구역(읍면동)별/5세별 주민등록인구(2011년~)
+ *   → itmId=T2(총인구수), objL2=0(전체 연령=계)
+ * @param adminDongCode 행정동코드 10자리 (예: "2635053000")
+ * @param districtCode 5자리 시군구코드 (fallback용)
+ */
+export async function getPopulationByDong(
+  adminDongCode: string | undefined,
+  districtCode: string,
+): Promise<PopulationData> {
+  // 행정동코드가 없으면 바로 시군구 fallback
+  if (!adminDongCode) {
+    console.log(`[KOSIS] 행정동코드 없음 → 시군구(${districtCode}) fallback`);
+    const result = await getPopulationByDistrict(districtCode);
+    return { ...result, isDongLevel: false };
+  }
+
+  try {
+    const lastYear = String(new Date().getFullYear() - 1);
+
+    const populationItems = await kosisRequest({
+      tblId: "DT_1B04005N",
+      objL1: adminDongCode,
+      objL2: "0",
+      itmId: "T2",
+      prdSe: "Y",
+      startPrdDe: lastYear,
+      endPrdDe: lastYear,
+    });
+
+    const totalPopulation =
+      populationItems.length > 0 ? parseKosisNumber(populationItems[0].DT) : 0;
+
+    // 동 단위 데이터가 있으면 사용
+    if (totalPopulation > 0) {
+      console.log(`[KOSIS] ✅ 읍면동(${adminDongCode}) 인구 ${totalPopulation.toLocaleString()}명`);
+      return { totalPopulation, households: 0, isDongLevel: true };
+    }
+
+    // 데이터 없으면 시군구 fallback
+    console.log(`[KOSIS] 읍면동(${adminDongCode}) 데이터 없음 → 시군구(${districtCode}) fallback`);
+    const fallback = await getPopulationByDistrict(districtCode);
+    return { ...fallback, isDongLevel: false };
+  } catch (error) {
+    // 읍면동 테이블 조회 실패 → 시군구 fallback
+    console.warn(`[KOSIS] 읍면동 조회 실패 → 시군구(${districtCode}) fallback:`, error);
+    const fallback = await getPopulationByDistrict(districtCode);
+    return { ...fallback, isDongLevel: false };
+  }
 }
 
 /** mock 데이터 → PopulationData 변환 */

@@ -31,8 +31,3 @@ export function snapRadius(meters: number): number {
   const snapped = Math.round(meters / 50) * 50;
   return Math.max(100, Math.min(3000, snapped));
 }
-
-/** 반경을 사람이 읽기 좋은 문자열로 변환 */
-export function formatRadius(meters: number): string {
-  return meters >= 1000 ? `${(meters / 1000).toFixed(1)}km` : `${meters}m`;
-}

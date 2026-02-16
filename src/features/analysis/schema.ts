@@ -7,14 +7,16 @@ export const analysisRequestSchema = z.object({
   industryName: z.string(),
   radius: z
     .number()
-    .refine(
-      (v) => [500, 1000, 3000].includes(v),
-      "유효하지 않은 반경입니다",
-    ),
+    .min(100, "반경은 최소 100m입니다")
+    .max(3000, "반경은 최대 3000m입니다"),
   latitude: z.number().min(33).max(39),
   longitude: z.number().min(124).max(132),
-  /** 법정동코드 앞 5자리 (클라이언트에서 직접 전달, 없으면 서버 지오코딩 폴백) */
+  /** 법정동코드 앞 5자리 (클라이언트에서 직접 전달, 없으면 서버 지오코딩 fallback) */
   districtCode: z.string().trim().length(5).optional(),
+  /** 행정동코드 10자리 (클라이언트 Kakao SDK에서 전달, KOSIS 읍면동 인구 조회용) */
+  adminDongCode: z.string().trim().length(10).optional(),
+  /** 동 이름 (예: "역삼동") */
+  dongName: z.string().trim().optional(),
 });
 export type AnalysisRequest = z.infer<typeof analysisRequestSchema>;
 
@@ -37,11 +39,7 @@ export type ScoreBreakdown = z.infer<typeof scoreBreakdownSchema>;
 export const nearbyBusinessSchema = z.object({
   name: z.string(),
   address: z.string(),
-  employeeCount: z.number(),
-  status: z.enum(["active", "suspended", "closed"]),
-  monthlyTrend: z.array(z.number()),
-  latitude: z.number().optional(),
-  longitude: z.number().optional(),
+  status: z.enum(["active", "closed"]),
 });
 export type NearbyBusiness = z.infer<typeof nearbyBusinessSchema>;
 

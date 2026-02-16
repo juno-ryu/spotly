@@ -44,4 +44,16 @@ export interface RegionInfo {
   region3: string;
   /** 시군구 코드 (앞 5자리, NPS API용) */
   districtCode: string;
+  /** 행정동 코드 (10자리, KOSIS 읍면동 인구 조회용) */
+  adminDongCode?: string;
+  /** 동 이름 (예: "역삼동") */
+  dongName?: string;
+}
+
+/** 공정위 가맹사업거래 API 응답 (franchise.ftc.go.kr) */
+export interface FranchiseApiResponse<T> {
+  resultCode?: string;
+  resultMsg?: string;
+  totalCount?: number;
+  data?: T[];
 }

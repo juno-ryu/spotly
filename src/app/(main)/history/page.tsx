@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { prisma } from "@/server/db/prisma";
 import { Badge } from "@/components/ui/badge";
+import { BackButton } from "@/components/back-button";
 import {
   Table,
   TableBody,
@@ -36,7 +37,8 @@ export default async function HistoryPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">분석 이력</h1>
+      <BackButton />
+      <h1 className="text-2xl font-bold pl-14">분석 이력</h1>
 
       {analyses.length === 0 ? (
         <p className="text-muted-foreground">

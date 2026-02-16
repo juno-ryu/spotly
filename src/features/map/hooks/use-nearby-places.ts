@@ -13,6 +13,7 @@ interface UseNearbyPlacesParams {
 
 interface UseNearbyPlacesResult {
   places: KakaoPlaceResult[];
+  totalCount: number;
   isLoading: boolean;
 }
 
@@ -27,6 +28,7 @@ export function useNearbyPlaces({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const placesRef = useRef<any>(null);
   const [places, setPlaces] = useState<KakaoPlaceResult[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
   // Places 인스턴스 생성
@@ -41,6 +43,7 @@ export function useNearbyPlaces({
   useEffect(() => {
     if (!placesRef.current || !keyword) {
       setPlaces([]);
+      setTotalCount(0);
       return;
     }
 
@@ -60,15 +63,17 @@ export function useNearbyPlaces({
 
         if (status === window.kakao.maps.services.Status.OK) {
           accumulated.push(...result);
-          setPlaces([...accumulated]);
+          setTotalCount(pagination.totalCount);
 
-          // 다음 페이지가 있으면 계속 요청 (최대 45페이지 = 675개)
+          // 다음 페이지가 있으면 계속 요청 (최대 3페이지 = 45개)
           if (pagination.hasNextPage) {
             pagination.nextPage();
             return;
           }
         }
 
+        // 모든 페이지 완료 후 한 번만 상태 업데이트
+        setPlaces(accumulated.length > 0 ? accumulated : []);
         setIsLoading(false);
       };
 
@@ -87,5 +92,5 @@ export function useNearbyPlaces({
     };
   }, [keyword, lat, lng, radius]);
 
-  return { places, isLoading };
+  return { places, totalCount, isLoading };
 }

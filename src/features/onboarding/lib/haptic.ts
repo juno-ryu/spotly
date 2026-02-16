@@ -4,9 +4,3 @@ export function hapticLight() {
     navigator.vibrate(30);
   }
 }
-
-export function hapticSuccess() {
-  if (typeof navigator !== "undefined" && navigator.vibrate) {
-    navigator.vibrate([20, 40, 20]);
-  }
-}

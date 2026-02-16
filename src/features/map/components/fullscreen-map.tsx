@@ -284,16 +284,6 @@ export function FullscreenMap({
   return (
     <>
       <div ref={mapContainerRef} className="fixed inset-0" />
-
-      {/* 현위치 버튼 */}
-      <button
-        type="button"
-        onClick={moveToCurrentPosition}
-        className="fixed right-4 bottom-40 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-background shadow-lg border"
-        aria-label="현위치로 이동"
-      >
-        <span className="text-lg">◎</span>
-      </button>
     </>
   );
 }

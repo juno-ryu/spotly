@@ -67,7 +67,7 @@ export function BusinessTable({ businesses }: BusinessTableProps) {
           const statusConfig = STATUS_CONFIG[biz.status];
 
           return (
-            <TableRow key={i}>
+            <TableRow key={`${biz.name}-${biz.status}`}>
               <TableCell className="font-medium">{biz.name}</TableCell>
               <TableCell className="text-right">{biz.employeeCount}명</TableCell>
               <TableCell>

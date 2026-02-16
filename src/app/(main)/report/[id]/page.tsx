@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { prisma } from "@/server/db/prisma";
 import { notFound } from "next/navigation";
+import { BackButton } from "@/components/back-button";
 import { ReportViewer } from "@/features/report/components/report-viewer";
 import type { AiReport } from "@/features/report/schema";
 
@@ -27,7 +28,8 @@ export default async function ReportPage({
 
   return (
     <div className="py-4 space-y-4">
-      <div>
+      <BackButton />
+      <div className="pl-14">
         <h1 className="text-2xl font-bold">{analysis.address}</h1>
         <p className="text-muted-foreground">{analysis.industryName} · AI 리포트</p>
       </div>

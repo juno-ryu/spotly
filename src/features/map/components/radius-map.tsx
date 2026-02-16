@@ -6,8 +6,8 @@ import {
   getDistanceMeters,
   getPointAtDistance,
   snapRadius,
-  formatRadius,
 } from "@/lib/geo-utils";
+import { formatRadius } from "@/lib/format";
 
 interface RadiusMapProps {
   centerLat: number;
@@ -117,7 +117,11 @@ export function RadiusMap({
     circleRef.current = circle;
 
     // 드래그 핸들 + 반경 라벨 (하나의 컨테이너)
-    const handlePos = getPointAtDistance(centerLat, centerLng, radiusRef.current);
+    const handlePos = getPointAtDistance(
+      centerLat,
+      centerLng,
+      radiusRef.current,
+    );
     const handleContent = document.createElement("div");
     handleContent.innerHTML = `
       <div data-handle-dot style="
@@ -150,7 +154,9 @@ export function RadiusMap({
     handleOverlayRef.current = handleOverlay;
 
     // labelOverlayRef는 handleContent 내부 라벨 엘리먼트를 참조
-    const labelEl = handleContent.querySelector("[data-handle-label]") as HTMLDivElement;
+    const labelEl = handleContent.querySelector(
+      "[data-handle-label]",
+    ) as HTMLDivElement;
     labelOverlayRef.current = { labelEl, overlay: handleOverlay };
 
     // ─── idle 이벤트: 지도 중심 이동 시 원 + 핸들 재배치 (onCenterChanged가 있을 때만) ───
@@ -168,8 +174,14 @@ export function RadiusMap({
       circle.setPosition(new kakao.maps.LatLng(newLat, newLng));
 
       // 핸들 재배치
-      const newHandlePos = getPointAtDistance(newLat, newLng, radiusRef.current);
-      handleOverlay.setPosition(new kakao.maps.LatLng(newHandlePos.lat, newHandlePos.lng));
+      const newHandlePos = getPointAtDistance(
+        newLat,
+        newLng,
+        radiusRef.current,
+      );
+      handleOverlay.setPosition(
+        new kakao.maps.LatLng(newHandlePos.lat, newHandlePos.lng),
+      );
 
       onCenterChangedRef.current(newLat, newLng);
     });
@@ -196,10 +208,18 @@ export function RadiusMap({
     const startDrag = () => {
       dragging = true;
       setIsDragging(true);
-      const dot = handleContent.querySelector("[data-handle-dot]") as HTMLDivElement;
+      const dot = handleContent.querySelector(
+        "[data-handle-dot]",
+      ) as HTMLDivElement;
       if (dot) dot.style.transform = "scale(1.3)";
       handleContent.style.cursor = "grabbing";
-      try { navigator?.vibrate?.(10); } catch { /* 무시 */ }
+      // 드래그 중에만 mousemove 등록 (성능 최적화)
+      document.addEventListener("mousemove", onMouseMove);
+      try {
+        navigator?.vibrate?.(10);
+      } catch {
+        /* 무시 */
+      }
     };
 
     /** 드래그 이동 공통 로직 — 동적 중심 기준 거리 계산 */
@@ -223,13 +243,21 @@ export function RadiusMap({
       const snapped = snapRadius(dist);
 
       circle.setRadius(snapped);
-      const newPos = getPointAtDistance(centerLatRef.current, centerLngRef.current, snapped);
+      const newPos = getPointAtDistance(
+        centerLatRef.current,
+        centerLngRef.current,
+        snapped,
+      );
       handleOverlay.setPosition(new kakao.maps.LatLng(newPos.lat, newPos.lng));
       labelEl.textContent = formatRadius(snapped);
 
       if (snapped !== prevSnapped) {
         prevSnapped = snapped;
-        try { navigator?.vibrate?.(5); } catch { /* 무시 */ }
+        try {
+          navigator?.vibrate?.(5);
+        } catch {
+          /* 무시 */
+        }
       }
 
       radiusRef.current = snapped;
@@ -240,7 +268,11 @@ export function RadiusMap({
       if (!dragging) return;
       dragging = false;
       setIsDragging(false);
-      const dot = handleContent.querySelector("[data-handle-dot]") as HTMLDivElement;
+      // 드래그 종료 시 mousemove 해제 (성능 최적화)
+      document.removeEventListener("mousemove", onMouseMove);
+      const dot = handleContent.querySelector(
+        "[data-handle-dot]",
+      ) as HTMLDivElement;
       if (dot) dot.style.transform = "scale(1)";
       handleContent.style.cursor = "grab";
       onRadiusChangeRef.current(radiusRef.current);
@@ -272,11 +304,15 @@ export function RadiusMap({
     };
     const onMouseUp = () => endDrag();
 
-    handleContent.addEventListener("touchstart", onTouchStart, { passive: false });
-    handleContent.addEventListener("touchmove", onTouchMove, { passive: false });
+    handleContent.addEventListener("touchstart", onTouchStart, {
+      passive: false,
+    });
+    handleContent.addEventListener("touchmove", onTouchMove, {
+      passive: false,
+    });
     handleContent.addEventListener("touchend", onTouchEnd);
     handleContent.addEventListener("mousedown", onMouseDown);
-    document.addEventListener("mousemove", onMouseMove);
+    // mousemove는 startDrag()에서 조건부 등록 (성능 최적화)
     document.addEventListener("mouseup", onMouseUp);
 
     // 지도 드래그 중 핸들 터치 방지
@@ -307,13 +343,27 @@ export function RadiusMap({
 
   // 반경 외부 변경 시 동기화 (동적 중심 기준)
   useEffect(() => {
-    if (!circleRef.current || !handleOverlayRef.current || !labelOverlayRef.current || !window.kakao?.maps)
+    if (
+      !circleRef.current ||
+      !handleOverlayRef.current ||
+      !labelOverlayRef.current ||
+      !window.kakao?.maps
+    )
       return;
     const kakao = window.kakao;
     circleRef.current.setRadius(radius);
-    const pos = getPointAtDistance(centerLatRef.current, centerLngRef.current, radius);
-    handleOverlayRef.current.setPosition(new kakao.maps.LatLng(pos.lat, pos.lng));
-    const ref = labelOverlayRef.current as { labelEl: HTMLDivElement; overlay: unknown };
+    const pos = getPointAtDistance(
+      centerLatRef.current,
+      centerLngRef.current,
+      radius,
+    );
+    handleOverlayRef.current.setPosition(
+      new kakao.maps.LatLng(pos.lat, pos.lng),
+    );
+    const ref = labelOverlayRef.current as {
+      labelEl: HTMLDivElement;
+      overlay: unknown;
+    };
     if (ref.labelEl) ref.labelEl.textContent = formatRadius(radius);
   }, [radius]);
 
@@ -327,7 +377,10 @@ export function RadiusMap({
       <circle cx="8" cy="8" r="6" fill="#3b82f6" stroke="white" stroke-width="2"/>
     </svg>`;
     currentMarkerRef.current = new kakao.maps.Marker({
-      position: new kakao.maps.LatLng(currentPosition.latitude, currentPosition.longitude),
+      position: new kakao.maps.LatLng(
+        currentPosition.latitude,
+        currentPosition.longitude,
+      ),
       map: mapRef.current,
       image: new kakao.maps.MarkerImage(
         `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`,
@@ -430,7 +483,10 @@ export function RadiusMap({
     if (!mapRef.current || !currentPosition || !window.kakao?.maps) return;
     const kakao = window.kakao;
     mapRef.current.panTo(
-      new kakao.maps.LatLng(currentPosition.latitude, currentPosition.longitude),
+      new kakao.maps.LatLng(
+        currentPosition.latitude,
+        currentPosition.longitude,
+      ),
     );
   }, [currentPosition]);
 
@@ -445,23 +501,12 @@ export function RadiusMap({
   return (
     <>
       <div ref={mapContainerRef} className="fixed inset-0" />
-
       {/* 드래그 중 반경 표시 오버레이 */}
       {isDragging && (
         <div className="fixed top-12 left-1/2 -translate-x-1/2 z-50 bg-violet-600 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg">
           반경 {formatRadius(radius)}
         </div>
       )}
-
-      {/* 현위치 버튼 */}
-      <button
-        type="button"
-        onClick={moveToCurrentPosition}
-        className="fixed right-4 bottom-44 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-background shadow-lg border"
-        aria-label="현위치로 이동"
-      >
-        <span className="text-lg">◎</span>
-      </button>
     </>
   );
 }

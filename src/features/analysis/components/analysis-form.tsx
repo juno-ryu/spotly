@@ -92,7 +92,7 @@ export function AnalysisForm() {
         return;
       }
 
-      router.push(`/analyze/${data.id}`);
+      // router.push(`/analyze/${data.id}`);
     } catch {
       toast.error("분석 요청 중 오류가 발생했습니다");
     } finally {

@@ -1,25 +1,120 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 /** Kakao Maps JS SDK 글로벌 타입 선언 */
+
+/** 카카오 맵 인스턴스 */
+interface KakaoMapInstance {
+  setCenter: (latlng: KakaoLatLng) => void;
+  getCenter: () => KakaoLatLng;
+  setLevel: (level: number) => void;
+  getLevel: () => number;
+  addControl: (control: KakaoMapControl, position: number) => void;
+  removeControl: (control: KakaoMapControl) => void;
+  setBounds: (bounds: KakaoLatLngBounds) => void;
+  getProjection: () => KakaoMapProjection;
+}
+
+/** 카카오 맵 프로젝션 */
+interface KakaoMapProjection {
+  coordsFromContainerPoint: (point: KakaoPoint) => KakaoLatLng;
+  containerPointFromCoords: (latlng: KakaoLatLng) => KakaoPoint;
+}
+
+/** 카카오 위경도 */
+interface KakaoLatLng {
+  getLat: () => number;
+  getLng: () => number;
+}
+
+/** 카카오 사이즈 */
+interface KakaoSize {
+  width: number;
+  height: number;
+}
+
+/** 카카오 포인트 */
+interface KakaoPoint {
+  x: number;
+  y: number;
+}
+
+/** 카카오 마커 */
+interface KakaoMarker {
+  setMap: (map: KakaoMapInstance | null) => void;
+  getPosition: () => KakaoLatLng;
+  setPosition: (latlng: KakaoLatLng) => void;
+}
+
+/** 카카오 원형 오버레이 */
+interface KakaoCircle {
+  setMap: (map: KakaoMapInstance | null) => void;
+  setPosition: (latlng: KakaoLatLng) => void;
+  setRadius: (radius: number) => void;
+}
+
+/** 카카오 커스텀 오버레이 */
+interface KakaoCustomOverlay {
+  setMap: (map: KakaoMapInstance | null) => void;
+  getMap: () => KakaoMapInstance | null;
+  setPosition: (latlng: KakaoLatLng) => void;
+}
+
+/** 카카오 인포윈도우 */
+interface KakaoInfoWindow {
+  open: (map: KakaoMapInstance, marker: KakaoMarker) => void;
+  close: () => void;
+  setMap: (map: KakaoMapInstance | null) => void;
+}
+
+/** 카카오 마커 이미지 */
+interface KakaoMarkerImage {
+  _src: string;
+}
+
+/** 카카오 지도 컨트롤 */
+interface KakaoMapControl {
+  setMap?: (map: KakaoMapInstance | null) => void;
+}
+
+/** 카카오 LatLngBounds */
+interface KakaoLatLngBounds {
+  extend: (latlng: KakaoLatLng) => void;
+}
+
 declare global {
   interface Window {
     kakao: {
       maps: {
         load: (callback: () => void) => void;
-        Map: new (container: HTMLElement, options: any) => any;
-        LatLng: new (lat: number, lng: number) => any;
-        Marker: new (options: any) => any;
-        MarkerImage: new (src: string, size: any, options?: any) => any;
-        Size: new (width: number, height: number) => any;
-        Point: new (x: number, y: number) => any;
-        Circle: new (options: any) => any;
-        InfoWindow: new (options: any) => any;
-        CustomOverlay: new (options: any) => any;
-        ZoomControl: new () => any;
-        ControlPosition: { RIGHT: any };
+        Map: new (container: HTMLElement, options: { center: KakaoLatLng; level?: number }) => KakaoMapInstance;
+        LatLng: new (lat: number, lng: number) => KakaoLatLng;
+        Marker: new (options: { position: KakaoLatLng; map?: KakaoMapInstance; image?: KakaoMarkerImage }) => KakaoMarker;
+        MarkerImage: new (src: string, size: KakaoSize, options?: { offset?: KakaoPoint }) => KakaoMarkerImage;
+        Size: new (width: number, height: number) => KakaoSize;
+        Point: new (x: number, y: number) => KakaoPoint;
+        Circle: new (options: {
+          center: KakaoLatLng;
+          radius: number;
+          strokeWeight?: number;
+          strokeColor?: string;
+          strokeOpacity?: number;
+          strokeStyle?: string;
+          fillColor?: string;
+          fillOpacity?: number;
+        }) => KakaoCircle;
+        InfoWindow: new (options: { content?: string | HTMLElement; position?: KakaoLatLng }) => KakaoInfoWindow;
+        CustomOverlay: new (options: {
+          content: string | HTMLElement;
+          position: KakaoLatLng;
+          yAnchor?: number;
+          xAnchor?: number;
+          clickable?: boolean;
+          zIndex?: number;
+        }) => KakaoCustomOverlay;
+        ZoomControl: new () => KakaoMapControl;
+        ControlPosition: { RIGHT: number; TOPRIGHT: number };
+        LatLngBounds: new () => KakaoLatLngBounds;
         event: {
-          addListener: (target: any, type: string, handler: () => void) => void;
-          removeListener: (target: any, type: string, handler: () => void) => void;
+          addListener: (target: object, type: string, handler: (...args: unknown[]) => void) => void;
+          removeListener: (target: object, type: string, handler: (...args: unknown[]) => void) => void;
           /** 지도 이벤트 일시 차단 (CustomOverlay 드래그 시 필수) */
           preventMap: () => void;
         };

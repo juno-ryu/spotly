@@ -19,29 +19,17 @@ import {
 import type { OnboardingIndustry } from "../constants/industries";
 
 const TYPING_SPEED = 33;
-
-/** 그라데이션 텍스트 스타일 (보라색 앵커 + 핑크/오렌지 대비) */
-const GRADIENT_STYLE = {
-  background:
-    "linear-gradient(135deg, #8b5cf6, #db2777, #f43f5e, #fb923c, #db2777, #8b5cf6)",
-  backgroundSize: "200% auto",
-  animation: "gradient-shift 4s ease infinite",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
-  backgroundClip: "text",
-} as const;
+import { GRADIENT_TEXT_STYLE as GRADIENT_STYLE } from "@/constants/site";
 
 interface RegionSelectorProps {
   selectedIndustry: OnboardingIndustry;
   onNext: (region: OnboardingRegion) => void;
-  onBack: () => void;
 }
 
 /** Step 3: 지역 선택 — 검색 + 핫 창업지역 추천 */
 export function RegionSelector({
   selectedIndustry,
   onNext,
-  onBack,
 }: RegionSelectorProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -223,7 +211,7 @@ export function RegionSelector({
           </span>{" "}
           {displayText && renderText(displayText)}
           {!headerDone && (
-            <span className="animate-blink-cursor font-normal text-pink-400">
+            <span className="animate-blink-cursor font-normal text-violet-400">
               _
             </span>
           )}
@@ -328,13 +316,6 @@ export function RegionSelector({
         </div>
       )}
 
-      {/* 뒤로 버튼 */}
-      <div className="mt-auto pb-8 pt-4">
-        <Button variant="ghost" size="sm" onClick={onBack}>
-          <ArrowLeft className="h-4 w-4" />
-          뒤로
-        </Button>
-      </div>
     </div>
   );
 }

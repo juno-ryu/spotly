@@ -1,23 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db/prisma";
 import { analysisRequestSchema } from "@/features/analysis/schema";
-import { aggregateAnalysisData } from "@/features/analysis/lib/data-aggregator";
-import { calculateTotalScore } from "@/features/analysis/lib/scoring-engine";
+import { runAnalysis } from "@/features/analysis/lib/analysis-orchestrator";
 import * as kakaoGeocoding from "@/server/data-sources/kakao-geocoding";
-import { POPULAR_INDUSTRIES } from "@/constants/enums/industry-type";
+import { INDUSTRY_CODES } from "@/features/analysis/constants/industry-codes";
 import type { AnalysisRequest } from "@/features/analysis/schema";
 
-/** 업종코드 → NPS 검색 키워드 추출 */
-function extractSearchKeyword(industryCode: string, industryName: string): string {
-  // 인기 업종 목록에서 첫 번째 keyword 사용
-  const industry = POPULAR_INDUSTRIES.find((i) => i.code === industryCode);
-  if (industry) return industry.keywords[0];
-  // 없으면 이름에서 공통 접미사 제거
-  return industryName.replace(/전문점|음식점|점$/, "") || industryName;
+function extractSearchKeywords(industryCode: string, industryName: string): string[] {
+  const industry = INDUSTRY_CODES.find((i) => i.code === industryCode);
+  if (industry) return [...industry.keywords];
+  const keyword = industryName.replace(/전문점|점$/, "") || industryName;
+  return [keyword];
 }
 
 export async function POST(request: NextRequest) {
-  // 1. 입력 검증
   const body = await request.json();
   const parsed = analysisRequestSchema.safeParse(body);
   if (!parsed.success) {
@@ -27,7 +23,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // 2. DB 레코드 생성 (PENDING)
+  // DB 레코드 생성 (PENDING)
   const analysis = await prisma.analysisRequest.create({
     data: {
       address: parsed.data.address,
@@ -40,12 +36,12 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  // 3. 비동기 분석 실행 (응답은 즉시 반환)
+  // 비동기 분석 실행 (응답은 즉시 반환)
   processAnalysis(analysis.id, parsed.data).catch((err) =>
     console.error(`분석 처리 실패 [${analysis.id}]:`, err),
   );
 
-  // 4. 즉시 ID 반환
+  // 즉시 ID 반환
   return NextResponse.json({ id: analysis.id, status: "PENDING" });
 }
 
@@ -57,36 +53,65 @@ async function processAnalysis(id: string, input: AnalysisRequest) {
   });
 
   try {
-    // 좌표 → 법정동코드 추출 (districtCode가 있으면 Kakao 지오코딩 스킵)
     const region = input.districtCode
       ? { districtCode: input.districtCode, code: input.districtCode + "00000" }
       : await kakaoGeocoding.coordToRegion(input.latitude, input.longitude);
 
-    // 데이터 수집 (병렬)
-    const aggregated = await aggregateAnalysisData({
+    const aggregated = await runAnalysis({
       latitude: input.latitude,
       longitude: input.longitude,
       regionCode: region.districtCode,
-      industryKeyword: extractSearchKeyword(input.industryCode, input.industryName),
+      industryKeywords: extractSearchKeywords(input.industryCode, input.industryName),
       industryCode: input.industryCode,
+      industryName: input.industryName,
       radius: input.radius,
+      adminDongCode: input.adminDongCode,
+      dongName: input.dongName,
     });
 
-    // 점수 계산
-    const score = calculateTotalScore(aggregated);
+    // 콘솔 요약
+    const p = aggregated.places;
+    const c = aggregated.competition;
+    console.log("\n========== 분석 결과 요약 ==========");
+    console.log("[카카오 Places]");
+    console.log(`  경쟁 매장 수: ${p.totalCount}건 (샘플: ${p.fetchedCount}건)`);
+    console.log("[경쟁 분석]");
+    console.log(`  밀집도: 약 ${c.densityPerMeter}m당 1개`);
+    console.log(`  직접 경쟁: ${c.directCompetitorCount}건 (${(c.directCompetitorRatio * 100).toFixed(0)}%)`);
+    console.log(`  간접 경쟁: ${c.indirectCompetitorCount}건`);
+    console.log(`  프랜차이즈: ${c.franchiseCount}건 (${(c.franchiseRatio * 100).toFixed(0)}%)`);
+    console.log(`  경쟁 점수: ${c.competitionScore.score}/100 (${c.competitionScore.grade} — ${c.competitionScore.gradeLabel})`);
+    console.log(`  기준 밀집도: ${c.densityBaseline}m`);
+    if (c.franchiseBrandNames.length > 0) {
+      console.log(`  감지 브랜드: ${c.franchiseBrandNames.join(", ")}`);
+    }
 
-    // DB 업데이트 (완료)
+    if (aggregated.franchise) {
+      console.log(`\n[공정위 프랜차이즈]`);
+      console.log(`  등록 브랜드: ${aggregated.franchise.brands.length}개 (총 ${aggregated.franchise.totalRegistered}건)`);
+    }
+
+    if (aggregated.nps) {
+      const n = aggregated.nps;
+      console.log("\n[NPS 국민연금]");
+      console.log(`  검색 사업장: ${n.totalCount}건`);
+      console.log(`  평균 직원 수: ${n.avgEmployeeCount.toFixed(1)}명`);
+      console.log(`  평균 월 급여: ${Math.round(n.avgMonthlySalary).toLocaleString()}원`);
+      console.log(`  평균 운영 기간: ${n.avgOperatingMonths.toFixed(0)}개월`);
+    } else {
+      console.log("\n[NPS] 데이터 없음");
+    }
+    console.log("====================================\n");
+
+    // DB 저장 — 스코어링 없이 raw 데이터만 저장
     await prisma.analysisRequest.update({
       where: { id },
       data: {
         status: "COMPLETED",
         regionCode: region.code,
-        totalScore: score.total,
-        scoreDetail: score.breakdown,
-        reportData: JSON.parse(JSON.stringify({
-          ...aggregated,
-          confidence: score.confidence,
-        })),
+        totalScore: 0, // 스코어링 추후 구현
+        scoreDetail: {}, // 스코어링 추후 구현
+        reportData: JSON.parse(JSON.stringify(aggregated)),
       },
     });
   } catch (error) {

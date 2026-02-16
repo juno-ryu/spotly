@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { POPULAR_INDUSTRIES } from "@/constants/enums/industry-type";
+import { RECOMMENDED_INDUSTRIES } from "@/features/analysis/constants/industry-codes";
 
 interface IndustrySelectorProps {
   value: { code: string; name: string } | null;
@@ -15,12 +15,12 @@ export function IndustrySelector({ value, onChange }: IndustrySelectorProps) {
   const [search, setSearch] = useState("");
 
   const filtered = search
-    ? POPULAR_INDUSTRIES.filter(
+    ? RECOMMENDED_INDUSTRIES.filter(
         (i) =>
           i.name.includes(search) ||
           i.keywords.some((k) => k.includes(search)),
       )
-    : POPULAR_INDUSTRIES;
+    : RECOMMENDED_INDUSTRIES;
 
   return (
     <div className="space-y-3">

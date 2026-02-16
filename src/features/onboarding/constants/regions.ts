@@ -1,5 +1,5 @@
 /** 기본 지도 줌 레벨 (카카오맵 level — 숫자가 작을수록 확대) */
-export const DEFAULT_MAP_ZOOM = 3;
+export const DEFAULT_MAP_ZOOM = 4;
 
 /** 온보딩 지역 선택 결과 */
 export interface OnboardingRegion {

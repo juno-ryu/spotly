@@ -1,20 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { MapStep } from "@/features/map/components/map-step";
+import { MapRadiusStep } from "@/features/map/components/map-radius-step";
 import { useWizardGuard } from "@/features/analysis/hooks/use-wizard-guard";
 
-/** Step 4: 지도 위치 조정 */
+/** Step 4+5: 지도 위치 선택 + 반경 설정 */
 export default function MapPage() {
-  const router = useRouter();
   const { isReady } = useWizardGuard(["selectedIndustry", "selectedRegion"]);
-
-  useEffect(() => {
-    router.prefetch("/radius");
-  }, [router]);
 
   if (!isReady) return null;
 
-  return <MapStep />;
+  return <MapRadiusStep />;
 }

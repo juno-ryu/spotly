@@ -155,5 +155,5 @@ src/
 5. `.claude/rules/api-health-check.mdc` — 외부 API 상태 확인 (세션 시작 시 curl 테스트)
 6. `claudedocs/prd/소상공인 창업 분석기/prd_20260209.md` — PRD (제품 요구사항, 비즈니스 모델, 스코어링 모델, 로드맵)
 
-읽은 후, `.claude/rules/api-health-check.mdc`의 curl 명령으로 **무조건 외부 API 헬스체크를 수행**한다 (작업 내용과 무관).
-빨간불(FAIL)이 나온 API만 수정하고, 초록불 API는 건드리지 않는다.
+<!-- 읽은 후, `.claude/rules/api-health-check.mdc`의 curl 명령으로 **무조건 외부 API 헬스체크를 수행**한다 (작업 내용과 무관).
+빨간불(FAIL)이 나온 API만 수정하고, 초록불 API는 건드리지 않는다. -->

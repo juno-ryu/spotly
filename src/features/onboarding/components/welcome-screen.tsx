@@ -4,17 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { hapticLight } from "../lib/haptic";
 import { useTypingAnimation } from "../hooks/use-typing-animation";
-
-/** 그라데이션 텍스트 스타일 (보라색 앵커 + 핑크/오렌지 대비) */
-const GRADIENT_STYLE = {
-  background:
-    "linear-gradient(135deg, #8b5cf6, #db2777, #f43f5e, #fb923c, #db2777, #8b5cf6)",
-  backgroundSize: "200% auto",
-  animation: "gradient-shift 4s ease infinite",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
-  backgroundClip: "text",
-} as const;
+import { GRADIENT_TEXT_STYLE as GRADIENT_STYLE } from "@/constants/site";
 
 const STEP1_TEXT = "창업을 준비중이신가요?";
 const STEP2_TEXT = "저와 함께 괜찮은 자리인지\n알아볼까요? 😊";

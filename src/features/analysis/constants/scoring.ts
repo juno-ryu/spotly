@@ -12,21 +12,16 @@ export const SCORING_WEIGHTS = {
   INCOME: 10,
 } as const;
 
-/** 상권 활력도: 복합 지표 기준 (v2: 4-요소) */
-export const VITALITY_THRESHOLDS = {
-  /** 신규 창업 비율 가중치 */
-  NEW_BIZ_WEIGHT: 0.25,
-  /** 평균 직원 규모 가중치 */
-  AVG_EMPLOYEE_WEIGHT: 0.30,
-  /** 활성 비율 가중치 */
-  ACTIVE_RATIO_WEIGHT: 0.25,
-  /** 추이 모멘텀 가중치 (v2 신규) */
-  MOMENTUM_WEIGHT: 0.20,
-  /** 평균 직원수 기준 (이 이상이면 해당 항목 만점) */
-  MAX_AVG_EMPLOYEES: 20,
-  /** 신규 창업 판단 기간 (개월) */
-  NEW_BIZ_MONTHS: 24,
-} as const;
+// 가중치 합 검증 (빌드 시 100이 아니면 즉시 감지)
+const _weightsSum =
+  SCORING_WEIGHTS.VITALITY +
+  SCORING_WEIGHTS.COMPETITION +
+  SCORING_WEIGHTS.SURVIVAL +
+  SCORING_WEIGHTS.RESIDENTIAL +
+  SCORING_WEIGHTS.INCOME;
+if (_weightsSum !== 100) {
+  throw new Error(`SCORING_WEIGHTS 합계가 100이 아닙니다: ${_weightsSum}`);
+}
 
 /** 경쟁 강도: 업종별 기준 밀도 (개/km²) */
 export const COMPETITION_BASE_DENSITY: Record<string, number> = {
@@ -39,12 +34,12 @@ export const COMPETITION_BASE_DENSITY: Record<string, number> = {
   S96112: 8,  // 미용실
 };
 
-/** 생존율 기준 */
+/** 생존율 기준 (NPS 가입유지율 기반, 과거 탈퇴 포함 특성 반영) */
 export const SURVIVAL_THRESHOLDS = {
   /** 이 이상이면 만점 */
-  MAX_RATE: 0.9,
+  MAX_RATE: 0.8,
   /** 이 이하면 0점 */
-  MIN_RATE: 0.5,
+  MIN_RATE: 0.3,
 } as const;
 
 /** 전국 평균 아파트 거래가 (만원, 2026 Q1 기준) */

@@ -21,6 +21,8 @@ export const CACHE_TTL = {
   KOSIS: 30 * 24 * 60 * 60,
   /** 7일 (서울시 골목상권 분기별 갱신 데이터) */
   SEOUL: 7 * 24 * 60 * 60,
+  /** 30일 (공정위 프랜차이즈 목록, 연간 갱신) */
+  FRANCHISE: 30 * 24 * 60 * 60,
   /** 24시간 (분석 결과) */
   ANALYSIS: 24 * 60 * 60,
 } as const;
@@ -33,10 +35,20 @@ export async function cachedFetch<T>(
 ): Promise<T> {
   if (!redis) return fetcher();
 
-  const cached = await redis.get<T>(key);
-  if (cached !== null) return cached;
+  // Redis 읽기 실패 시 fetcher로 fallback (서비스 중단 방지)
+  try {
+    const cached = await redis.get<T>(key);
+    if (cached !== null) return cached;
+  } catch (err) {
+    console.warn(`[Redis] 캐시 읽기 실패 (key=${key}):`, err);
+  }
 
   const data = await fetcher();
-  await redis.set(key, data, { ex: ttl });
+
+  // 캐시 쓰기는 fire-and-forget (실패해도 응답에 영향 없음)
+  redis.set(key, data, { ex: ttl }).catch((err) => {
+    console.warn(`[Redis] 캐시 쓰기 실패 (key=${key}):`, err);
+  });
+
   return data;
 }

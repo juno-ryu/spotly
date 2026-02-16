@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { BackButton } from "@/components/back-button";
 import { IndustrySelector } from "@/features/onboarding/components/industry-selector";
 import { useWizardStore } from "@/features/analysis/stores/wizard-store";
 import type { OnboardingIndustry } from "@/features/onboarding/constants/industries";
@@ -28,9 +29,10 @@ export default function IndustryPage() {
     [setSelectedIndustry, router],
   );
 
-  const handleBack = useCallback(() => {
-    router.back();
-  }, [router]);
-
-  return <IndustrySelector onNext={handleNext} onBack={handleBack} />;
+  return (
+    <>
+      <BackButton />
+      <IndustrySelector onNext={handleNext} />
+    </>
+  );
 }

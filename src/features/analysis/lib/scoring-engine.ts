@@ -1,7 +1,6 @@
 import type { ScoreBreakdown } from "../schema";
 import {
   SCORING_WEIGHTS,
-  VITALITY_THRESHOLDS,
   COMPETITION_BASE_DENSITY,
   SURVIVAL_THRESHOLDS,
   RESIDENTIAL_THRESHOLDS,
@@ -11,7 +10,10 @@ import {
   TRADE_RATE_THRESHOLDS,
   VOLUME_INDEX_THRESHOLDS,
 } from "../constants/scoring";
-import type { AggregatedData } from "./data-aggregator";
+import type { AnalysisResult } from "./analysis-orchestrator";
+
+// TODO: 스코어링 엔진 전면 개편 예정 — 현재 AggregatedData → AnalysisResult 구조 변경으로 타입 불일치
+type AggregatedData = AnalysisResult;
 
 /** 신뢰도 정보 (v2) */
 export interface ScoreConfidence {
@@ -35,6 +37,16 @@ export interface ScoreResult {
   confidence: ScoreConfidence;
 }
 
+/** 소수점 첫째 자리 반올림 */
+function roundTenth(v: number): number {
+  return Math.round(v * 10) / 10;
+}
+
+/** 소수점 둘째 자리 반올림 */
+function roundHundredth(v: number): number {
+  return Math.round(v * 100) / 100;
+}
+
 /** 선형 보간: min~max 범위를 0~maxScore로 정규화 */
 function normalize(
   value: number,
@@ -51,64 +63,33 @@ function normalize(
   if (curve === "sigmoid") {
     const k = 6;
     const sigmoid = 1 / (1 + Math.exp(-k * (ratio - 0.5)));
-    return Math.round(sigmoid * maxScore * 10) / 10;
+    return roundTenth(sigmoid * maxScore);
   }
 
-  return Math.round(ratio * maxScore * 10) / 10;
+  return roundTenth(ratio * maxScore);
 }
 
 /**
- * 상권 활력도 (0~30): v2 4-요소 복합 지표
- * 1. 신규 창업 비율 (25%): 최근 2년 내 가입(개업) 사업장 비율
- * 2. 평균 직원 규모 (30%): 활성 사업장의 평균 직원수 (모집단 보정)
- * 3. 활성 비율 (25%): 전체 대비 활성 사업장 비율
- * 4. 추이 모멘텀 (20%): 12개월 순증가/감소 방향
+ * 상권 활력도 (0~30): 2-요소 복합 지표
+ * 1. 사업장 규모 (80%): 해당 구 NPS 등록 사업장 수 (상권 볼륨)
+ * 2. 활성 비율 (20%): NPS 가입 유지 비율 (참고 수준, 탈퇴≠폐업이라 신뢰도 낮음)
  */
 function calculateVitality(data: AggregatedData): number {
-  const { businesses, totalBusinessCount, sampledCount, monthlyTrendData } = data;
+  const { businesses, totalBusinessCount } = data;
   if (businesses.length === 0) return SCORING_WEIGHTS.VITALITY * 0.5;
 
   const maxScore = SCORING_WEIGHTS.VITALITY;
-  const { NEW_BIZ_WEIGHT, AVG_EMPLOYEE_WEIGHT, ACTIVE_RATIO_WEIGHT, MOMENTUM_WEIGHT, MAX_AVG_EMPLOYEES, NEW_BIZ_MONTHS } = VITALITY_THRESHOLDS;
 
-  // (1) 신규 창업 비율
-  const cutoffDate = new Date();
-  cutoffDate.setMonth(cutoffDate.getMonth() - NEW_BIZ_MONTHS);
-  const cutoffStr = `${cutoffDate.getFullYear()}${String(cutoffDate.getMonth() + 1).padStart(2, "0")}01`;
+  // (1) 사업장 규모 (80%): 등록 사업장 수가 많을수록 활발한 상권
+  const volumeScore = normalize(totalBusinessCount, 5, 80, maxScore) * 0.8;
 
-  const bizWithDate = businesses.filter((b) => b.adptDt);
-  const newBizCount = bizWithDate.filter((b) => (b.adptDt ?? "") >= cutoffStr).length;
-  const newBizRatio = bizWithDate.length > 0 ? newBizCount / bizWithDate.length : 0;
-  const newBizScore = Math.min(newBizRatio / 0.5, 1) * maxScore * NEW_BIZ_WEIGHT;
-
-  // (2) 평균 직원 규모 (v2: totalCount 보정)
-  const activeWithEmployees = businesses.filter((b) => b.status === "active" && b.employeeCount > 0);
-  const sampleAvg = activeWithEmployees.length > 0
-    ? activeWithEmployees.reduce((sum, b) => sum + b.employeeCount, 0) / activeWithEmployees.length
-    : 0;
-  // 샘플이 모집단의 일부일 경우 하향 보정
-  const adjustmentFactor = totalBusinessCount > 0
-    ? sampledCount / Math.min(totalBusinessCount, 50)
-    : 1;
-  const adjustedAvg = sampleAvg * Math.min(adjustmentFactor, 1);
-  const employeeScore = Math.min(adjustedAvg / MAX_AVG_EMPLOYEES, 1) * maxScore * AVG_EMPLOYEE_WEIGHT;
-
-  // (3) 활성 비율
+  // (2) 활성 비율 (20%): NPS 가입 유지 비율 (참고)
   const activeCount = businesses.filter((b) => b.status === "active").length;
-  const activeRatio = businesses.length > 0 ? activeCount / businesses.length : 0;
-  const activeScore = activeRatio * maxScore * ACTIVE_RATIO_WEIGHT;
+  const activeRatio =
+    businesses.length > 0 ? activeCount / businesses.length : 0;
+  const activeScore = activeRatio * maxScore * 0.2;
 
-  // (4) 추이 모멘텀 (v2): 순증가 월 비율
-  let momentumScore = maxScore * MOMENTUM_WEIGHT * 0.5; // 기본값: 중립
-  if (monthlyTrendData.length > 0) {
-    const positiveMonths = monthlyTrendData.filter((t) => t.newCount > t.lossCount).length;
-    const negativeMonths = monthlyTrendData.filter((t) => t.newCount < t.lossCount).length;
-    const momentum = (positiveMonths - negativeMonths) / monthlyTrendData.length;
-    // -1(쇠퇴) ~ +1(성장) → 0 ~ maxScore
-    momentumScore = normalize(momentum, -0.5, 0.5, maxScore) * MOMENTUM_WEIGHT;
-  }
-
-  return Math.round((newBizScore + employeeScore + activeScore + momentumScore) * 10) / 10;
+  return roundTenth(activeScore + volumeScore);
 }
 
 /**
@@ -131,14 +112,18 @@ function calculateCompetition(
     : NATIONAL_AVG_POP_DENSITY;
   const regionalCoeff = Math.max(
     REGIONAL_COEFF_RANGE.MIN,
-    Math.min(regionPopDensity / NATIONAL_AVG_POP_DENSITY, REGIONAL_COEFF_RANGE.MAX),
+    Math.min(
+      regionPopDensity / NATIONAL_AVG_POP_DENSITY,
+      REGIONAL_COEFF_RANGE.MAX,
+    ),
   );
 
   // v2: 기준밀도 — 등록 업종은 지역계수 보정, 미등록은 실측밀도 기반
   const registeredDensity = COMPETITION_BASE_DENSITY[industryCode];
-  const baseDensity = registeredDensity != null
-    ? registeredDensity * regionalCoeff
-    : (totalBusinessCount / areaKm2) * 1.2; // fallback: 실측밀도 × 1.2
+  const baseDensity =
+    registeredDensity != null
+      ? registeredDensity * regionalCoeff
+      : (totalBusinessCount / areaKm2) * 1.2; // fallback: 실측밀도 × 1.2
 
   const maxDensity = baseDensity * 2;
   return normalize(
@@ -151,68 +136,29 @@ function calculateCompetition(
 }
 
 /**
- * 생존율 (0~20): v2 모집단 생존율 + 시간 가중
+ * 생존율 (0~20): NPS 모집단 생존율
+ * NPS 가입유지율은 과거 탈퇴 사업장이 포함되어 낮게 산출되므로
+ * 임계값을 현실적으로 완화 (MIN 0.3, MAX 0.8, linear)
  */
-function calculateSurvival(
-  data: AggregatedData,
-): number {
-  const { businesses, populationSurvivalRate, sampledCount, totalBusinessCount, golmok } = data;
+function calculateSurvival(data: AggregatedData): number {
+  const { businesses, populationSurvivalRate } = data;
 
-  const total = businesses.filter((b) => b.status === "active" || b.status === "closed").length;
-  if (total === 0 && populationSurvivalRate === 0) return SCORING_WEIGHTS.SURVIVAL * 0.5;
-
-  // v2: 시간 가중 생존율 (상세 조회 사업장 기준, adptDt 있는 것만)
-  const now = new Date();
-  const twoYearsAgo = new Date(now);
-  twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
-  const fiveYearsAgo = new Date(now);
-  fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
-
-  const twoYearStr = `${twoYearsAgo.getFullYear()}${String(twoYearsAgo.getMonth() + 1).padStart(2, "0")}01`;
-  const fiveYearStr = `${fiveYearsAgo.getFullYear()}${String(fiveYearsAgo.getMonth() + 1).padStart(2, "0")}01`;
-
-  const withDate = businesses.filter((b) => b.adptDt);
-  let timeWeightedRate = populationSurvivalRate; // fallback
-
-  if (withDate.length >= 5) {
-    const recent = withDate.filter((b) => (b.adptDt ?? "") >= twoYearStr);
-    const mid = withDate.filter((b) => (b.adptDt ?? "") >= fiveYearStr && (b.adptDt ?? "") < twoYearStr);
-    const old = withDate.filter((b) => (b.adptDt ?? "") < fiveYearStr);
-
-    const survivalOf = (arr: typeof withDate) =>
-      arr.length > 0 ? arr.filter((b) => b.status === "active").length / arr.length : 0;
-
-    timeWeightedRate =
-      survivalOf(recent) * 0.5 +
-      survivalOf(mid) * 0.3 +
-      survivalOf(old) * 0.2;
-  }
-
-  // v2: 모집단 + 시간가중 복합
-  let finalRate: number;
-
-  if (golmok && golmok.closeRate > 0) {
-    // 서울: 골목상권 블렌딩 (데이터 품질 기반 동적 비중)
-    const golmokSurvivalRate = (100 - golmok.closeRate) / 100;
-    const npsWeight = Math.min(sampledCount / 20, 0.7);
-    const golmokWeight = 1 - npsWeight;
-    finalRate = populationSurvivalRate * npsWeight + golmokSurvivalRate * golmokWeight;
-  } else {
-    // 비서울: 모집단 60% + 시간가중 40%
-    finalRate = populationSurvivalRate * 0.6 + timeWeightedRate * 0.4;
-  }
+  if (businesses.length === 0 && populationSurvivalRate === 0)
+    return SCORING_WEIGHTS.SURVIVAL * 0.5;
 
   return normalize(
-    finalRate,
+    populationSurvivalRate,
     SURVIVAL_THRESHOLDS.MIN_RATE,
     SURVIVAL_THRESHOLDS.MAX_RATE,
     SCORING_WEIGHTS.SURVIVAL,
-    "sigmoid",
   );
 }
 
 /**
- * 주거 밀도 (0~15): v2 세대당 거래율 + 동적 임계값
+ * 주거 밀도 (0~15): 인구 데이터 유무·단위에 따라 3단계 산출
+ * - 인구 없음: 거래건수만 (v1 fallback)
+ * - 동 단위 인구 (세대수 없음): 인구수 50% + 거래건수 50%
+ * - 구 단위 인구 (세대수 있음): 4요소 복합 지표
  */
 function calculateResidential(
   transactionCount: number,
@@ -223,7 +169,7 @@ function calculateResidential(
 ): number {
   const maxScore = SCORING_WEIGHTS.RESIDENTIAL;
 
-  // KOSIS 데이터 없으면 v1 fallback
+  // KOSIS 데이터 없으면 v1 fallback (거래건수만)
   if (!population) {
     return normalize(
       transactionCount,
@@ -233,10 +179,27 @@ function calculateResidential(
     );
   }
 
-  // v2: 세대당 거래율 (1000세대당)
-  const tradeRate = population.households > 0
-    ? transactionCount / (population.households / 1000)
-    : 0;
+  // 동 단위 (세대수 없음): 인구수 + 거래건수 2요소
+  if (population.households === 0) {
+    // 동 인구 임계값: 3,000명(소규모)~30,000명(대규모, 일반 동 기준)
+    const populationScore = normalize(
+      population.totalPopulation,
+      3000,
+      30000,
+      maxScore,
+    );
+    const transactionScore = normalize(
+      transactionCount,
+      RESIDENTIAL_THRESHOLDS.MIN_TRANSACTIONS,
+      RESIDENTIAL_THRESHOLDS.MAX_TRANSACTIONS,
+      maxScore,
+    );
+    const combined = populationScore * 0.5 + transactionScore * 0.5;
+    return roundTenth(combined);
+  }
+
+  // 구 단위 (세대수 있음): 4요소 복합 지표
+  const tradeRate = transactionCount / (population.households / 1000);
   const tradeRateScore = normalize(
     tradeRate,
     TRADE_RATE_THRESHOLDS.MIN,
@@ -244,31 +207,45 @@ function calculateResidential(
     maxScore,
   );
 
-  // v2: 동적 임계값
   const dynamicMax = Math.max(50, population.households / 500);
   const dynamicMin = Math.max(5, population.households / 5000);
-  const absoluteScore = normalize(transactionCount, dynamicMin, dynamicMax, maxScore);
+  const absoluteScore = normalize(
+    transactionCount,
+    dynamicMin,
+    dynamicMax,
+    maxScore,
+  );
 
-  // 세대수 기반 점수
-  const householdScore = normalize(population.households, 5000, 150000, maxScore);
+  const householdScore = normalize(
+    population.households,
+    5000,
+    150000,
+    maxScore,
+  );
+  const populationScore = normalize(
+    population.totalPopulation,
+    10000,
+    500000,
+    maxScore,
+  );
 
-  // 인구수 기반 점수
-  const populationScore = normalize(population.totalPopulation, 10000, 500000, maxScore);
-
-  // v2 복합 지표: 거래건수 20% + 거래율 25% + 세대수 30% + 인구수 25%
+  // 거래건수 20% + 거래율 25% + 세대수 30% + 인구수 25%
   const combined =
-    absoluteScore * 0.20 +
+    absoluteScore * 0.2 +
     tradeRateScore * 0.25 +
-    householdScore * 0.30 +
+    householdScore * 0.3 +
     populationScore * 0.25;
 
-  return Math.round(combined * 10) / 10;
+  return roundTenth(combined);
 }
 
 /**
  * 소득 수준 (0~10): v2 가격비율 70% + 거래규모 지수 30%
  */
-function calculateIncome(avgAptPrice: number, transactionCount: number): number {
+function calculateIncome(
+  avgAptPrice: number,
+  transactionCount: number,
+): number {
   if (avgAptPrice === 0) return SCORING_WEIGHTS.INCOME * 0.5;
 
   const maxScore = SCORING_WEIGHTS.INCOME;
@@ -279,14 +256,15 @@ function calculateIncome(avgAptPrice: number, transactionCount: number): number 
 
   // v2: 거래규모 지수 (30%)
   const volumeIndex = (transactionCount * avgAptPrice) / 10000;
-  const volumeScore = normalize(
-    volumeIndex,
-    VOLUME_INDEX_THRESHOLDS.MIN,
-    VOLUME_INDEX_THRESHOLDS.MAX,
-    maxScore,
-  ) * 0.3;
+  const volumeScore =
+    normalize(
+      volumeIndex,
+      VOLUME_INDEX_THRESHOLDS.MIN,
+      VOLUME_INDEX_THRESHOLDS.MAX,
+      maxScore,
+    ) * 0.3;
 
-  return Math.round((priceScore + volumeScore) * 10) / 10;
+  return roundTenth(priceScore + volumeScore);
 }
 
 /**
@@ -306,66 +284,66 @@ function applyGolmokCorrection(
     const bonus = golmok.changeIndex === "LH" ? 0.1 : 0.05;
     corrected.vitality = Math.min(
       SCORING_WEIGHTS.VITALITY,
-      Math.round(corrected.vitality * (1 + bonus) * 10) / 10,
+      roundTenth(corrected.vitality * (1 + bonus)),
     );
   }
 
   // 경쟁강도 포화지수 감산 (v2): 폐업률 10% 초과 시 경쟁 점수 하향
   if (golmok.closeRate > 10) {
     const saturationPenalty = Math.min((golmok.closeRate - 10) / 30, 1) * 0.15;
-    corrected.competition = Math.round(
-      corrected.competition * (1 - saturationPenalty) * 10,
-    ) / 10;
+    corrected.competition =
+      roundTenth(corrected.competition * (1 - saturationPenalty));
   }
 
   return corrected;
 }
 
-/** 신뢰도 산출 (v2) */
+/** 신뢰도 산출 */
 function calculateConfidence(data: AggregatedData): ScoreConfidence {
-  const { sampledCount, totalBusinessCount, businesses, population, golmok, transactionCount } = data;
+  const {
+    totalBusinessCount,
+    businesses,
+    population,
+    golmok,
+    transactionCount,
+  } = data;
 
-  // 활력도 신뢰도: 샘플 커버리지
-  const vitalityConf = totalBusinessCount > 0
-    ? Math.min(sampledCount / totalBusinessCount, 1.0)
-    : 0.5;
+  // 활력도 신뢰도: 사업장 데이터 존재 여부
+  const vitalityConf = businesses.length > 0 ? 0.7 : 0.3;
 
   // 경쟁강도 신뢰도: 인구 데이터 + 골목상권
   const hasPopulation = population ? 1.0 : 0.5;
   const hasGolmok = golmok ? 1.0 : 0.8;
   const competitionConf = hasPopulation * 0.6 + hasGolmok * 0.4;
 
-  // 생존율 신뢰도: 샘플 커버리지 + 시계열 + 골목상권
-  const sampleCoverage = totalBusinessCount > 0
-    ? Math.min(sampledCount / totalBusinessCount, 1.0)
-    : 0.3;
-  const hasTimeSeries = businesses.filter((b) => b.adptDt).length / Math.max(businesses.length, 1);
-  const survivalConf = sampleCoverage * 0.4 + hasTimeSeries * 0.3 + (golmok ? 0.3 : 0);
+  // 생존율 신뢰도: NPS 데이터 규모 + 골목상권
+  const hasSufficientData = totalBusinessCount >= 10 ? 0.7 : 0.4;
+  const survivalConf = hasSufficientData + (golmok ? 0.3 : 0);
 
   // 주거밀도 신뢰도
   const residentialConf = population ? 0.9 : 0.5;
 
   // 소득 신뢰도
-  const hasTransactions = transactionCount > 0 ? 0.8 : 0.3;
-  const incomeConf = hasTransactions;
+  const incomeConf = transactionCount > 0 ? 0.8 : 0.3;
 
   // 종합: 가중치 비례 합산
-  const overall = Math.round((
-    vitalityConf * SCORING_WEIGHTS.VITALITY +
-    competitionConf * SCORING_WEIGHTS.COMPETITION +
-    survivalConf * SCORING_WEIGHTS.SURVIVAL +
-    residentialConf * SCORING_WEIGHTS.RESIDENTIAL +
-    incomeConf * SCORING_WEIGHTS.INCOME
-  ) / 100 * 100) / 100;
+  const overall = roundHundredth(
+    (vitalityConf * SCORING_WEIGHTS.VITALITY +
+      competitionConf * SCORING_WEIGHTS.COMPETITION +
+      survivalConf * SCORING_WEIGHTS.SURVIVAL +
+      residentialConf * SCORING_WEIGHTS.RESIDENTIAL +
+      incomeConf * SCORING_WEIGHTS.INCOME) /
+      100,
+  );
 
   return {
     overall,
     breakdown: {
-      vitality: Math.round(vitalityConf * 100) / 100,
-      competition: Math.round(competitionConf * 100) / 100,
-      survival: Math.round(survivalConf * 100) / 100,
-      residential: Math.round(residentialConf * 100) / 100,
-      income: Math.round(incomeConf * 100) / 100,
+      vitality: roundHundredth(vitalityConf),
+      competition: roundHundredth(competitionConf),
+      survival: roundHundredth(survivalConf),
+      residential: roundHundredth(residentialConf),
+      income: roundHundredth(incomeConf),
     },
   };
 }
@@ -383,28 +361,30 @@ export function calculateTotalScore(data: AggregatedData): ScoreResult {
   );
 
   const survival = calculateSurvival(data);
-  const residential = calculateResidential(data.transactionCount, data.population);
+  const residential = calculateResidential(
+    data.transactionCount,
+    data.population,
+  );
   const income = calculateIncome(data.avgApartmentPrice, data.transactionCount);
 
   let breakdown: ScoreBreakdown = {
-    vitality: Math.round(vitality * 10) / 10,
-    competition: Math.round(competition * 10) / 10,
-    survival: Math.round(survival * 10) / 10,
-    residential: Math.round(residential * 10) / 10,
-    income: Math.round(income * 10) / 10,
+    vitality: roundTenth(vitality),
+    competition: roundTenth(competition),
+    survival: roundTenth(survival),
+    residential: roundTenth(residential),
+    income: roundTenth(income),
   };
 
-  // 골목상권 보정 적용 (서울 한정)
-  breakdown = applyGolmokCorrection(breakdown, data.golmok);
+  // TODO: 골목상권 보정 — 지역별 통일성 확보 후 재활성화 예정
+  // breakdown = applyGolmokCorrection(breakdown, data.golmok);
 
-  const total = Math.round(
-    (breakdown.vitality +
+  const total = roundTenth(
+    breakdown.vitality +
       breakdown.competition +
       breakdown.survival +
       breakdown.residential +
-      breakdown.income) *
-      10,
-  ) / 10;
+      breakdown.income,
+  );
 
   const confidence = calculateConfidence(data);
 

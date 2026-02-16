@@ -1,3 +1,4 @@
+import { BackButton } from "@/components/back-button";
 import { AnalysisResult } from "@/features/analysis/components/analysis-result";
 
 export default async function AnalysisResultPage({
@@ -8,8 +9,9 @@ export default async function AnalysisResultPage({
   const { id } = await params;
 
   return (
-    <div className="py-4">
+    <>
+      <BackButton />
       <AnalysisResult analysisId={id} />
-    </div>
+    </>
   );
 }

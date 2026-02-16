@@ -7,6 +7,3 @@ export {
   SCORE_LEVEL_LABEL,
 } from "./score-level";
 export type { ScoreLevel as ScoreLevelType } from "./score-level";
-
-export { POPULAR_INDUSTRIES } from "./industry-type";
-export type { IndustryInfo } from "./industry-type";

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { BackButton } from "@/components/back-button";
 import { RegionSelector } from "@/features/onboarding/components/region-selector";
 import { useWizardStore } from "@/features/analysis/stores/wizard-store";
 import { useWizardGuard } from "@/features/analysis/hooks/use-wizard-guard";
@@ -34,13 +35,8 @@ export default function RegionPage() {
     [setSelectedRegion, router],
   );
 
-  const handleBack = useCallback(() => {
-    router.back();
-  }, [router]);
-
   if (!isReady || !selectedIndustry) return null;
 
-  // wizard-store의 SelectedIndustry → OnboardingIndustry 변환
   const industryProp: OnboardingIndustry = {
     emoji: selectedIndustry.emoji,
     name: selectedIndustry.name,
@@ -50,10 +46,12 @@ export default function RegionPage() {
   };
 
   return (
-    <RegionSelector
-      selectedIndustry={industryProp}
-      onNext={handleNext}
-      onBack={handleBack}
-    />
+    <>
+      <BackButton />
+      <RegionSelector
+        selectedIndustry={industryProp}
+        onNext={handleNext}
+      />
+    </>
   );
 }
