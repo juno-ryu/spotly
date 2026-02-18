@@ -20,43 +20,21 @@ export const analysisRequestSchema = z.object({
 });
 export type AnalysisRequest = z.infer<typeof analysisRequestSchema>;
 
-/** 항목별 점수 */
+/** 지표별 점수 (0~100, 등급 포함) */
+const indicatorScoreSchema = z.object({
+  score: z.number().min(0).max(100),
+  grade: z.string(),
+  gradeLabel: z.string(),
+});
+
+/** 스코어 상세 — 2지표 독립 체계 (v3) */
 export const scoreBreakdownSchema = z.object({
-  /** 상권 활력도 (0~30) */
-  vitality: z.number().min(0).max(30),
-  /** 경쟁 강도 (0~25, 역비례) */
-  competition: z.number().min(0).max(25),
-  /** 생존율 (0~20) */
-  survival: z.number().min(0).max(20),
-  /** 주거 밀도 (0~15) */
-  residential: z.number().min(0).max(15),
-  /** 소득 수준 (0~10) */
-  income: z.number().min(0).max(10),
+  /** 경쟁 강도 (0~100, Kakao Places 기반, 전국) */
+  competition: indicatorScoreSchema,
+  /** 상권 활력도 (0~100, 서울 골목상권 기반, 서울 전용) */
+  vitality: indicatorScoreSchema.nullable(),
 });
 export type ScoreBreakdown = z.infer<typeof scoreBreakdownSchema>;
-
-/** 주변 사업장 정보 */
-export const nearbyBusinessSchema = z.object({
-  name: z.string(),
-  address: z.string(),
-  status: z.enum(["active", "closed"]),
-});
-export type NearbyBusiness = z.infer<typeof nearbyBusinessSchema>;
-
-/** 신뢰도 (v2) */
-export const scoreConfidenceSchema = z.object({
-  /** 종합 신뢰도 (0~1) */
-  overall: z.number().min(0).max(1),
-  /** 지표별 신뢰도 */
-  breakdown: z.object({
-    vitality: z.number().min(0).max(1),
-    competition: z.number().min(0).max(1),
-    survival: z.number().min(0).max(1),
-    residential: z.number().min(0).max(1),
-    income: z.number().min(0).max(1),
-  }),
-});
-export type ScoreConfidence = z.infer<typeof scoreConfidenceSchema>;
 
 /** 분석 결과 응답 */
 export const analysisResultSchema = z.object({
@@ -67,9 +45,6 @@ export const analysisResultSchema = z.object({
   radius: z.number(),
   totalScore: z.number().nullable(),
   scoreDetail: scoreBreakdownSchema.nullable(),
-  /** 신뢰도 (v2, nullable — 이전 데이터 호환) */
-  confidence: scoreConfidenceSchema.nullable().optional(),
-  nearbyBusinesses: z.array(nearbyBusinessSchema).nullable(),
   aiSummary: z.string().nullable(),
   createdAt: z.string(),
 });

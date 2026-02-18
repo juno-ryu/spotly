@@ -1,6 +1,6 @@
 import type { KakaoPlace } from "@/server/data-sources/kakao/adapter";
 import { INDUSTRY_CODES } from "../../constants/industry-codes";
-import type { CompetitionScore, CompetitionAnalysis } from "./types";
+import { scoreToGrade, type CompetitionScore, type CompetitionAnalysis } from "./types";
 
 /** densityBaseline 미등록 업종용 기본값 (미터) */
 const DEFAULT_DENSITY_BASELINE = 250;
@@ -154,14 +154,7 @@ function calculateCompetitionScore(
     densityScore * DENSITY_WEIGHT + franchiseScore * FRANCHISE_WEIGHT,
   );
 
-  let grade: string;
-  let gradeLabel: string;
-  if (score >= 80) { grade = "A"; gradeLabel = "경쟁 매우 낮음"; }
-  else if (score >= 60) { grade = "B"; gradeLabel = "경쟁 낮음"; }
-  else if (score >= 40) { grade = "C"; gradeLabel = "경쟁 보통"; }
-  else if (score >= 20) { grade = "D"; gradeLabel = "경쟁 높음"; }
-  else { grade = "F"; gradeLabel = "경쟁 매우 높음"; }
-
+  const { grade, gradeLabel } = scoreToGrade(score);
   return { score, grade, gradeLabel };
 }
 

@@ -9,3 +9,13 @@ const ALL_RULES: InsightRule[] = [competitionRules, populationRules];
 export function buildInsights(data: InsightData): InsightItem[] {
   return ALL_RULES.flatMap((rule) => rule(data));
 }
+
+/** 경쟁강도 지표 인사이트 */
+export function buildCompetitionInsights(data: InsightData): InsightItem[] {
+  return competitionRules(data);
+}
+
+/** 상권 활력도 지표 인사이트 */
+export function buildVitalityInsights(data: InsightData): InsightItem[] {
+  return populationRules(data);
+}

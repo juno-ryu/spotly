@@ -95,10 +95,10 @@ export type GolmokStore = z.infer<typeof golmokStoreSchema>;
 /**
  * 상권변화지표 (VwsmTrdarIxQq, OA-15576)
  *
- * LL: 생존·폐업 모두 낮음 (신규/재생 상권)
- * LH: 생존 낮음·폐업 높음 (상권확장)
- * HL: 생존 높음·폐업 낮음 (진입장벽 높음)
- * HH: 생존·폐업 모두 높음 (경쟁 치열)
+ * LL: 다이나믹 — 활발한 신진대사, 성장세
+ * LH: 상권확장 — 확장 중
+ * HL: 상권축소 — 축소세
+ * HH: 정체 — 정체
  */
 export const golmokChangeIndexSchema = z.object({
   STDR_YYQU_CD: z.string(),
@@ -832,13 +832,11 @@ export interface GolmokAggregated {
   peakTimeSlot: string;
   peakDay: string;
   storeCount: number;
-  similarStoreCount: number;
   openRate: number;
   closeRate: number;
   franchiseCount: number;
   changeIndex?: string;
   changeIndexName?: string;
-  avgOperatingMonths?: number;
   mainAgeGroup: string;
   mainGender: string;
   /** 유동인구 집계 */
@@ -859,8 +857,8 @@ export interface GolmokAggregated {
 /** 3개 API 응답을 단일 집계 객체로 변환 */
 /** 유동인구 피크 시간대 */
 function findPeakTimeSlotFlpop(data: GolmokFloatingPop[]): string {
+  // 00~06시 제외: 수면 인구가 유동인구로 집계되어 78%가 새벽 피크로 왜곡됨
   const slots = [
-    { n: "00~06시", v: data.reduce((s, d) => s + d.TMZON_00_06_FLPOP_CO, 0) },
     { n: "06~11시", v: data.reduce((s, d) => s + d.TMZON_06_11_FLPOP_CO, 0) },
     { n: "11~14시", v: data.reduce((s, d) => s + d.TMZON_11_14_FLPOP_CO, 0) },
     { n: "14~17시", v: data.reduce((s, d) => s + d.TMZON_14_17_FLPOP_CO, 0) },
@@ -944,17 +942,16 @@ export function aggregateGolmokData(
   );
 
   const totalStores = stores.reduce((sum, s) => sum + s.STOR_CO, 0);
-  const totalSimilar = stores.reduce((sum, s) => sum + s.SIMILR_INDUTY_STOR_CO, 0);
   const totalFranchise = stores.reduce((sum, s) => sum + s.FRC_STOR_CO, 0);
 
+  // 개폐업률: 비율의 평균이 아닌 절대 건수 합산 후 비율 계산
+  // (개별 레코드의 90%가 0%이므로 비율 평균은 무의미)
+  const totalOpenCount = stores.reduce((sum, s) => sum + s.OPBIZ_STOR_CO, 0);
+  const totalCloseCount = stores.reduce((sum, s) => sum + s.CLSBIZ_STOR_CO, 0);
   const avgOpenRate =
-    stores.length > 0
-      ? stores.reduce((sum, s) => sum + s.OPBIZ_RT, 0) / stores.length
-      : 0;
+    totalStores > 0 ? (totalOpenCount / totalStores) * 100 : 0;
   const avgCloseRate =
-    stores.length > 0
-      ? stores.reduce((sum, s) => sum + s.CLSBIZ_RT, 0) / stores.length
-      : 0;
+    totalStores > 0 ? (totalCloseCount / totalStores) * 100 : 0;
 
   // 상권변화지표: 가장 빈번한 등급
   const ixCounts = changeIndexes.reduce(
@@ -966,12 +963,6 @@ export function aggregateGolmokData(
   );
   const dominant = Object.entries(ixCounts).sort((a, b) => b[1] - a[1])[0];
   const domCi = changeIndexes.find((ci) => ci.TRDAR_CHNGE_IX === dominant?.[0]);
-
-  const avgOpMonths =
-    changeIndexes.length > 0
-      ? changeIndexes.reduce((sum, ci) => sum + ci.OPR_SALE_MT_AVRG, 0) /
-        changeIndexes.length
-      : undefined;
 
   // 유동인구 집계
   const floatingPopulation = floatingPop && floatingPop.length > 0
@@ -988,14 +979,11 @@ export function aggregateGolmokData(
     peakTimeSlot: findPeakTimeSlot(rep),
     peakDay: findPeakDay(rep),
     storeCount: totalStores,
-    similarStoreCount: totalSimilar,
     openRate: Math.round(avgOpenRate * 10) / 10,
     closeRate: Math.round(avgCloseRate * 10) / 10,
     franchiseCount: totalFranchise,
     changeIndex: domCi?.TRDAR_CHNGE_IX,
     changeIndexName: domCi?.TRDAR_CHNGE_IX_NM,
-    avgOperatingMonths:
-      avgOpMonths != null ? Math.round(avgOpMonths * 10) / 10 : undefined,
     mainAgeGroup: findMainAgeGroup(rep),
     mainGender: findMainGender(rep),
     floatingPopulation,

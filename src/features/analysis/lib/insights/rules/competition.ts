@@ -1,44 +1,45 @@
+import type { Grade } from "../../scoring/types";
 import type { InsightRule, InsightItem } from "../types";
 
-/** 매장 간 거리 임계값 */
-const DENSITY_THRESHOLDS = [
-  { min: 300, text: "매장 사이 거리가 꽤 넓은 편이에요" },
-  { min: 150, text: "매장 간 거리가 적당한 편이에요" },
-  { min: 80, text: "매장끼리 가까운 편이에요" },
-  { min: 0, text: "매장이 매우 밀집해 있어요" },
-] as const;
+/** 경쟁 등급별 밀집도 해석 */
+const DENSITY_GRADE_TEXT: Record<Grade, { emoji: string; text: string }> = {
+  A: { emoji: "🟢", text: "경쟁업체가 적어 진입 여건이 좋아요" },
+  B: { emoji: "🔵", text: "경쟁이 있지만 여유 있는 편이에요" },
+  C: { emoji: "🟡", text: "보통 수준의 경쟁이에요" },
+  D: { emoji: "🟠", text: "경쟁이 치열한 편이에요" },
+  F: { emoji: "🔴", text: "매장이 매우 밀집해 과포화 상태예요" },
+};
 
 /** 경쟁 등급별 프랜차이즈 해석 */
-const FRANCHISE_GRADE_TEXT: Record<string, string> = {
-  A: "적당한 프랜차이즈 비율은 상권 활력이 좋다는 신호예요",
-  B: "프랜차이즈와 개인 매장이 적절히 공존하는 상권이에요",
+const FRANCHISE_GRADE_TEXT: Record<Grade, string> = {
+  A: "적당한 프랜차이즈 비율로 상권 활력이 좋아요",
+  B: "프랜차이즈와 개인 매장이 적절히 공존해요",
   C: "프랜차이즈 비율이 보통 수준이에요",
-  D: "프랜차이즈 비중이 높아 개인 매장 경쟁이 다소 치열해요",
+  D: "프랜차이즈 비중이 높아 개인 매장 경쟁이 치열해요",
   F: "프랜차이즈 포화 상권으로 개인 창업 시 주의가 필요해요",
 };
 
-/** 경쟁 분석 룰 */
+/** 경쟁 분석 룰 — 등급(A/B/C/D/F) 기반 인사이트 */
 export const competitionRules: InsightRule = (data) => {
   const competition = data.competition;
   if (!competition) return [];
 
-  const grade = competition.competitionScore?.grade ?? "C";
+  const grade = (competition.competitionScore?.grade ?? "C") as Grade;
   const insights: InsightItem[] = [];
 
-  // 1. 매장 간 거리
+  // 1. 밀집도 — 경쟁 등급 기반
   if (competition.densityPerMeter > 0) {
-    const dist = competition.densityPerMeter;
-    const threshold = DENSITY_THRESHOLDS.find((t) => dist >= t.min);
+    const { emoji, text } = DENSITY_GRADE_TEXT[grade];
     insights.push({
       type: "text",
-      emoji: "📏",
-      text: threshold?.text ?? DENSITY_THRESHOLDS.at(-1)!.text,
-      sub: `약 ${dist}m마다 1개 매장`,
+      emoji,
+      text,
+      sub: `약 ${competition.densityPerMeter}m마다 1개 매장 (${grade}등급)`,
       category: "scoring",
     });
   }
 
-  // 3. 프랜차이즈 현황 — 등급 해석이 메인, 브랜드명이 서브
+  // 2. 프랜차이즈 현황 — 경쟁 등급 기반
   if (competition.franchiseCount > 0) {
     const brands = competition.franchiseBrandNames;
     const brandSub =
@@ -50,7 +51,7 @@ export const competitionRules: InsightRule = (data) => {
     insights.push({
       type: "text",
       emoji: "🏷️",
-      text: FRANCHISE_GRADE_TEXT[grade] ?? FRANCHISE_GRADE_TEXT.C,
+      text: FRANCHISE_GRADE_TEXT[grade],
       sub: brandSub,
       category: "scoring",
     });

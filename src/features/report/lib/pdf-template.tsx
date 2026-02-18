@@ -9,10 +9,9 @@ import {
 import type { AiReport } from "../schema";
 import { formatRadius } from "@/lib/format";
 import type { ScoreBreakdown } from "@/features/analysis/schema";
-import type { GolmokAggregated } from "@/server/data-sources/seoul-golmok/client";
 import {
-  getIndicatorGrades,
   GRADE_PDF_COLOR,
+  type IndicatorGrade,
 } from "@/features/analysis/lib/grade";
 
 // 한글 폰트 등록 (Noto Sans KR - @react-pdf는 .ttf만 지원)
@@ -63,7 +62,8 @@ const styles = StyleSheet.create({
   },
   scoreBox: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
+    gap: 24,
     padding: 12,
     backgroundColor: "#f0f9ff",
     borderRadius: 6,
@@ -108,32 +108,6 @@ const styles = StyleSheet.create({
     lineHeight: 1.6,
     textAlign: "justify",
   },
-  golmokBox: {
-    padding: 10,
-    backgroundColor: "#fef3c7",
-    borderRadius: 6,
-    marginBottom: 12,
-  },
-  golmokTitle: {
-    fontSize: 11,
-    fontWeight: "bold",
-    marginBottom: 6,
-    color: "#92400e",
-  },
-  golmokRow: {
-    flexDirection: "row" as const,
-    justifyContent: "space-between" as const,
-    marginBottom: 3,
-  },
-  golmokLabel: {
-    fontSize: 9,
-    color: "#78350f",
-  },
-  golmokValue: {
-    fontSize: 9,
-    fontWeight: "bold" as const,
-    color: "#451a03",
-  },
   footer: {
     position: "absolute",
     bottom: 30,
@@ -164,45 +138,41 @@ const VERDICT_COLOR: Record<string, string> = {
   "비추천": "#991b1b",
 };
 
-const SCORE_INDICATORS = [
-  { key: "vitality" as const, label: "활력도" },
-  { key: "competition" as const, label: "경쟁" },
-  { key: "survival" as const, label: "생존" },
-  { key: "residential" as const, label: "주거" },
-  { key: "income" as const, label: "소득" },
-] as const;
+/** PDF 점수 섹션 — 2지표 독립 등급 */
+function ScoreSection({ scoreDetail }: { scoreDetail: ScoreBreakdown }) {
+  const items: { label: string; grade: string; score: number }[] = [
+    {
+      label: "경쟁 강도",
+      grade: scoreDetail.competition.grade,
+      score: scoreDetail.competition.score,
+    },
+  ];
 
-/** PDF 점수 섹션 — 종합 점수 + 지표별 등급/퍼센트 */
-function ScoreSection({
-  totalScore,
-  scoreDetail,
-}: {
-  totalScore: number;
-  scoreDetail: Record<string, number>;
-}) {
-  const grades = getIndicatorGrades(scoreDetail as ScoreBreakdown);
+  if (scoreDetail.vitality) {
+    items.push({
+      label: "상권 활력",
+      grade: scoreDetail.vitality.grade,
+      score: scoreDetail.vitality.score,
+    });
+  }
 
   return (
     <View style={styles.scoreBox}>
-      <View style={styles.scoreItem}>
-        <Text style={styles.scoreValue}>{totalScore}</Text>
-        <Text style={styles.scoreLabel}>종합</Text>
-      </View>
-      {SCORE_INDICATORS.map(({ key, label }) => {
-        const info = grades[key];
-        return (
-          <View key={key} style={styles.scoreItem}>
-            <Text
-              style={[styles.scoreValue, { color: GRADE_PDF_COLOR[info.grade] }]}
-            >
-              {info.grade}
-            </Text>
-            <Text style={styles.scoreLabel}>
-              {label} {info.percent}%
-            </Text>
-          </View>
-        );
-      })}
+      {items.map(({ label, grade, score }) => (
+        <View key={label} style={styles.scoreItem}>
+          <Text
+            style={[
+              styles.scoreValue,
+              { color: GRADE_PDF_COLOR[grade as IndicatorGrade] ?? "#1a1a1a" },
+            ]}
+          >
+            {grade}
+          </Text>
+          <Text style={styles.scoreLabel}>
+            {label} {score}점
+          </Text>
+        </View>
+      ))}
     </View>
   );
 }
@@ -211,11 +181,9 @@ interface AnalysisReportPDFProps {
   address: string;
   industryName: string;
   radius: number;
-  totalScore: number | null;
-  scoreDetail: Record<string, number> | null;
+  scoreDetail: ScoreBreakdown | null;
   report: AiReport;
   createdAt: string;
-  golmok?: GolmokAggregated;
 }
 
 /** PDF 리포트 레이아웃 */
@@ -223,11 +191,9 @@ export function AnalysisReportPDF({
   address,
   industryName,
   radius,
-  totalScore,
   scoreDetail,
   report,
   createdAt,
-  golmok,
 }: AnalysisReportPDFProps) {
   const radiusLabel = formatRadius(radius);
   const dateStr = new Date(createdAt).toLocaleDateString("ko-KR");
@@ -265,56 +231,7 @@ export function AnalysisReportPDF({
         </View>
 
         {/* 점수 */}
-        {totalScore != null && scoreDetail && (
-          <ScoreSection totalScore={totalScore} scoreDetail={scoreDetail} />
-        )}
-
-        {/* 골목상권 요약 (서울 한정) */}
-        {golmok && (
-          <View style={styles.golmokBox}>
-            <Text style={styles.golmokTitle}>
-              골목상권 분석 (서울시 빅데이터)
-            </Text>
-            <View style={styles.golmokRow}>
-              <Text style={styles.golmokLabel}>추정매출</Text>
-              <Text style={styles.golmokValue}>
-                {(golmok.estimatedQuarterlySales / 10000).toLocaleString()}만원/분기
-              </Text>
-            </View>
-            <View style={styles.golmokRow}>
-              <Text style={styles.golmokLabel}>매출 피크</Text>
-              <Text style={styles.golmokValue}>
-                {golmok.peakDay} {golmok.peakTimeSlot}
-              </Text>
-            </View>
-            <View style={styles.golmokRow}>
-              <Text style={styles.golmokLabel}>주 소비층</Text>
-              <Text style={styles.golmokValue}>
-                {golmok.mainAgeGroup} {golmok.mainGender}
-              </Text>
-            </View>
-            <View style={styles.golmokRow}>
-              <Text style={styles.golmokLabel}>점포</Text>
-              <Text style={styles.golmokValue}>
-                {golmok.storeCount}개 (프랜차이즈 {golmok.franchiseCount}개)
-              </Text>
-            </View>
-            <View style={styles.golmokRow}>
-              <Text style={styles.golmokLabel}>개/폐업률</Text>
-              <Text style={styles.golmokValue}>
-                {golmok.openRate}% / {golmok.closeRate}%
-              </Text>
-            </View>
-            {golmok.changeIndexName && (
-              <View style={styles.golmokRow}>
-                <Text style={styles.golmokLabel}>상권 변화</Text>
-                <Text style={styles.golmokValue}>
-                  {golmok.changeIndex}({golmok.changeIndexName})
-                </Text>
-              </View>
-            )}
-          </View>
-        )}
+        {scoreDetail && <ScoreSection scoreDetail={scoreDetail} />}
 
         {/* 강점 */}
         <View style={styles.section}>

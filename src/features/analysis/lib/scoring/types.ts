@@ -7,26 +7,25 @@
 // 공통 스코어링 타입
 // ────────────────────────────────────────────────────────────
 
-/** 등급 코드 */
-export type Grade = "S" | "A" | "B" | "C" | "D" | "F";
+/** 등급 코드 (A~F, 5등급) */
+export type Grade = "A" | "B" | "C" | "D" | "F";
 
 /** 지표별 공통 점수 인터페이스 */
 export interface IndicatorScore {
   /** 점수 (0~100) */
   score: number;
-  /** 등급 (S~F) */
+  /** 등급 (A~F) */
   grade: Grade;
-  /** 등급 라벨 (예: "최상", "우수") */
+  /** 등급 라벨 (예: "우수", "양호") */
   gradeLabel: string;
 }
 
-/** 등급 산출 기준표 */
+/** 등급 산출 기준표 (competition.ts와 동일 구간) */
 const GRADE_TABLE: { min: number; grade: Grade; label: string }[] = [
-  { min: 90, grade: "S", label: "최상" },
-  { min: 75, grade: "A", label: "우수" },
+  { min: 80, grade: "A", label: "우수" },
   { min: 60, grade: "B", label: "양호" },
-  { min: 45, grade: "C", label: "보통" },
-  { min: 30, grade: "D", label: "미흡" },
+  { min: 40, grade: "C", label: "보통" },
+  { min: 20, grade: "D", label: "미흡" },
   { min: 0, grade: "F", label: "위험" },
 ];
 
@@ -51,7 +50,7 @@ export interface CompetitionScore {
   /** 점수 (0~100) */
   score: number;
   /** 등급 (A~F) */
-  grade: string;
+  grade: Grade;
   /** 등급 라벨 */
   gradeLabel: string;
 }

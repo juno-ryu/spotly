@@ -5,6 +5,8 @@ import { prisma } from "@/server/db/prisma";
 import { hasApiKey } from "@/lib/env";
 import { ANALYSIS_SYSTEM_PROMPT, buildAnalysisPrompt } from "./lib/prompt-builder";
 import { aiReportSchema } from "./schema";
+import type { CompetitionAnalysis } from "@/features/analysis/lib/scoring/types";
+import type { VitalityAnalysis } from "@/features/analysis/lib/scoring/vitality";
 
 export async function generateReport(analysisId: string) {
   if (!hasApiKey.anthropic) {
@@ -26,38 +28,25 @@ export async function generateReport(analysisId: string) {
   }
 
   const reportData = analysis.reportData as Record<string, unknown> | null;
-  const scoreDetail = analysis.scoreDetail as Record<string, number> | null;
 
-  if (!scoreDetail || !reportData) {
+  if (!reportData) {
     return { success: false as const, error: "분석 데이터가 없습니다" };
   }
 
-  const businesses = (reportData.businesses as Array<{ status: string }>) ?? [];
+  // 신규 데이터 구조에서 경쟁/활력 데이터 추출
+  const competition = reportData.competition as CompetitionAnalysis | undefined;
+  if (!competition) {
+    return { success: false as const, error: "경쟁 분석 데이터가 없습니다" };
+  }
+
+  const vitality = (reportData.vitality as VitalityAnalysis | undefined) ?? null;
 
   const prompt = buildAnalysisPrompt({
     address: analysis.address,
     industryName: analysis.industryName,
     radius: analysis.radius,
-    totalScore: analysis.totalScore ?? 0,
-    scoreDetail: {
-      vitality: scoreDetail.vitality ?? 0,
-      competition: scoreDetail.competition ?? 0,
-      survival: scoreDetail.survival ?? 0,
-      residential: scoreDetail.residential ?? 0,
-      income: scoreDetail.income ?? 0,
-    },
-    businessCount: businesses.length,
-    activeCount: businesses.filter((b) => b.status === "active").length,
-    suspendedCount: businesses.filter((b) => b.status === "suspended").length,
-    closedCount: businesses.filter((b) => b.status === "closed").length,
-    avgApartmentPrice: (reportData.avgApartmentPrice as number) ?? 0,
-    transactionCount: (reportData.transactionCount as number) ?? 0,
-    population: reportData.population as
-      | { totalPopulation: number; households: number }
-      | undefined,
-    golmok: reportData.golmok as
-      | Parameters<typeof buildAnalysisPrompt>[0]["golmok"]
-      | undefined,
+    competition,
+    vitality,
   });
 
   try {

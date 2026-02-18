@@ -15,11 +15,9 @@ export interface CommercialVitalityData {
   peakDay: string;
   /** 총 점포수 */
   storeCount: number;
-  /** 유사업종 점포수 */
-  similarStoreCount: number;
-  /** 개업률(%) */
+  /** 개업률(%) — 절대 건수 기반 */
   openRate: number;
-  /** 폐업률(%) */
+  /** 폐업률(%) — 절대 건수 기반 */
   closeRate: number;
   /** 프랜차이즈 점포수 */
   franchiseCount: number;
@@ -27,8 +25,6 @@ export interface CommercialVitalityData {
   changeIndex: string | null;
   /** 상권변화지표명 (예: "다이나믹", "상권확장") */
   changeIndexName: string | null;
-  /** 운영 사업체 평균 영업기간(월) */
-  avgOperatingMonths: number | null;
   /** 주 소비 연령대 */
   mainAgeGroup: string;
   /** 주 소비 성별 */
@@ -45,7 +41,6 @@ export interface CommercialVitalityData {
   residentPopulation?: {
     totalResident: number;
     totalHouseholds: number;
-  
   };
 }
 
@@ -57,13 +52,11 @@ function toVitalityData(raw: GolmokAggregated): CommercialVitalityData {
     peakTimeSlot: raw.peakTimeSlot,
     peakDay: raw.peakDay,
     storeCount: raw.storeCount,
-    similarStoreCount: raw.similarStoreCount,
     openRate: raw.openRate,
     closeRate: raw.closeRate,
     franchiseCount: raw.franchiseCount,
     changeIndex: raw.changeIndex ?? null,
     changeIndexName: raw.changeIndexName ?? null,
-    avgOperatingMonths: raw.avgOperatingMonths ?? null,
     mainAgeGroup: raw.mainAgeGroup,
     mainGender: raw.mainGender,
     floatingPopulation: raw.floatingPopulation,

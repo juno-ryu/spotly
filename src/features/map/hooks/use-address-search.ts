@@ -1,6 +1,5 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useKakaoMap } from "../components/kakao-map-provider";
 
@@ -10,10 +9,6 @@ export interface SearchResult {
   latitude: number;
   longitude: number;
   category: string;
-}
-
-interface SearchResponse {
-  results: SearchResult[];
 }
 
 /** 디바운스된 값 반환 */
@@ -59,18 +54,32 @@ function searchPlaces(keyword: string): Promise<SearchResult[]> {
   });
 }
 
-/** 주소/키워드 검색 (200ms 디바운싱 + react-query 캐싱, 클라이언트 SDK 사용) */
+/** 주소/키워드 검색 (200ms 디바운싱, 카카오 클라이언트 SDK 사용) */
 export function useAddressSearch(keyword: string) {
   const debouncedKeyword = useDebouncedValue(keyword.trim(), 200);
   const { isLoaded } = useKakaoMap();
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  return useQuery<SearchResponse>({
-    queryKey: ["address-search", debouncedKeyword],
-    queryFn: async () => {
-      const results = await searchPlaces(debouncedKeyword);
-      return { results };
-    },
-    enabled: debouncedKeyword.length > 0 && isLoaded,
-    staleTime: 30_000,
-  });
+  useEffect(() => {
+    if (!debouncedKeyword || !isLoaded) {
+      setResults([]);
+      return;
+    }
+
+    let cancelled = false;
+    setIsLoading(true);
+
+    searchPlaces(debouncedKeyword).then((res) => {
+      if (cancelled) return;
+      setResults(res);
+      setIsLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedKeyword, isLoaded]);
+
+  return { data: { results }, isLoading };
 }

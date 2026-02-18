@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { startAnalysis } from "@/features/analysis/actions";
 import { ArrowLeft } from "lucide-react";
 import { BackButton } from "@/components/back-button";
 import { useWizardStore } from "@/features/analysis/stores/wizard-store";
@@ -58,7 +59,7 @@ export function MapRadiusStep() {
 
   // --- Radius phase 상태 ---
   const [radius, setRadius] = useState(300);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   // 카카오 Places 키워드 검색 (radius phase에서만 활성)
   const { places, totalCount: nearbyTotalCount } = useNearbyPlaces({
@@ -126,46 +127,34 @@ export function MapRadiusStep() {
   const handleBackToLocation = useCallback(() => {
     setPhase("location");
     setConfirmedLocation(null);
+    // pushState로 추가한 radius 항목을 히스토리에서 제거
+    // → location phase에서 router.back() 시 /region으로 정상 이동
+    window.history.back();
   }, []);
 
-  // 분석 시작 — POST /api/analyze → 결과 페이지로 이동
-  const handleAnalyze = useCallback(async () => {
-    if (isSubmitting || !confirmedLocation) return;
-    setIsSubmitting(true);
-
-    try {
-      const res = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          address: confirmedLocation.address,
-          latitude: confirmedLocation.lat,
-          longitude: confirmedLocation.lng,
-          industryCode: selectedIndustry?.code ?? "",
-          industryName: selectedIndustry?.name ?? "",
-          radius,
-          districtCode: confirmedLocation.districtCode || undefined,
-          adminDongCode: confirmedLocation.adminDongCode || undefined,
-          dongName: confirmedLocation.dongName || undefined,
-        }),
+  // 분석 시작 — Server Action으로 분석 완료 후 결과 페이지로 redirect
+  const handleAnalyze = useCallback(() => {
+    if (!confirmedLocation) return;
+    startTransition(async () => {
+      await startAnalysis({
+        address: confirmedLocation.address,
+        latitude: confirmedLocation.lat,
+        longitude: confirmedLocation.lng,
+        industryCode: selectedIndustry?.code ?? "",
+        industryName: selectedIndustry?.name ?? "",
+        radius,
+        districtCode: confirmedLocation.districtCode || undefined,
+        adminDongCode: confirmedLocation.adminDongCode || undefined,
+        dongName: confirmedLocation.dongName || undefined,
       });
-
-      if (!res.ok) {
-        setIsSubmitting(false);
-        return;
-      }
-
-      const data = await res.json();
-      router.push(`/analyze/${data.id}`);
-    } catch {
-      setIsSubmitting(false);
-    }
-  }, [isSubmitting, confirmedLocation, selectedIndustry, radius, router]);
+    });
+  }, [confirmedLocation, selectedIndustry, radius, startTransition]);
 
   // 브라우저 뒤로가기(popstate) 처리
   useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
-      // radius phase에서 뒤로가기 → location phase로 복귀
+      // radius phase에서 브라우저 뒤로가기 → location phase로 복귀
+      // handleBackToLocation에서 이미 state를 변경하므로, 브라우저 기본 뒤로가기 시에만 처리
       if (phase === "radius" && e.state?.phase !== "radius") {
         setPhase("location");
         setConfirmedLocation(null);
@@ -228,7 +217,7 @@ export function MapRadiusStep() {
         radius={radius}
         nearbyCount={nearbyTotalCount}
         onAnalyze={handleAnalyze}
-        isSubmitting={isSubmitting}
+        isSubmitting={isPending}
       />
     </div>
   );

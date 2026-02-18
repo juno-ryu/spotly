@@ -3,6 +3,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { prisma } from "@/server/db/prisma";
 import { AnalysisReportPDF } from "@/features/report/lib/pdf-template";
 import { aiReportSchema } from "@/features/report/schema";
+import type { ScoreBreakdown } from "@/features/analysis/schema";
 
 export async function GET(
   _request: NextRequest,
@@ -38,15 +39,9 @@ export async function GET(
         address={analysis.address}
         industryName={analysis.industryName}
         radius={analysis.radius}
-        totalScore={analysis.totalScore}
-        scoreDetail={analysis.scoreDetail as Record<string, number> | null}
+        scoreDetail={analysis.scoreDetail as ScoreBreakdown | null}
         report={report}
         createdAt={analysis.createdAt.toISOString()}
-        golmok={
-          (analysis.reportData as Record<string, unknown> | null)?.golmok as
-            | Parameters<typeof AnalysisReportPDF>[0]["golmok"]
-            | undefined
-        }
       />,
     );
 
