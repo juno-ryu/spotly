@@ -16,9 +16,9 @@ export function IndustrySelector({ value, onChange }: IndustrySelectorProps) {
 
   const filtered = search
     ? RECOMMENDED_INDUSTRIES.filter(
-        (i) =>
-          i.name.includes(search) ||
-          i.keywords.some((k) => k.includes(search)),
+        (industry) =>
+          industry?.name.includes(search) ||
+          industry?.keywords.some((k) => k.includes(search)),
       )
     : RECOMMENDED_INDUSTRIES;
 
@@ -31,18 +31,21 @@ export function IndustrySelector({ value, onChange }: IndustrySelectorProps) {
         onChange={(e) => setSearch(e.target.value)}
       />
       <div className="flex flex-wrap gap-2">
-        {filtered.map((industry) => (
-          <Badge
-            key={industry.code}
-            variant={value?.code === industry.code ? "default" : "outline"}
-            className="cursor-pointer text-sm py-1.5 px-3"
-            onClick={() =>
-              onChange({ code: industry.code, name: industry.name })
-            }
-          >
-            {industry.name}
-          </Badge>
-        ))}
+        {filtered.map((industry, idx) => {
+          if (!industry) return null;
+          return (
+            <Badge
+              key={industry.code}
+              variant={value?.code === industry.code ? "default" : "outline"}
+              className="cursor-pointer text-sm py-1.5 px-3"
+              onClick={() =>
+                onChange({ code: industry.code, name: industry.name })
+              }
+            >
+              {industry.name}
+            </Badge>
+          );
+        })}
       </div>
       {value && (
         <p className="text-sm text-muted-foreground">
