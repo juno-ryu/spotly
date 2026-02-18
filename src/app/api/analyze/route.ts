@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db/prisma";
 import { analysisRequestSchema } from "@/features/analysis/schema";
 import { runAnalysis } from "@/features/analysis/lib/analysis-orchestrator";
-import * as kakaoGeocoding from "@/server/data-sources/kakao-geocoding";
+import * as kakaoGeocoding from "@/server/data-sources/kakao/client";
 import { INDUSTRY_CODES } from "@/features/analysis/constants/industry-codes";
 import type { AnalysisRequest } from "@/features/analysis/schema";
 
@@ -86,21 +86,43 @@ async function processAnalysis(id: string, input: AnalysisRequest) {
       console.log(`  감지 브랜드: ${c.franchiseBrandNames.join(", ")}`);
     }
 
-    if (aggregated.franchise) {
-      console.log(`\n[공정위 프랜차이즈]`);
-      console.log(`  등록 브랜드: ${aggregated.franchise.brands.length}개 (총 ${aggregated.franchise.totalRegistered}건)`);
+    // 서울 골목상권 (서울 전용)
+    if (aggregated.vitality) {
+      const v = aggregated.vitality;
+      console.log("[상권 활력도 (서울)]");
+      console.log(`  매출 규모: ${Math.round(v.details.estimatedQuarterlySales / 10000).toLocaleString()}만원/분기`);
+      console.log(`  개업률: ${v.details.openRate}% / 폐업률: ${v.details.closeRate}%`);
+      console.log(`  유사업종 비율: ${(v.details.similarStoreRatio * 100).toFixed(1)}%`);
+      console.log(`  피크 시간대: ${v.details.peakTimeSlot} | 주 소비층: ${v.details.mainAgeGroup}`);
+      console.log(`  상권변화: ${v.details.changeIndexName ?? "미확인"}`);
+      console.log(`  평균 영업기간: ${v.details.avgOperatingMonths ? `${v.details.avgOperatingMonths.toFixed(1)}개월` : "미확인"}`);
+      console.log(`  [스코어링 상세]`);
+      const hasFootTraffic = !!v.details.floatingPopulation;
+      console.log(`    매출 점수: ${v.salesScore}/100 (가중치 ${hasFootTraffic ? "25" : "30"}%)`);
+      console.log(`    생존 점수: ${v.survivalScore}/100 (가중치 ${hasFootTraffic ? "25" : "30"}%)`);
+      console.log(`    상권변화 점수: ${v.changeScore}/100 (가중치 ${hasFootTraffic ? "15" : "20"}%)`);
+      console.log(`    업종밀도 점수: ${v.industryDensityScore}/100 (가중치 ${hasFootTraffic ? "15" : "20"}%)`);
+      if (hasFootTraffic) {
+        console.log(`    유동인구 점수: ${v.footTrafficScore}/100 (가중치 20%)`);
+      }
+      console.log(`  활력 종합: ${v.vitalityScore.score}/100 (${v.vitalityScore.grade} — ${v.vitalityScore.gradeLabel})`);
+      // 유동인구
+      if (v.details.floatingPopulation) {
+        const fp = v.details.floatingPopulation;
+        console.log(`  [유동인구] 총 ${fp.totalFloating.toLocaleString()}명 | 피크: ${fp.peakDay} ${fp.peakTimeSlot} | 주 연령: ${fp.mainAgeGroup}`);
+      }
+      // 상주인구
+      if (v.details.residentPopulation) {
+        const rp = v.details.residentPopulation;
+        console.log(`  [상주인구] 총 ${rp.totalResident.toLocaleString()}명 | ${rp.totalHouseholds.toLocaleString()}세대`);
+      }
+
+    } else if (aggregated.isSeoul) {
+      console.log("[상권 활력도] 서울이지만 데이터 없음");
+    } else {
+      console.log("[상권 활력도] 비서울 지역 — 미적용");
     }
 
-    if (aggregated.nps) {
-      const n = aggregated.nps;
-      console.log("\n[NPS 국민연금]");
-      console.log(`  검색 사업장: ${n.totalCount}건`);
-      console.log(`  평균 직원 수: ${n.avgEmployeeCount.toFixed(1)}명`);
-      console.log(`  평균 월 급여: ${Math.round(n.avgMonthlySalary).toLocaleString()}원`);
-      console.log(`  평균 운영 기간: ${n.avgOperatingMonths.toFixed(0)}개월`);
-    } else {
-      console.log("\n[NPS] 데이터 없음");
-    }
     console.log("====================================\n");
 
     // DB 저장 — 스코어링 없이 raw 데이터만 저장

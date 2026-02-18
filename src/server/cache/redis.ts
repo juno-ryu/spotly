@@ -2,7 +2,7 @@ import { Redis } from "@upstash/redis";
 import { hasApiKey } from "@/lib/env";
 
 /** Redis 클라이언트 (키 없으면 null) */
-const redis = hasApiKey.redis
+export const redis = hasApiKey.redis
   ? new Redis({
       url: process.env.UPSTASH_REDIS_REST_URL!,
       token: process.env.UPSTASH_REDIS_REST_TOKEN!,
@@ -11,8 +11,6 @@ const redis = hasApiKey.redis
 
 /** 캐시 TTL 상수 (초 단위) */
 export const CACHE_TTL = {
-  /** 24시간 (사업장 데이터는 일별 갱신) */
-  NPS: 24 * 60 * 60,
   /** 7일 (사업자 상태는 자주 변경 안됨) */
   NTS: 7 * 24 * 60 * 60,
   /** 30일 (월별 갱신) */

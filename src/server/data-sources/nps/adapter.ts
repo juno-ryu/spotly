@@ -1,5 +1,5 @@
-import * as npsClient from "@/server/data-sources/nps-client";
-import type { NpsBusiness, NpsDetail, NpsTrendItem } from "@/server/data-sources/nps-client";
+import * as npsClient from "./client";
+import type { NpsBusiness, NpsDetail, NpsTrendItem } from "./client";
 
 export interface NpsBizInfo {
   name: string;

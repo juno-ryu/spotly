@@ -9,7 +9,7 @@ import {
 import type { AiReport } from "../schema";
 import { formatRadius } from "@/lib/format";
 import type { ScoreBreakdown } from "@/features/analysis/schema";
-import type { GolmokAggregated } from "@/server/data-sources/seoul-golmok-client";
+import type { GolmokAggregated } from "@/server/data-sources/seoul-golmok/client";
 import {
   getIndicatorGrades,
   GRADE_PDF_COLOR,

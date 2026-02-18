@@ -1,4 +1,4 @@
-import type { KakaoResponse, Coordinate, RegionInfo } from "./types";
+import type { KakaoResponse, Coordinate, RegionInfo } from "../types";
 
 const KAKAO_BASE_URL = "https://dapi.kakao.com/v2/local";
 

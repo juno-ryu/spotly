@@ -1,7 +1,7 @@
 import { formatRadius } from "@/lib/format";
 import type { ScoreBreakdown } from "@/features/analysis/schema";
 import { getIndicatorGrades } from "@/features/analysis/lib/grade";
-import type { GolmokAggregated } from "@/server/data-sources/seoul-golmok-client";
+import type { GolmokAggregated } from "@/server/data-sources/seoul-golmok/client";
 
 /** 소상공인 창업 분석 AI 리포트 — 시스템 프롬프트 */
 export const ANALYSIS_SYSTEM_PROMPT = `너는 직접 가게를 3번 창업해보고, 지금은 소상공인 상권 분석 컨설턴트로 일하고 있는 10년 차 전문가야.
@@ -39,6 +39,8 @@ export const ANALYSIS_SYSTEM_PROMPT = `너는 직접 가게를 3번 창업해보
 - 프랜차이즈 비율(프랜차이즈 점포수/전체 점포수)이 70% 이상이면 "프랜차이즈 포화 상태"라고 경고해.
 - 상권변화지표가 LL(정체)이면 위험 요소로, HH(다이나믹)나 HL(상권확장)이면 강점으로 언급해.
 - 주 소비 연령대와 성별 정보를 활용해 타겟 마케팅 전략을 구체적으로 제안해.
+- 유동인구 데이터가 있으면 매출 피크 시간대와 유동인구 피크 시간대를 교차 분석해. 두 피크가 일치하면 강점, 어긋나면 "유동인구는 많지만 실제 소비로 이어지는 시간대가 다를 수 있어요"라고 분석해.
+- 상주인구/세대수 데이터가 있으면 배후 수요를 판단해. 세대수 1만+ 이면 배달/생활밀착 업종에 유리, 3천 미만이면 유동인구 의존도가 높다고 판단해.
 
 ## 제언 쓸 때 규칙
 - "열심히 하세요" 같은 뻔한 말 금지
@@ -151,6 +153,20 @@ ${
       params.golmok.avgOperatingMonths
         ? `
 - 운영 사업체 평균 영업기간: ${params.golmok.avgOperatingMonths}개월`
+        : ""
+    }${
+      params.golmok.floatingPopulation
+        ? `\n\n#### 유동인구 (분기 합산)
+- 총 유동인구: ${params.golmok.floatingPopulation.totalFloating.toLocaleString()}명
+- 성비: 남성 ${Math.round(params.golmok.floatingPopulation.maleRatio * 100)}% / 여성 ${Math.round((1 - params.golmok.floatingPopulation.maleRatio) * 100)}%
+- 유동인구 피크: ${params.golmok.floatingPopulation.peakDay} ${params.golmok.floatingPopulation.peakTimeSlot}
+- 주 연령대: ${params.golmok.floatingPopulation.mainAgeGroup}`
+        : ""
+    }${
+      params.golmok.residentPopulation
+        ? `\n\n#### 상주인구
+- 총 상주인구: ${params.golmok.residentPopulation.totalResident.toLocaleString()}명
+- 총 세대수: ${params.golmok.residentPopulation.totalHouseholds.toLocaleString()}세대`
         : ""
     }`
     : ""

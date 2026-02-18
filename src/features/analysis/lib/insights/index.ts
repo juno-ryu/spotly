@@ -5,6 +5,4 @@ export type {
   InsightData,
   InsightRule,
   CompetitionAnalysis,
-  NpsMetrics,
-  FranchiseMetrics,
 } from "./types";

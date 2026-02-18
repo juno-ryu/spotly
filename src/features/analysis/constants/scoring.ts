@@ -34,7 +34,7 @@ export const COMPETITION_BASE_DENSITY: Record<string, number> = {
   S96112: 8,  // 미용실
 };
 
-/** 생존율 기준 (NPS 가입유지율 기반, 과거 탈퇴 포함 특성 반영) */
+/** 생존율 기준 (추후 신뢰성 있는 데이터 소스 연동 시 활용) */
 export const SURVIVAL_THRESHOLDS = {
   /** 이 이상이면 만점 */
   MAX_RATE: 0.8,

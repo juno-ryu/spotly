@@ -1,4 +1,4 @@
-import * as kakaoGeocoding from "@/server/data-sources/kakao-geocoding";
+import * as kakaoGeocoding from "./client";
 
 export interface KakaoPlace {
   id: string;

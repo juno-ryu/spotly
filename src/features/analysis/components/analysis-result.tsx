@@ -9,15 +9,15 @@ import { AnalysisSkeleton } from "./analysis-skeleton";
 import { formatRadius } from "@/lib/format";
 import { GRADIENT_TEXT_STYLE } from "@/constants/site";
 import { buildInsights } from "../lib/insights";
-import type { InsightItem, CompetitionAnalysis, NpsMetrics, FranchiseMetrics } from "../lib/insights";
+import type { InsightItem, CompetitionAnalysis } from "../lib/insights";
+import type { VitalityAnalysis } from "../lib/scoring/vitality";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 
 /** 데이터 소스 티커 */
 const DATA_SOURCES = [
   "카카오 Places 경쟁 매장 분석",
-  "NPS(국민연금) 사업장 데이터 연동",
-  "공정거래위원회 프랜차이즈 데이터 연동",
+  "프랜차이즈 브랜드 매칭 분석",
   "반경 내 경쟁업체 밀집도 계산",
   "업종별 프랜차이즈 비율 분석",
 ];
@@ -276,8 +276,7 @@ export function AnalysisResult({ analysisId }: AnalysisResultProps) {
     | { totalCount: number; fetchedCount: number }
     | undefined;
   const competition = report?.competition as CompetitionAnalysis | undefined;
-  const nps = report?.nps as NpsMetrics | null | undefined;
-  const franchise = report?.franchise as FranchiseMetrics | null | undefined;
+  const vitality = report?.vitality as VitalityAnalysis | undefined;
   const centerLat = report?.centerLatitude as number | undefined;
   const centerLng = report?.centerLongitude as number | undefined;
 
@@ -285,9 +284,8 @@ export function AnalysisResult({ analysisId }: AnalysisResultProps) {
 
   const allInsights = buildInsights({
     competition: competition ?? null,
-    nps: nps ?? null,
+    vitality: vitality ?? null,
     places: places ?? null,
-    franchise: franchise ?? null,
     industryName: data.industryName,
     radius: data.radius,
   });

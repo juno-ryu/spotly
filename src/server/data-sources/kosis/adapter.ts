@@ -1,4 +1,4 @@
-import * as kosisClient from "@/server/data-sources/kosis-client";
+import * as kosisClient from "./client";
 
 export interface PopulationMetrics {
   totalPopulation: number;

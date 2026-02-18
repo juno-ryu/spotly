@@ -10,10 +10,20 @@ import {
   TRADE_RATE_THRESHOLDS,
   VOLUME_INDEX_THRESHOLDS,
 } from "../constants/scoring";
-import type { AnalysisResult } from "./analysis-orchestrator";
-
-// TODO: 스코어링 엔진 전면 개편 예정 — 현재 AggregatedData → AnalysisResult 구조 변경으로 타입 불일치
-type AggregatedData = AnalysisResult;
+// TODO: 스코어링 엔진 전면 개편 예정 — NPS 제거 후 새 데이터 소스 연동 시 재작성
+// 현재 미사용 (api/analyze에서 totalScore: 0으로 하드코딩)
+/** @deprecated 구 데이터 구조 — 추후 개편 시 재정의 */
+interface AggregatedData {
+  businesses: Array<{ status: string }>;
+  totalBusinessCount: number;
+  populationSurvivalRate: number;
+  radius: number;
+  industryCode: string;
+  transactionCount: number;
+  avgApartmentPrice: number;
+  population?: { totalPopulation: number; households: number };
+  golmok?: { changeIndex: string; closeRate: number };
+}
 
 /** 신뢰도 정보 (v2) */
 export interface ScoreConfidence {

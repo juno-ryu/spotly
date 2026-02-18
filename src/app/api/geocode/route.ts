@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import * as kakaoGeocoding from "@/server/data-sources/kakao-geocoding";
+import * as kakaoGeocoding from "@/server/data-sources/kakao/client";
 
 const querySchema = z.object({
   address: z.string().trim().min(1),

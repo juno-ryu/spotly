@@ -104,7 +104,7 @@ export async function getPopulationByDistrict(
   districtCode: string,
 ): Promise<PopulationData> {
   if (USE_MOCK) {
-    const mock = await import("./mock/kosis-population.json");
+    const mock = await import("../mock/kosis-population.json");
     const items = z.array(kosisItemSchema).parse(mock.default);
     return itemsToPopulationData(items);
   }

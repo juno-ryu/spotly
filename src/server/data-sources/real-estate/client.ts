@@ -76,7 +76,7 @@ export async function getApartmentTransactions(
   dealYmd: string,
 ): Promise<ApartmentTrade[]> {
   if (USE_MOCK) {
-    const mock = await import("./mock/real-estate.json");
+    const mock = await import("../mock/real-estate.json");
     return z.array(apartmentTradeSchema).parse(mock.default.items);
   }
 

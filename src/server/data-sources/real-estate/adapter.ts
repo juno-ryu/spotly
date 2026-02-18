@@ -1,4 +1,4 @@
-import * as realEstateClient from "@/server/data-sources/real-estate-client";
+import * as realEstateClient from "./client";
 
 export interface ApartmentTradeMetrics {
   transactionCount: number;

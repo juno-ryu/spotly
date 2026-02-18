@@ -1,3 +1,5 @@
+import type { VitalityAnalysis } from "../scoring/vitality";
+
 /** 인사이트 카테고리 — 내부 구분용, UI 노출 안 함 */
 export type InsightCategory = "scoring" | "fact";
 
@@ -27,27 +29,11 @@ export interface CompetitionAnalysis {
   };
 }
 
-/** NPS 국민연금 데이터 */
-export interface NpsMetrics {
-  totalCount: number;
-  avgEmployeeCount: number;
-  avgMonthlySalary: number;
-  avgOperatingMonths: number;
-}
-
-/** 프랜차이즈 데이터 */
-export interface FranchiseMetrics {
-  franchiseCount: number;
-  franchiseRatio: number;
-  brandNames: string[];
-}
-
 /** 빌더에 전달되는 통합 데이터 */
 export interface InsightData {
   competition: CompetitionAnalysis | null;
-  nps: NpsMetrics | null;
+  vitality: VitalityAnalysis | null;
   places: { totalCount: number; fetchedCount: number } | null;
-  franchise: FranchiseMetrics | null;
   industryName: string;
   radius: number;
 }
