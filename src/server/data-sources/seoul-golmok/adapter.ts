@@ -21,6 +21,8 @@ export interface CommercialVitalityData {
   closeRate: number;
   /** 프랜차이즈 점포수 */
   franchiseCount: number;
+  /** 유사업종 점포수 */
+  similarStoreCount: number;
   /** 상권변화지표 코드 (HH/HL/LH/LL) */
   changeIndex: string | null;
   /** 상권변화지표명 (예: "다이나믹", "상권확장") */
@@ -55,6 +57,7 @@ function toVitalityData(raw: GolmokAggregated): CommercialVitalityData {
     openRate: raw.openRate,
     closeRate: raw.closeRate,
     franchiseCount: raw.franchiseCount,
+    similarStoreCount: raw.similarStoreCount,
     changeIndex: raw.changeIndex ?? null,
     changeIndexName: raw.changeIndexName ?? null,
     mainAgeGroup: raw.mainAgeGroup,

@@ -221,7 +221,21 @@ async function fetchPage<T>(
   console.log(`[서울 API 호출] ${label}`);
   const t0 = Date.now();
 
-  const res = await fetch(url);
+  // 10초 타임아웃 (서울시 API 간헐적 지연 대비)
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10_000);
+
+  let res: Response;
+  try {
+    res = await fetch(url, { signal: controller.signal });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      throw new Error(`[서울 API] ${label}: 10초 타임아웃 초과`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
   if (!res.ok) throw new Error(`[서울 API] ${label}: HTTP ${res.status}`);
 
   const text = await res.text();
@@ -267,15 +281,32 @@ async function fetchAllPages<T>(
   const pageCount = Math.ceil(first.totalCount / 1000);
   console.log(`[서울 API 페이지네이션] ${serviceName} 총 ${first.totalCount.toLocaleString()}건 → ${pageCount}페이지 병렬호출`);
 
+  let failedPages = 0;
   const promises = Array.from({ length: pageCount - 1 }, (_, i) => {
     const s = (i + 1) * 1000 + 1;
     const e = Math.min((i + 2) * 1000, first.totalCount);
     return fetchPage<T>(serviceName, s, e, conditions)
       .then((r) => r.rows)
-      .catch(() => [] as T[]);
+      .catch((err) => {
+        failedPages++;
+        console.warn(`[서울 API 페이지네이션] ${serviceName} 페이지 ${i + 2}/${pageCount} 실패: ${err instanceof Error ? err.message : String(err)}`);
+        return [] as T[];
+      });
   });
 
   const rest = await Promise.all(promises);
+
+  // 전체 페이지의 30% 이상 실패 시 데이터 신뢰성 부족으로 throw
+  const failRate = failedPages / pageCount;
+  if (failRate >= 0.3) {
+    throw new Error(
+      `[서울 API] ${serviceName}: ${pageCount}페이지 중 ${failedPages}페이지 실패 (${Math.round(failRate * 100)}%) — 데이터 신뢰성 부족`,
+    );
+  }
+  if (failedPages > 0) {
+    console.warn(`[서울 API 페이지네이션] ${serviceName}: ${failedPages}/${pageCount}페이지 실패 — 부분 데이터로 진행`);
+  }
+
   const all = [first.rows, ...rest].flat();
   console.log(`[서울 API 페이지네이션] ${serviceName} 완료: ${all.length.toLocaleString()}건`);
   return all;
@@ -643,6 +674,21 @@ export async function getResidentPopulation(params: {
     return all;
   }
 
+  // 2.5단계: 이 분기 전체를 이미 fetch한 적 있으면 해당 상권은 데이터가 없는 것
+  const repopFetchedMarkerKey = `seoul:repop:${qc}:__fetched__`;
+  if (redis) {
+    try {
+      const alreadyFetched = await redis.get<boolean>(repopFetchedMarkerKey);
+      if (alreadyFetched) {
+        const all = perTrdarResults.filter((r) => r.hit).flatMap((r) => r.data!);
+        console.log(
+          `[서울 상주인구] 분기 전체 fetch 완료 마커 확인 → 캐시 히트 ${hitCount}개만 사용 → ${all.length}건 (API 0회)`,
+        );
+        return all;
+      }
+    } catch { /* Redis 실패 → 마커 미확인 취급 */ }
+  }
+
   // 3단계: 캐시 미스 → 전체 fetch
   console.log(
     `[서울 상주인구] 캐시 히트 ${hitCount}/${params.trdarCodes.length}개 → 전체 fetch 시작`,
@@ -653,7 +699,7 @@ export async function getResidentPopulation(params: {
     [qc],
   ).then((rows) => z.array(golmokResidentPopSchema).parse(rows));
 
-  // 4단계: 전체 상권코드 분할 캐싱 (fire-and-forget)
+  // 4단계: 전체 상권코드 분할 캐싱 + 전체 fetch 완료 마커 저장
   // 데이터 없는 상권도 빈 배열로 캐싱 (미스 → 전체 재호출 방지)
   if (redis) {
     const dataByTrdar = new Map<string, GolmokResidentPop[]>();
@@ -668,12 +714,16 @@ export async function getResidentPopulation(params: {
     console.log(
       `[서울 상주인구] ${dataByTrdar.size}개 상권 분산 캐싱 시작`,
     );
-    const cachePromises = [...dataByTrdar.entries()].map(([cd, rows]) =>
-      redis!
-        .set(`seoul:repop:${qc}:${cd}`, rows, { ex: TTL.QUARTER })
-        .catch(() => {}),
-    );
-    Promise.all(cachePromises).catch(() => {});
+    const cachePromises = [
+      ...[...dataByTrdar.entries()].map(([cd, rows]) =>
+        redis!
+          .set(`seoul:repop:${qc}:${cd}`, rows, { ex: TTL.QUARTER })
+          .catch(() => {}),
+      ),
+      // 전체 fetch 완료 마커 (같은 TTL)
+      redis!.set(repopFetchedMarkerKey, true, { ex: TTL.QUARTER }).catch(() => {}),
+    ];
+    await Promise.all(cachePromises).catch(() => {});
   }
 
   const filtered = allRows.filter((r) =>
@@ -736,6 +786,26 @@ export async function getEstimatedSales(params: {
     return filtered;
   }
 
+  // 2.5단계: 이 분기 전체를 이미 fetch한 적 있으면 해당 상권은 데이터가 없는 것
+  // (전체 fetch 시 데이터 없는 상권도 빈 배열로 캐싱하므로, 마커가 있으면 재fetch 불필요)
+  const fetchedMarkerKey = `seoul:sales:${qc}:__fetched__`;
+  if (redis) {
+    try {
+      const alreadyFetched = await redis.get<boolean>(fetchedMarkerKey);
+      if (alreadyFetched) {
+        // 이미 전체 fetch 완료 — 캐시 미스 상권은 데이터 없음 확정
+        const all = perTrdarResults.filter((r) => r.hit).flatMap((r) => r.data!);
+        const filtered = all.filter((r) =>
+          matchesIndustry(r.SVC_INDUTY_CD_NM, params.industryKeyword),
+        );
+        console.log(
+          `[서울 매출] 분기 전체 fetch 완료 마커 확인 → 캐시 히트 ${hitCount}개만 사용, 업종필터 → ${filtered.length}건 (API 0회)`,
+        );
+        return filtered;
+      }
+    } catch { /* Redis 실패 → 마커 미확인 취급 */ }
+  }
+
   // 3단계: 캐시 미스 → 전체 fetch (URL 필터 미지원이므로 불가피)
   console.log(
     `[서울 매출] 캐시 히트 ${hitCount}/${params.trdarCodes.length}개 → 전체 fetch 시작`,
@@ -744,7 +814,7 @@ export async function getEstimatedSales(params: {
   const allSales = await fetchAllPages<GolmokSales>("VwsmTrdarSelngQq", [qc])
     .then((rows) => z.array(golmokSalesSchema).parse(rows));
 
-  // 4단계: 전체 상권코드 분할 캐싱 (fire-and-forget)
+  // 4단계: 전체 상권코드 분할 캐싱 + 전체 fetch 완료 마커 저장
   // 데이터 있는 상권 + 요청했지만 데이터 없는 상권 모두 캐싱
   // (빈 배열도 캐싱해야 다음 요청 시 "캐시 미스 → 전체 재호출" 방지)
   if (redis) {
@@ -761,12 +831,16 @@ export async function getEstimatedSales(params: {
     console.log(
       `[서울 매출] ${dataByTrdar.size}개 상권 분산 캐싱 시작`,
     );
-    const cachePromises = [...dataByTrdar.entries()].map(([cd, rows]) =>
-      redis!
-        .set(`seoul:sales:${qc}:${cd}`, rows, { ex: TTL.SALES })
-        .catch(() => {}),
-    );
-    Promise.all(cachePromises).catch(() => {});
+    const cachePromises = [
+      ...[...dataByTrdar.entries()].map(([cd, rows]) =>
+        redis!
+          .set(`seoul:sales:${qc}:${cd}`, rows, { ex: TTL.SALES })
+          .catch(() => {}),
+      ),
+      // 전체 fetch 완료 마커 (같은 TTL)
+      redis!.set(fetchedMarkerKey, true, { ex: TTL.SALES }).catch(() => {}),
+    ];
+    await Promise.all(cachePromises).catch(() => {});
   }
 
   const filtered = allSales.filter(
@@ -835,6 +909,8 @@ export interface GolmokAggregated {
   openRate: number;
   closeRate: number;
   franchiseCount: number;
+  /** 유사업종 점포수 */
+  similarStoreCount: number;
   changeIndex?: string;
   changeIndexName?: string;
   mainAgeGroup: string;
@@ -943,6 +1019,7 @@ export function aggregateGolmokData(
 
   const totalStores = stores.reduce((sum, s) => sum + s.STOR_CO, 0);
   const totalFranchise = stores.reduce((sum, s) => sum + s.FRC_STOR_CO, 0);
+  const totalSimilar = stores.reduce((sum, s) => sum + s.SIMILR_INDUTY_STOR_CO, 0);
 
   // 개폐업률: 비율의 평균이 아닌 절대 건수 합산 후 비율 계산
   // (개별 레코드의 90%가 0%이므로 비율 평균은 무의미)
@@ -982,6 +1059,7 @@ export function aggregateGolmokData(
     openRate: Math.round(avgOpenRate * 10) / 10,
     closeRate: Math.round(avgCloseRate * 10) / 10,
     franchiseCount: totalFranchise,
+    similarStoreCount: totalSimilar,
     changeIndex: domCi?.TRDAR_CHNGE_IX,
     changeIndexName: domCi?.TRDAR_CHNGE_IX_NM,
     mainAgeGroup: findMainAgeGroup(rep),

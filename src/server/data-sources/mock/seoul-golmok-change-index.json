@@ -7,7 +7,7 @@
       "TRDAR_CD": "3111083",
       "TRDAR_CD_NM": "GS강남아파트",
       "TRDAR_CHNGE_IX": "HL",
-      "TRDAR_CHNGE_IX_NM": "기존업체강세",
+      "TRDAR_CHNGE_IX_NM": "상권축소",
       "OPR_SALE_MT_AVRG": 60.5,
       "CLS_SALE_MT_AVRG": 24.3
     },
@@ -16,7 +16,7 @@
       "TRDAR_CD": "3111084",
       "TRDAR_CD_NM": "역삼역사거리",
       "TRDAR_CHNGE_IX": "HH",
-      "TRDAR_CHNGE_IX_NM": "안정경쟁",
+      "TRDAR_CHNGE_IX_NM": "정체",
       "OPR_SALE_MT_AVRG": 48.2,
       "CLS_SALE_MT_AVRG": 18.7
     }

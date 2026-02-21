@@ -50,9 +50,9 @@ export interface VitalityAnalysis {
  * 분기 점포당 매출 500만원~1.5억원 범위로 정규화
  *
  * 근거: 서울 골목상권 실데이터 분석 (2025 3Q, 2,030건)
- * - p25: 3,083만원 / p50: 1.015억 / p75: 3.15억
- * - min 500만 = 하위 15% 절삭 (극소매출 상권)
- * - max 1.5억 = p90 수준 (상위 18%가 100점)
+ * - min 500만 = 극소매출 상권 절삭
+ * - max 1.5억 = 상위 매출 상권 기준 (p50~p60 수준)
+ * 주의: 정규화 범위 자체의 변경은 scoring-engine-validator 검토 필요
  */
 function calcSalesScore(salesPerStore: number): number {
   return normalize(salesPerStore, 5_000_000, 150_000_000) * 100;
@@ -96,10 +96,13 @@ const WEIGHTS = {
     change: 0.30,
     footTraffic: 0.35,
   },
-  /** 유동인구 데이터 없을 때 (2지표 fallback) */
+  /** 유동인구 데이터 없을 때 (2지표 fallback)
+   * change 0.45 → 0.35로 하향: 동일 매출에서 changeIndex만으로
+   * D/B 등급 역전이 발생하는 과대 가중치 문제 수정
+   * (scoring-engine-validator 최종 검증 필요) */
   withoutFootTraffic: {
-    sales: 0.55,
-    change: 0.45,
+    sales: 0.65,
+    change: 0.35,
     footTraffic: 0,
   },
 } as const;
