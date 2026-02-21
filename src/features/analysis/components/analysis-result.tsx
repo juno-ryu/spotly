@@ -18,6 +18,7 @@ import { buildCompetitionInsights, buildVitalityInsights } from "../lib/insights
 import { generateReport } from "@/features/report/actions";
 import type { InsightItem, CompetitionAnalysis } from "../lib/insights";
 import type { VitalityAnalysis } from "../lib/scoring/vitality";
+import type { PopulationAnalysis } from "../lib/scoring/population";
 import type { AnalysisRequest } from "@prisma/client";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
@@ -147,6 +148,15 @@ const VITALITY_GRADE: Record<string, string> = {
   C: "상권 활력이 보통 수준이에요",
   D: "상권 활력이 다소 낮아요",
   F: "상권 활력이 낮은 편이에요",
+};
+
+/** 인구 밀집도 등급별 설명 */
+const POPULATION_GRADE: Record<string, string> = {
+  A: "유동 배후 인구가 매우 많아 수요가 풍부해요",
+  B: "배후 인구가 많아 안정적인 수요를 기대할 수 있어요",
+  C: "배후 인구가 평균 수준이에요",
+  D: "배후 인구가 다소 적어 수요에 주의가 필요해요",
+  F: "배후 인구가 적어 수요 확보가 어려울 수 있어요",
 };
 
 /** 인사이트 항목 — 순차 페이드인 */
@@ -368,7 +378,9 @@ function ReportUpsellDialog({
                 상권 컨설팅{" "}
                 <span className="line-through">50만원</span>
                 {" → "}
-                <span className="font-bold text-foreground">AI 분석 ₩3,900</span>
+                <span className="line-through text-muted-foreground/60">₩3,900</span>
+                {" "}
+                <span className="font-bold text-foreground">얼리버드 ₩1,900</span>
               </p>
               <p className="text-[11px] text-muted-foreground break-keep">
                 ☕ 아메리카노 한 잔 가격으로 수천만원 투자 리스크를 줄이세요
@@ -378,25 +390,37 @@ function ReportUpsellDialog({
         </div>
 
         {/* ── 하단 고정 CTA ── */}
-        <div className="shrink-0 px-5 pb-6 pt-3 border-t bg-background">
+        <div className="shrink-0 px-5 pb-6 pt-4 border-t bg-background">
           {genError && (
             <p className="text-xs text-destructive text-center mb-2">{genError}</p>
           )}
-          <button
-            type="button"
-            onClick={handleGenerate}
-            disabled={isGenerating}
-            className="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-60 text-white font-bold text-sm active:scale-95 transition-transform"
-          >
-            {isGenerating ? (
-              <>
-                <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                리포트 생성 중...
-              </>
-            ) : (
-              "지금 바로 받기 · ₩3,900"
-            )}
-          </button>
+          <div className="relative mt-5">
+            {/* 얼리버드 할인 툴팁 */}
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full animate-bounce pointer-events-none">
+              <div className="flex items-center gap-1.5 bg-amber-400 text-amber-950 text-[11px] font-bold px-2.5 py-1 rounded-full shadow-md whitespace-nowrap">
+                <span className="line-through opacity-60">₩3,900</span>
+                <span>→ 얼리버드 ₩1,900</span>
+                <span>🎉</span>
+              </div>
+              <div className="mx-auto w-2 h-2 bg-amber-400 rotate-45 -mt-1" />
+            </div>
+            <button
+              type="button"
+              onClick={handleGenerate}
+              disabled={isGenerating}
+              className="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-60 text-white font-bold text-sm active:scale-95 transition-transform"
+            >
+              {isGenerating ? (
+                <>
+                  <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                  리포트 생성 중...
+                </>
+              ) : (
+                <><span className="line-through opacity-60 font-normal">₩3,900</span> 지금 바로 받기 · ₩1,900</>
+
+              )}
+            </button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
@@ -515,11 +539,13 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
     | undefined;
   const competition = report?.competition as CompetitionAnalysis | undefined;
   const vitality = report?.vitality as VitalityAnalysis | undefined;
+  const populationAnalysis = report?.populationAnalysis as PopulationAnalysis | undefined;
   const centerLat = report?.centerLatitude as number | undefined;
   const centerLng = report?.centerLongitude as number | undefined;
 
   const competitionGrade = competition?.competitionScore?.grade ?? "-";
   const vitalityGrade = vitality?.vitalityScore?.grade ?? "-";
+  const populationGrade = populationAnalysis?.score?.grade ?? "-";
 
   const insightData = {
     competition: competition ?? null,
@@ -577,7 +603,7 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
 
         {/* ── 콘텐츠 ── */}
         <div className="flex-1 overflow-y-auto px-4 pb-10 mt-3">
-          <Accordion type="multiple" defaultValue={["competition", "vitality"]}>
+          <Accordion type="multiple" defaultValue={["competition", "vitality", "population"]}>
             {/* 경쟁강도 */}
             <AccordionItem value="competition">
               <AccordionTrigger>
@@ -629,6 +655,62 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
                 </AccordionContent>
               </AccordionItem>
             )}
+            {/* 인구 밀집도 — 데이터 있을 때만 */}
+            {populationAnalysis && (
+              <AccordionItem value="population">
+                <AccordionTrigger>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold flex items-center gap-1.5">
+                      배후 인구 밀집도
+                      <Badge className={BADGE[populationGrade] ?? BADGE.C}>
+                        {populationGrade}
+                      </Badge>
+                    </p>
+                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">
+                      {POPULATION_GRADE[populationGrade] ?? POPULATION_GRADE.C}
+                    </p>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-0.5">
+                    <Insight
+                      item={{
+                        type: "text",
+                        category: "fact",
+                        emoji: "👥",
+                        text: `${populationAnalysis.details.isDongLevel ? "행정동" : "시군구"} 기준 거주 인구 ${populationAnalysis.details.totalPopulation.toLocaleString()}명`,
+                        sub: `인구 점수 ${populationAnalysis.populationScore}점`,
+                      }}
+                      delay={0}
+                    />
+                    {populationAnalysis.details.households > 0 && (
+                      <Insight
+                        item={{
+                          type: "text",
+                          category: "fact",
+                          emoji: "🏠",
+                          text: `총 ${populationAnalysis.details.households.toLocaleString()}세대 거주`,
+                          sub: `세대 수 점수 ${populationAnalysis.householdScore}점`,
+                        }}
+                        delay={150}
+                      />
+                    )}
+                    <Insight
+                      item={{
+                        type: "text",
+                        category: "scoring",
+                        emoji: "📊",
+                        text: `인구·세대 종합 점수 ${populationAnalysis.score.score}점 (${populationAnalysis.score.gradeLabel})`,
+                        sub: populationAnalysis.details.isDongLevel
+                          ? "행정동 단위 주민등록 인구 기준 (KOSIS 2024)"
+                          : "시군구 단위 주민등록 인구 기준 (KOSIS 2024)",
+                      }}
+                      delay={300}
+                    />
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
           </Accordion>
 
         </div>
@@ -650,9 +732,6 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
             </>
           ) : (
             <>
-              <p className="text-center text-[11px] text-muted-foreground mb-2">
-                AI가 분석한 맞춤 리포트를 확인해보세요
-              </p>
               <button
                 type="button"
                 onClick={() => setReportDialogOpen(true)}

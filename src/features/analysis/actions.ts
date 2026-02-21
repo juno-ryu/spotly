@@ -58,6 +58,7 @@ export async function startAnalysis(input: AnalysisRequest) {
         scoreDetail: JSON.parse(JSON.stringify({
           competition: aggregated.competition.competitionScore,
           vitality: aggregated.vitality?.vitalityScore ?? null,
+          population: aggregated.populationAnalysis?.score ?? null,
         })),
         reportData: JSON.parse(JSON.stringify(aggregated)),
       },

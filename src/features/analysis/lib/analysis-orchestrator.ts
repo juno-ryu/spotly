@@ -1,6 +1,7 @@
 import { fetchKakaoPlaces, type KakaoPlacesRaw, type KakaoPlace } from "@/server/data-sources/kakao/adapter";
 import { fetchCommercialVitality } from "@/server/data-sources/seoul-golmok/adapter";
-import { analyzeCompetition, type CompetitionAnalysis } from "./scoring";
+import { fetchPopulationData, type PopulationMetrics } from "@/server/data-sources/kosis/adapter";
+import { analyzeCompetition, type CompetitionAnalysis, analyzePopulation, type PopulationAnalysis } from "./scoring";
 import { analyzeVitality, type VitalityAnalysis } from "./scoring/vitality";
 
 export interface AnalysisResult {
@@ -17,6 +18,10 @@ export interface AnalysisResult {
   dongName?: string;
   /** 서울 지역 여부 */
   isSeoul: boolean;
+  /** KOSIS 인구 데이터 (전국, 없으면 null) */
+  population: PopulationMetrics | null;
+  /** KOSIS 인구 분석 결과 (전국, 없으면 null) */
+  populationAnalysis: PopulationAnalysis | null;
 }
 
 export type { KakaoPlace, KakaoPlacesRaw };
@@ -34,8 +39,8 @@ export async function runAnalysis(params: {
 }): Promise<AnalysisResult> {
   const isSeoul = params.regionCode.startsWith("11");
 
-  // 데이터 수집 — 카카오 Places + 서울 골목상권(서울만)
-  const [placesRaw, vitalityData] = await Promise.all([
+  // 데이터 수집 — 카카오 Places + 서울 골목상권(서울만) + KOSIS 인구(전국)
+  const [placesRaw, vitalityData, populationData] = await Promise.all([
     fetchKakaoPlaces({
       keyword: params.industryName,
       latitude: params.latitude,
@@ -54,6 +59,14 @@ export async function runAnalysis(params: {
           return null;
         })
       : Promise.resolve(null),
+    // KOSIS 인구 조회는 서울/비서울 구분 없이 전국 실행
+    fetchPopulationData({
+      adminDongCode: params.adminDongCode,
+      regionCode: params.regionCode,
+    }).catch((err) => {
+      console.warn("[오케스트레이터] KOSIS 인구 조회 실패:", err);
+      return null;
+    }),
   ]);
 
   // 경쟁 분석 (하드코딩 프랜차이즈 목록 기반, 외부 API 호출 없음)
@@ -67,6 +80,9 @@ export async function runAnalysis(params: {
   // 상권 활력도 분석 (서울 전용)
   const vitality = vitalityData ? analyzeVitality(vitalityData) : null;
 
+  // 인구 분석 (전국)
+  const populationAnalysis = populationData ? analyzePopulation(populationData) : null;
+
   return {
     places: placesRaw,
     competition,
@@ -77,5 +93,7 @@ export async function runAnalysis(params: {
     centerLongitude: params.longitude,
     dongName: params.dongName,
     isSeoul,
+    population: populationData,
+    populationAnalysis,
   };
 }

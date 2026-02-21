@@ -111,12 +111,13 @@ export async function getPopulationByDistrict(
 
   const lastYear = String(new Date().getFullYear() - 1);
 
-  // 인구수 + 세대수 병렬 조회 (서로 다른 테이블)
+  // 인구수(DT_1B04005N) + 세대수(DT_1B040B3) 병렬 조회
   const [populationItems, householdItems] = await Promise.all([
     kosisRequest({
-      tblId: "DT_1B040A3",
+      tblId: "DT_1B04005N",
       objL1: districtCode,
-      itmId: "T20",
+      objL2: "0",
+      itmId: "T2",
       prdSe: "Y",
       startPrdDe: lastYear,
       endPrdDe: lastYear,
@@ -165,23 +166,39 @@ export async function getPopulationByDong(
   try {
     const lastYear = String(new Date().getFullYear() - 1);
 
-    const populationItems = await kosisRequest({
-      tblId: "DT_1B04005N",
-      objL1: adminDongCode,
-      objL2: "0",
-      itmId: "T2",
-      prdSe: "Y",
-      startPrdDe: lastYear,
-      endPrdDe: lastYear,
-    });
+    // 읍면동 인구 + 시군구 세대수 병렬 조회
+    // 읍면동 단위 세대수는 DT_1B04005N에 없으므로 시군구(5자리)로 조회
+    const districtCodeFive = districtCode.substring(0, 5);
+    const [populationItems, householdItems] = await Promise.all([
+      kosisRequest({
+        tblId: "DT_1B04005N",
+        objL1: adminDongCode,
+        objL2: "0",
+        itmId: "T2",
+        prdSe: "Y",
+        startPrdDe: lastYear,
+        endPrdDe: lastYear,
+      }),
+      kosisRequest({
+        tblId: "DT_1B040B3",
+        objL1: districtCodeFive,
+        itmId: "T1",
+        prdSe: "Y",
+        startPrdDe: lastYear,
+        endPrdDe: lastYear,
+      }),
+    ]);
 
     const totalPopulation =
       populationItems.length > 0 ? parseKosisNumber(populationItems[0].DT) : 0;
 
-    // 동 단위 데이터가 있으면 사용
+    const households =
+      householdItems.length > 0 ? parseKosisNumber(householdItems[0].DT) : 0;
+
+    // 동 단위 데이터가 있으면 사용 (세대수는 시군구 기준)
     if (totalPopulation > 0) {
       console.log(`[KOSIS] ✅ 읍면동(${adminDongCode}) 인구 ${totalPopulation.toLocaleString()}명`);
-      return { totalPopulation, households: 0, isDongLevel: true };
+      return { totalPopulation, households, isDongLevel: true };
     }
 
     // 데이터 없으면 시군구 fallback
@@ -202,7 +219,7 @@ function itemsToPopulationData(items: KosisItem[]): PopulationData {
   let households = 0;
 
   for (const item of items) {
-    if (item.ITM_ID === "T20" && item.TBL_ID === "DT_1B040A3") {
+    if (item.ITM_ID === "T2" && item.TBL_ID === "DT_1B04005N") {
       totalPopulation = parseKosisNumber(item.DT);
     }
     if (item.ITM_ID === "T1" && item.TBL_ID === "DT_1B040B3") {
