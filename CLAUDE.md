@@ -11,10 +11,9 @@ zustand | dayjs | ts-pattern | es-toolkit | npm
 ## 에이전트 오케스트레이션 규칙
 
 - **분석/검증/구현 작업은 반드시 `cto-lead` 에이전트에게 먼저 위임한다.**
-- **`cto-lead`는 작업 완료 후 반드시 `report-writer`에게 결과를 넘겨 보고서를 작성하게 한다.**
-- **모든 문서화(결과 보고, 완료 보고, 검증 결과 등)는 `report-writer`가 단독 담당한다.** Claude(나)나 cto-lead가 직접 보고서를 쓰지 않는다.
+- **완료 보고는 `cto-lead`가 raw 결과를 직접 반환한다. 별도 report-writer 없음.**
 - Claude(나)는 사용자 대화 창구 역할만 한다.
-- 흐름: `사용자 요청 → cto-lead → 전문 에이전트들 → report-writer → 사용자`
+- 흐름: `사용자 요청 → cto-lead → 전문 에이전트들 → cto-lead (raw 결과 반환) → 사용자`
 
 ### 사용 가능한 에이전트 목록
 
@@ -26,7 +25,6 @@ zustand | dayjs | ts-pattern | es-toolkit | npm
 | `code-reviewer` | 코드 품질 + API 연동 + 성능 통합 리뷰 |
 | `scoring-engine-validator` | 스코어링 로직 설계·검증·자문 |
 | `ai-report-specialist` | AI 리포트 품질 (프롬프트, 인사이트, 응답 정제) |
-| `report-writer` | 최종 문서화 (보고서, 완료 보고) |
 | `public-data-researcher` | 공공데이터 API 리서치, 신규 지표 발굴 |
 
 ---
