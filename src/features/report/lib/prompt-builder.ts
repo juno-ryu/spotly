@@ -29,7 +29,7 @@ export const ANALYSIS_SYSTEM_PROMPT = `너는 직접 가게를 3번 창업해보
 
 ### 인사이트 데이터 (스코어링 미반영, 참고 정보)
 - 폐업률: 5% 초과면 "폐업률이 다소 높은 편" 경고, 5% 이하면 안정적
-- 상주인구: 세대수 1.5만+ 배달/생활밀착 유리, 5천 미만 유동인구 의존도 높음
+- 상주인구: 인구 수가 많을수록 배달/생활밀착 업종에 유리, 인구 적으면 유동인구 의존도 높음
 - 유동인구 피크 vs 매출 피크: 일치하면 강점, 어긋나면 "실제 소비 시간대가 다를 수 있어요" 분석
 
 ## 데이터 없는 항목
@@ -112,7 +112,7 @@ export function buildAnalysisPrompt(params: {
 
 #### 상주인구
 - 총 상주인구: ${d.residentPopulation.totalResident.toLocaleString()}명
-- 총 세대수: ${d.residentPopulation.totalHouseholds.toLocaleString()}세대`
+`
         : ""
     }`;
   }

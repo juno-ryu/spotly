@@ -683,24 +683,13 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
                       }}
                       delay={0}
                     />
-                    {populationAnalysis.details.households > 0 && (
-                      <Insight
-                        item={{
-                          type: "text",
-                          category: "fact",
-                          emoji: "🏠",
-                          text: `총 ${populationAnalysis.details.households.toLocaleString()}세대 거주`,
-                          sub: `세대 수 점수 ${populationAnalysis.householdScore}점`,
-                        }}
-                        delay={150}
-                      />
-                    )}
+                    
                     <Insight
                       item={{
                         type: "text",
                         category: "scoring",
                         emoji: "📊",
-                        text: `인구·세대 종합 점수 ${populationAnalysis.score.score}점 (${populationAnalysis.score.gradeLabel})`,
+                        text: `인구 종합 점수 ${populationAnalysis.score.score}점 (${populationAnalysis.score.gradeLabel})`,
                         sub: populationAnalysis.details.isDongLevel
                           ? "행정동 단위 주민등록 인구 기준 (KOSIS 2024)"
                           : "시군구 단위 주민등록 인구 기준 (KOSIS 2024)",

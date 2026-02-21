@@ -58,38 +58,7 @@ export const populationRules: InsightRule = (data) => {
     });
   }
 
-  // 3. 상주인구 배후 수요 (스코어링 미반영, 참고 정보)
-  if (residentPopulation) {
-    const households = residentPopulation.totalHouseholds;
-
-    if (households >= 15_000) {
-      insights.push({
-        type: "text",
-        emoji: "👨‍👩‍👧‍👦",
-        text: "배후 세대수가 풍부해 안정적인 수요가 있어요",
-        sub: `총 ${households.toLocaleString()}세대`,
-        category: "fact",
-      });
-    } else if (households >= 5_000) {
-      insights.push({
-        type: "text",
-        emoji: "🏡",
-        text: "배후 세대가 적정 규모예요",
-        sub: `총 ${households.toLocaleString()}세대`,
-        category: "fact",
-      });
-    } else {
-      insights.push({
-        type: "text",
-        emoji: "📉",
-        text: "배후 세대수가 적어 유동인구 의존도가 높아요",
-        sub: `총 ${households.toLocaleString()}세대`,
-        category: "fact",
-      });
-    }
-  }
-
-  // 4. 폐업률 (스코어링 미반영, 참고 정보)
+  // 3. 폐업률 (스코어링 미반영, 참고 정보)
   if (closeRate > 5) {
     insights.push({
       type: "text",
