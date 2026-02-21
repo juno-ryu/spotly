@@ -101,7 +101,15 @@ const FRANCHISE_BRANDS = [
 function fuzzyMatchBrand(placeName: string, brandName: string): boolean {
   const a = placeName.toLowerCase().replace(/\s+/g, "");
   const b = brandName.toLowerCase().replace(/\s+/g, "");
-  return a.includes(b) || b.includes(a);
+
+  // 짧은 브랜드명(3자 이하)은 정확 매칭으로 오탐 방지
+  // 예: "CU", "BBQ", "굽네" 등이 무관한 매장명에 포함되는 것을 방지
+  if (b.length <= 3) {
+    return a === b;
+  }
+
+  // 4자 이상 브랜드명은 매장명에 포함되면 매칭
+  return a.includes(b);
 }
 
 /**
@@ -144,8 +152,14 @@ function calculateCompetitionScore(
   densityBaseline: number,
   franchiseRatio: number,
 ): CompetitionScore {
+  // 경쟁 업체가 없으면 경쟁 강도 최저 → 만점
+  if (densityPerMeter === 0) {
+    const { grade, gradeLabel } = scoreToGrade(100);
+    return { score: 100, grade, gradeLabel };
+  }
+
   // 비선형 커브(^2.0): 기준 이하(과밀) 구간에서 감점 강화
-  const ratio = densityPerMeter <= 0 ? 0 : densityPerMeter / densityBaseline;
+  const ratio = densityPerMeter / densityBaseline;
   const densityScore = Math.min(100, Math.pow(ratio, 2) * 100);
 
   const franchiseScore = calculateFranchiseUCurve(franchiseRatio);

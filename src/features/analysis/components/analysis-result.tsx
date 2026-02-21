@@ -14,9 +14,10 @@ import { CompetitorMap } from "./competitor-map";
 import { formatRadius } from "@/lib/format";
 import { GRADIENT_TEXT_STYLE } from "@/constants/site";
 import dayjs from "dayjs";
-import { buildCompetitionInsights, buildVitalityInsights } from "../lib/insights";
+import { buildCompetitionInsights, buildVitalityInsights, buildSubwayInsights } from "../lib/insights";
 import { generateReport } from "@/features/report/actions";
-import type { InsightItem, CompetitionAnalysis } from "../lib/insights";
+import type { InsightItem, CompetitionAnalysis, InsightData } from "../lib/insights";
+import type { SubwayAnalysis } from "@/server/data-sources/subway/adapter";
 import type { VitalityAnalysis } from "../lib/scoring/vitality";
 import type { PopulationAnalysis } from "../lib/scoring/population";
 import type { AnalysisRequest } from "@prisma/client";
@@ -540,6 +541,7 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
   const competition = report?.competition as CompetitionAnalysis | undefined;
   const vitality = report?.vitality as VitalityAnalysis | undefined;
   const populationAnalysis = report?.populationAnalysis as PopulationAnalysis | undefined;
+  const subway = (report?.subway ?? null) as SubwayAnalysis | null;
   const centerLat = report?.centerLatitude as number | undefined;
   const centerLng = report?.centerLongitude as number | undefined;
 
@@ -547,15 +549,17 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
   const vitalityGrade = vitality?.vitalityScore?.grade ?? "-";
   const populationGrade = populationAnalysis?.score?.grade ?? "-";
 
-  const insightData = {
+  const insightData: InsightData = {
     competition: competition ?? null,
     vitality: vitality ?? null,
     places: places ?? null,
     industryName: data.industryName,
     radius: data.radius,
+    subway: subway,
   };
   const competitionInsights = buildCompetitionInsights(insightData);
   const vitalityInsights = buildVitalityInsights(insightData);
+  const subwayInsights = buildSubwayInsights(insightData);
 
   return (
     <div className="fixed inset-0 pointer-events-none">
@@ -567,6 +571,7 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
             centerLng={centerLng}
             radius={data.radius}
             keyword={data.industryName}
+            subway={subway}
             fullScreen
           />
         </div>
@@ -603,7 +608,7 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
 
         {/* ── 콘텐츠 ── */}
         <div className="flex-1 overflow-y-auto px-4 pb-10 mt-3">
-          <Accordion type="multiple" defaultValue={["competition", "vitality", "population"]}>
+          <Accordion type="multiple" defaultValue={["competition", "vitality", "subway", "population"]}>
             {/* 경쟁강도 */}
             <AccordionItem value="competition">
               <AccordionTrigger>
@@ -649,6 +654,28 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
                 <AccordionContent>
                   <div className="space-y-0.5">
                     {vitalityInsights.map((item, i) => (
+                      <Insight key={i} item={item} delay={i * 150} />
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+            {/* 역세권 — 데이터 있을 때만 */}
+            {subway && subwayInsights.length > 0 && (
+              <AccordionItem value="subway">
+                <AccordionTrigger>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold flex items-center gap-1.5">
+                      역세권
+                    </p>
+                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">
+                      주변 지하철역 접근성 분석
+                    </p>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-0.5">
+                    {subwayInsights.map((item, i) => (
                       <Insight key={i} item={item} delay={i * 150} />
                     ))}
                   </div>

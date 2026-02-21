@@ -56,10 +56,18 @@ export const competitionRules: InsightRule = (data) => {
       category: "scoring",
     });
   } else {
+    // 프랜차이즈 0건: 경쟁 등급에 따라 해석이 다름
+    // 좋은 등급(A/B)이면 실제로 경쟁이 적은 것, 나쁜 등급(D/F)이면 상권 비활성화 가능성
+    const isLowCompetition = grade === "A" || grade === "B";
     insights.push({
       type: "text",
-      emoji: "✅",
-      text: "주변에 프랜차이즈가 매우 적어요",
+      emoji: isLowCompetition ? "✅" : "⚠️",
+      text: isLowCompetition
+        ? "주변에 프랜차이즈가 매우 적어요"
+        : "프랜차이즈가 진출하지 않은 상권이에요",
+      sub: isLowCompetition
+        ? undefined
+        : "상권 활성도가 낮을 수 있어 신중한 검토가 필요해요",
       category: "scoring",
     });
   }

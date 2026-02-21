@@ -1,4 +1,5 @@
 import type { CommercialVitalityData } from "@/server/data-sources/seoul-golmok/adapter";
+import type { SubwayAnalysis } from "@/server/data-sources/subway/adapter";
 import { normalize, scoreToGrade, type IndicatorScore } from "./types";
 
 /** 상권 활력도 분석 결과 (서울 전용) */
@@ -42,6 +43,13 @@ export interface VitalityAnalysis {
       totalResident: number;
       totalHouseholds: number;
     };
+    /** 지하철 역세권 정보 */
+    subway?: {
+      stationName: string;
+      lineName: string;
+      dailyAvgTotal: number;
+      distanceMeters: number;
+    };
   };
 }
 
@@ -54,8 +62,21 @@ export interface VitalityAnalysis {
  * - max 1.5억 = 상위 매출 상권 기준 (p50~p60 수준)
  * 주의: 정규화 범위 자체의 변경은 scoring-engine-validator 검토 필요
  */
+/**
+ * 점포당 월 매출 점수 (0~100)
+ *
+ * 로그 정규화 적용: 매출 분포의 우편향 보정 + 중하위 구간 변별력 확보
+ * - 서울 골목상권 카드 추정치 기준 현실 분포 반영
+ * - min 50만원: 실질 영업 활동 하한
+ * - max 3,000만원: 카드 추정치 기반 최우수 상권 상한
+ */
 function calcSalesScore(salesPerStore: number): number {
-  return normalize(salesPerStore, 5_000_000, 150_000_000) * 100;
+  if (salesPerStore <= 0) return 0;
+  const logVal = Math.log(Math.max(salesPerStore, 1));
+  const logMin = Math.log(500_000);
+  const logMax = Math.log(30_000_000);
+  const score = Math.max(0, Math.min(1, (logVal - logMin) / (logMax - logMin)));
+  return Math.round(score * 100);
 }
 
 /**
@@ -85,7 +106,39 @@ function calcChangeScore(changeIndex: string | null): number {
  * - max 200만 = p95 수준 (중앙값 → 28점, 변별력 확보)
  */
 function calcFootTrafficScore(totalFloating: number): number {
-  return Math.round(normalize(totalFloating, 50_000, 2_000_000) * 100);
+  if (totalFloating <= 0) return 0;
+  // 로그 정규화: 유동인구의 우편향 분포 보정
+  // ln(5000)=8.52, ln(500000)=13.12
+  const logVal = Math.log(Math.max(totalFloating, 1));
+  const logMin = Math.log(5_000);
+  const logMax = Math.log(500_000);
+  const score = Math.max(0, Math.min(1, (logVal - logMin) / (logMax - logMin)));
+  return Math.round(score * 100);
+}
+
+/**
+ * 지하철 승하차 기반 유동인구 점수: 일평균 승하차 인원 기준 0~100
+ *
+ * 로그 정규화: 지하철 승하차의 극단적 편차 보정
+ * - min 10,000명: 소규모 역 하한 (예: 남태령, 응봉)
+ * - max 300,000명: 대형 역 상한 (예: 강남, 홍대입구)
+ * - 거리 감쇠: 500m 기준, 가까울수록 보너스 (최대 10%)
+ */
+function calcSubwayFootTrafficScore(
+  dailyAvgTotal: number,
+  distanceMeters: number,
+): number {
+  if (dailyAvgTotal <= 0) return 0;
+  const logVal = Math.log(Math.max(dailyAvgTotal, 1));
+  const logMin = Math.log(10_000);
+  const logMax = Math.log(300_000);
+  const baseScore = Math.max(
+    0,
+    Math.min(1, (logVal - logMin) / (logMax - logMin)),
+  );
+  // 거리 감쇠: 0m → 1.1배, 500m → 1.0배 (선형)
+  const distanceFactor = 1 + 0.1 * (1 - Math.min(distanceMeters, 500) / 500);
+  return Math.round(Math.min(100, baseScore * distanceFactor * 100));
 }
 
 /** 하위 점수의 가중 합산 비율 (3지표 체계) */
@@ -113,22 +166,63 @@ const WEIGHTS = {
  * 점수 범위: 0~100 (높을수록 활력이 높은 상권)
  */
 export function analyzeVitality(
-  data: CommercialVitalityData,
+  data: CommercialVitalityData | null,
+  subway?: SubwayAnalysis | null,
 ): VitalityAnalysis {
-  // 점포당 매출 계산
+  // 지하철 기반 유동인구 점수
+  const subwayScore =
+    subway?.nearestStation
+      ? calcSubwayFootTrafficScore(
+          subway.nearestStation.dailyAvgTotal,
+          subway.nearestStation.distanceMeters,
+        )
+      : 0;
+
+  // 골목상권 데이터 없이 subway만 있는 경우 (비서울 수도권)
+  if (!data) {
+    const rounded = Math.round(subwayScore * WEIGHTS.withFootTraffic.footTraffic);
+    const { grade, gradeLabel } = scoreToGrade(rounded);
+    return {
+      salesScore: 0,
+      changeScore: 0,
+      footTrafficScore: subwayScore,
+      vitalityScore: { score: rounded, grade, gradeLabel },
+      details: {
+        estimatedQuarterlySales: 0,
+        salesPerStore: 0,
+        closeRate: 0,
+        openRate: 0,
+        changeIndexName: null,
+        storeCount: 0,
+        peakTimeSlot: "",
+        mainAgeGroup: "",
+        subway: subway?.nearestStation
+          ? {
+              stationName: subway.nearestStation.stationName,
+              lineName: subway.nearestStation.lineName,
+              dailyAvgTotal: subway.nearestStation.dailyAvgTotal,
+              distanceMeters: subway.nearestStation.distanceMeters,
+            }
+          : undefined,
+      },
+    };
+  }
+
+  // 점포당 월 매출 계산 (API 데이터는 분기 매출이므로 3으로 나눔)
+  const monthlyTotal = data.estimatedQuarterlySales / 3;
+  // storeCount=0이면 점포당 매출 산출 불가 → 0으로 처리 (과대 추정 방지)
   const salesPerStore =
-    data.storeCount > 0
-      ? data.estimatedQuarterlySales / data.storeCount
-      : data.estimatedQuarterlySales;
+    data.storeCount > 0 ? monthlyTotal / data.storeCount : 0;
 
   const salesScore = calcSalesScore(salesPerStore);
   const changeScore = calcChangeScore(data.changeIndex);
 
-  // 유동인구 점수 (데이터 있을 때만)
-  const hasFootTraffic = !!data.floatingPopulation;
-  const footTrafficScore = hasFootTraffic
-    ? calcFootTrafficScore(data.floatingPopulation!.totalFloating)
+  // 유동인구 점수: 골목상권 유동인구 vs 지하철 승하차 중 높은 쪽 채택
+  const golmokFootTraffic = data.floatingPopulation
+    ? calcFootTrafficScore(data.floatingPopulation.totalFloating)
     : 0;
+  const footTrafficScore = Math.max(golmokFootTraffic, subwayScore);
+  const hasFootTraffic = footTrafficScore > 0;
 
   // 유동인구 유무에 따라 가중치 동적 선택
   const w = hasFootTraffic
@@ -159,6 +253,14 @@ export function analyzeVitality(
       mainAgeGroup: data.mainAgeGroup,
       floatingPopulation: data.floatingPopulation,
       residentPopulation: data.residentPopulation,
+      subway: subway?.nearestStation
+        ? {
+            stationName: subway.nearestStation.stationName,
+            lineName: subway.nearestStation.lineName,
+            dailyAvgTotal: subway.nearestStation.dailyAvgTotal,
+            distanceMeters: subway.nearestStation.distanceMeters,
+          }
+        : undefined,
     },
   };
 }

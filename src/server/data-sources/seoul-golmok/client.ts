@@ -317,8 +317,8 @@ async function fetchAllPages<T>(
 const KEYWORD_MAP: Record<string, string[]> = {
   // 음식
   "치킨": ["치킨", "닭"],
-  "커피": ["커피", "음료", "카페"],
-  "카페": ["커피", "음료", "카페", "제과"],
+  "커피": ["커피", "카페"],
+  "카페": ["커피", "카페"],
   "피자": ["피자"],
   "한식": ["한식", "백반", "국밥"],
   "중식": ["중식"],
@@ -330,7 +330,7 @@ const KEYWORD_MAP: Record<string, string[]> = {
   "술": ["호프", "주점"],
   "맥주": ["호프", "주점"],
   "고기": ["육류"],
-  "삼겹살": ["한식", "육류"],
+  "삼겹살": ["육류"],
   "패스트푸드": ["패스트푸드"],
   "햄버거": ["패스트푸드"],
   "편의점": ["편의점"],
@@ -1018,6 +1018,15 @@ export function aggregateGolmokData(
   );
 
   const totalStores = stores.reduce((sum, s) => sum + s.STOR_CO, 0);
+
+  // 매출-점포 업종 불일치 경고 (방어적 검증)
+  const salesKeys = new Set(sales.map(s => `${s.TRDAR_CD}:${s.SVC_INDUTY_CD}`));
+  const storeKeys = new Set(stores.map(s => `${s.TRDAR_CD}:${s.SVC_INDUTY_CD}`));
+  const mismatch = [...salesKeys].filter(k => !storeKeys.has(k));
+  if (mismatch.length > 0) {
+    console.warn(`[골목상권] 매출-점포 업종 불일치: ${mismatch.join(", ")}`);
+  }
+
   const totalFranchise = stores.reduce((sum, s) => sum + s.FRC_STOR_CO, 0);
   const totalSimilar = stores.reduce((sum, s) => sum + s.SIMILR_INDUTY_STOR_CO, 0);
 
