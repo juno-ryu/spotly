@@ -14,10 +14,13 @@
 # serena
 .serena
 
+.vscode
+
 # claude
 .claude
+claudedocs
 PROJECT_INDEX.md
-
+PROJECT_PURPOSE.md
 # next.js
 /.next/
 /out/
