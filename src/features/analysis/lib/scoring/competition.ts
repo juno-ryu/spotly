@@ -161,8 +161,8 @@ function calculateCompetitionScore(
   }
 
   // 시그모이드 커브: ratio=1일 때 50점, ratio=2일 때 ~88점, ratio=0.5일 때 ~12점
-  // ratio = densityBaseline / densityPerMeter (클수록 경쟁 적음 = 유리)
-  const ratio = densityBaseline / densityPerMeter;
+  // ratio = densityPerMeter / densityBaseline (클수록 경쟁 적음 = 유리)
+  const ratio = densityPerMeter / densityBaseline;
   const densityScore = Math.round(100 / (1 + Math.exp(-4 * (ratio - 1))));
 
   // M-10: 의료/부동산 업종은 프랜차이즈 U커브 적용 제외
