@@ -755,6 +755,11 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 | 2026-03-02 | **[M4] 생존율 구현 + [C1] totalScore 재설계** | ✅ | `scoring/survival.ts` 신규 작성 + `actions.ts` calcTotalScore() 추가. 서울: 4대 지표 가중합산 / 비서울: competition+population fallback |
 | 2026-03-02 | **[C4][M1][M3][C2] 스코어링 4개 항목 보강** | ✅ | 밀집도 시그모이드 커브 / 유동인구 max 200만 / 지하철 거리 계단식 감쇠 / 가중치 75/25 통일 |
 | 2026-03-02 | **부동산 실거래 API 재검토** — scoring-engine-validator 재심사 | ⏭️ SKIP | 점수화 불가(비단조적 관계·다중공선성), 팩트 표시도 낮은 우선순위. 향후 상가 임대료 API 확보 시 재논의 |
+| 2026-03-02 | **[6-E] 버스 cityCode 하드코딩 제거** — 전국 17개 시도 커버 | ✅ | `REGION_PREFIX_TO_CITY_CODE` 매핑 + `getCityCodeFromRegionCode()` + orchestrator regionCode 전달 |
+| 2026-03-02 | **[6-H] scoreBreakdownSchema population + survival 추가** — `schema.ts` | ✅ | population(기존 저장 중이었으나 스키마 누락) + survival 필드 추가 |
+| 2026-03-02 | **[6-H] buildVitalityInsights → buildPopulationInsights rename** | ✅ | builder.ts·index.ts·analysis-result.tsx 전수 변경, re-export alias 버그 수정 |
+| 2026-03-02 | **[6-H] redis.ts CACHE_TTL.BUS 상수 추가** — `bus/client.ts` CACHE_TTL.SEOUL 오용 수정 | ✅ | 7일 TTL 전용 상수 분리 |
+| 2026-03-02 | **PROJECT_INDEX.md 최신화** | ✅ | SKIP 항목 반영, mock 패턴 제거, 슬롯 구조·survival.ts·totalScore 재설계 반영 |
 
 ---
 
@@ -762,11 +767,11 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 | 우선순위 | 항목 | 위치 | 증상 |
 |:--------:|------|------|------|
-| 🔴 High | 버스 cityCode 하드코딩 | `bus/client.ts` `getSttnThrghRouteList()` | cityCode=11(서울) 고정 → 서울 외 지역 노선 조회 0건 |
-| 🟡 Mid | competition.ts 주석-코드 불일치 | `scoring/competition.ts` | 주석 "75%/25%" vs 실제 `0.90/0.10` |
-| 🟡 Mid | buildVitalityInsights 함수명 불일치 | `insights/builder.ts` | `buildVitalityInsights()`가 `populationRules()` 호출 |
-| 🟡 Mid | scoreBreakdownSchema population 누락 | `features/analysis/actions.ts` | zod 스키마에 population 필드 없음 → 타입 불안전 |
-| 🟡 Mid | PROJECT_INDEX.md 내용 오래됨 | `PROJECT_INDEX.md` | nps/real-estate 연결됨으로 표기, mock 전환 패턴 잔존 |
+| ~~🔴 High~~ | ~~버스 cityCode 하드코딩~~ | — | ✅ 완료 (2026-03-02) — 전국 17개 시도 매핑으로 교체 |
+| ~~🟡 Mid~~ | ~~competition.ts 주석-코드 불일치~~ | — | ✅ 완료 (2026-03-02) — 75/25 통일 |
+| ~~🟡 Mid~~ | ~~buildVitalityInsights 함수명 불일치~~ | — | ✅ 완료 (2026-03-02) — buildPopulationInsights로 rename |
+| ~~🟡 Mid~~ | ~~scoreBreakdownSchema population 누락~~ | — | ✅ 완료 (2026-03-02) — population + survival 필드 추가 |
+| ~~🟡 Mid~~ | ~~PROJECT_INDEX.md 내용 오래됨~~ | — | ✅ 완료 (2026-03-02) |
 | ~~🔴 High~~ | ~~totalScore = competition 단독 [C1]~~ | ~~`features/analysis/actions.ts`~~ | ✅ 완료 (2026-03-02) — 4대 지표 가중합산으로 교체 |
 | ~~🔴 High~~ | ~~상권변화지표 LL/HH 해석 반전 가능성 [C3]~~ | ~~`scoring/vitality.ts` `calcChangeScore()`~~ | ✅ 완료 (2026-03-02) — LH=85/HL=55/HH=30/LL=25 로 수정 |
 | ~~🔴 High~~ | ~~밀집도 ratio≥1 → 무조건 100점 [C4]~~ | ~~`scoring/competition.ts`~~ | ✅ 완료 (2026-03-02) — 시그모이드 커브 적용 |
