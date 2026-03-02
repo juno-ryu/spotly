@@ -116,7 +116,7 @@ export function RegionSelector({
       },
       { enableHighAccuracy: true, timeout: 5000, maximumAge: 300000 },
     );
-  }, [onNext]);
+  }, [onNext, addRecentRegion]);
 
   /** 이모지 제외, 텍스트만 렌더 */
   const renderText = (text: string) =>
@@ -315,7 +315,6 @@ export function RegionSelector({
           </div>
         </div>
       )}
-
     </div>
   );
 }

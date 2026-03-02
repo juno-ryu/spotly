@@ -1,5 +1,6 @@
 import {
   fetchNearbyBusStations,
+  fetchSeoulNearbyBusStations,
   type BusStationWithRoutes,
 } from "./client";
 
@@ -36,18 +37,32 @@ export interface BusAnalysis {
 export async function fetchBusAnalysis(params: {
   latitude: number;
   longitude: number;
-  /** 행정구역코드 — TAGO cityCode 자동 결정에 사용. 미전달 시 서울(11) 기본값. */
+  radius: number;
   regionCode?: string;
 }): Promise<BusAnalysis> {
-  const stations = await fetchNearbyBusStations({
-    latitude: params.latitude,
-    longitude: params.longitude,
-    numOfRows: 5,
-    regionCode: params.regionCode,
-  });
+  const isSeoul = params.regionCode?.startsWith("11") ?? false;
+
+  // 서울은 ws.bus.go.kr API 사용 (TAGO는 서울 버스 데이터 미제공)
+  const allStations = isSeoul
+    ? await fetchSeoulNearbyBusStations({
+        latitude: params.latitude,
+        longitude: params.longitude,
+        radius: params.radius,
+      })
+    : await fetchNearbyBusStations({
+        latitude: params.latitude,
+        longitude: params.longitude,
+        numOfRows: 5,
+      });
+
+  // 서울 API는 radius 내 결과만 반환하므로 추가 필터 불필요.
+  // 비서울은 TAGO 결과를 반경 내로 필터링.
+  const stations = isSeoul
+    ? allStations
+    : allStations.filter((s) => s.distanceMeters <= params.radius);
 
   if (stations.length === 0) {
-    console.log("[버스] 인근 버스 정류소 없음");
+    console.log(`[버스] 반경 ${params.radius}m 내 정류소 없음 (${isSeoul ? "서울" : "전국"})`);
     return {
       hasBusStop: false,
       nearestStop: null,
@@ -57,15 +72,23 @@ export async function fetchBusAnalysis(params: {
     };
   }
 
-  const nearestStop = stations[0];
+  // 노선 수가 가장 많은 정류소를 대표로 선택.
+  // 9m 거리 차이보다 노선 수(3개 vs 8개)가 접근성 지표로 훨씬 중요.
+  const stopsWithRoutes = stations.filter((s) => s.routeCount > 0);
+  const primaryStop =
+    stopsWithRoutes.length > 0
+      ? stopsWithRoutes.reduce((best, cur) =>
+          cur.routeCount > best.routeCount ? cur : best,
+        )
+      : stations[0];
 
   console.log(
-    `[버스] 가장 가까운 정류소: ${nearestStop.name}(${nearestStop.distanceMeters}m), ${nearestStop.routeCount}개 노선`,
+    `[버스] 반경 ${params.radius}m 내 정류소 ${stations.length}건 — 대표: ${primaryStop.name}(${primaryStop.distanceMeters}m), ${primaryStop.routeCount}개 노선`,
   );
 
   return {
     hasBusStop: true,
-    nearestStop,
+    nearestStop: primaryStop,
     stopCount: stations.length,
     stopsInRadius: stations.map((s) => ({
       name: s.name,
@@ -73,6 +96,6 @@ export async function fetchBusAnalysis(params: {
       latitude: s.latitude,
       longitude: s.longitude,
     })),
-    totalRouteCount: nearestStop.routeCount,
+    totalRouteCount: primaryStop.routeCount,
   };
 }

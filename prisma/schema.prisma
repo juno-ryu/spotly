@@ -39,6 +39,28 @@ model AnalysisRequest {
   @@index([createdAt(sort: Desc)])
 }
 
+/// 전국 초중고 학교 위치 정보 (정적 데이터, CSV seed)
+model School {
+  id            String   @id @default(cuid())
+  /// 공공데이터 학교 고유 ID
+  schoolId      String   @unique
+  /// 학교명
+  name          String
+  /// 학교급 (초등학교 / 중학교 / 고등학교)
+  level         String
+  /// 위도
+  lat           Float
+  /// 경도
+  lng           Float
+  /// 소재지 도로명주소
+  address       String
+  /// 설립형태 (공립 / 사립 / 국립)
+  establishType String
+
+  @@index([lat])
+  @@index([lng])
+}
+
 enum AnalysisStatus {
   PENDING    // 대기중
   PROCESSING // 분석중

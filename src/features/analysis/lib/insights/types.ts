@@ -1,6 +1,10 @@
 import type { SubwayAnalysis } from "@/server/data-sources/subway/adapter";
 import type { BusAnalysis } from "@/server/data-sources/bus/adapter";
+import type { SchoolAnalysis } from "@/server/data-sources/school/adapter";
+import type { UniversityAnalysis } from "@/server/data-sources/university/adapter";
+import type { MedicalAnalysis } from "@/server/data-sources/medical/adapter";
 import type { VitalityAnalysis } from "../scoring/vitality";
+import type { PopulationAnalysis } from "../scoring/population";
 
 /** 인사이트 카테고리 — 내부 구분용, UI 노출 안 함 */
 export type InsightCategory = "scoring" | "fact";
@@ -42,6 +46,14 @@ export interface InsightData {
   subway: SubwayAnalysis | null;
   /** 버스 접근성 분석 */
   bus: BusAnalysis | null;
+  /** 학교 접근성 분석 */
+  school: SchoolAnalysis | null;
+  /** 대학교 접근성 분석 */
+  university: UniversityAnalysis | null;
+  /** 의료시설 접근성 분석 */
+  medical: MedicalAnalysis | null;
+  /** 배후 인구 분석 */
+  population: PopulationAnalysis | null;
 }
 
 /** 각 룰 모듈이 export하는 함수 시그니처 */

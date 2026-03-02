@@ -50,6 +50,7 @@ export function useNearbyPlaces({
     let cancelled = false;
     setIsLoading(true);
 
+    // 드래그 중 과다 호출 방지: 1500ms debounce
     const timer = setTimeout(() => {
       const ps = placesRef.current;
       const accumulated: KakaoPlaceResult[] = [];
@@ -83,14 +84,14 @@ export function useNearbyPlaces({
         radius: Math.min(radius, 20000),
         size: 15,
       });
-    }, 300);
+    }, 600);
 
     return () => {
       cancelled = true;
       clearTimeout(timer);
       setIsLoading(false);
     };
-  }, [keyword, lat, lng, radius]);
+  }, [keyword, lat, lng, radius, isLoaded]);
 
   return { places, totalCount, isLoading };
 }

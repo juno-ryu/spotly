@@ -1,7 +1,5 @@
 import { searchByKeyword } from "@/server/data-sources/kakao/client";
-import { UNIVERSITY_RADIUS } from "@/features/analysis/lib/constants";
 
-/** Kakao 대학교 검색 반경 (미터) */
 
 
 /**
@@ -49,21 +47,24 @@ export interface UniversityAnalysis {
 export async function fetchUniversityAnalysis(params: {
   latitude: number;
   longitude: number;
+  radius: number;
 }): Promise<UniversityAnalysis> {
-  const { latitude, longitude } = params;
+  const { latitude, longitude, radius } = params;
 
   const { documents } = await searchByKeyword(
     "대학교",
     { latitude, longitude },
-    UNIVERSITY_RADIUS,
+    radius,
     3,
   );
 
   // 1) 반경 필터 (Kakao가 radius 밖 결과도 반환하므로 재필터)
   const filtered = documents
-    .filter((doc) => doc.place_name.includes("대학교"))
+    // place_name에 "대학교" 포함 + category_name도 "대학교"여야 실제 대학교
+    // ("파스쿠찌 가천대학교" 같은 카페/식당은 category_name이 다름)
+    .filter((doc) => doc.place_name.includes("대학교") && doc.category_name.includes("대학교"))
     // Kakao distance 필드가 "0"을 반환하는 버그가 있으므로 Haversine으로 직접 계산
-    .filter((doc) => haversineMeters(latitude, longitude, parseFloat(doc.y), parseFloat(doc.x)) <= UNIVERSITY_RADIUS);
+    .filter((doc) => haversineMeters(latitude, longitude, parseFloat(doc.y), parseFloat(doc.x)) <= radius);
 
   // 2) 대학교명 기준 중복 제거 — 가장 가까운 것 1개만 유지
   const seen = new Map<string, UniversityItem>();
@@ -85,7 +86,7 @@ export async function fetchUniversityAnalysis(params: {
     (a, b) => a.distanceMeters - b.distanceMeters,
   );
 
-  console.log(`[대학교] 반경 ${UNIVERSITY_RADIUS}m — ${universities.length}건`);
+  console.log(`[대학교] 반경 ${radius}m — ${universities.length}건`);
 
   return {
     hasUniversity: universities.length > 0,

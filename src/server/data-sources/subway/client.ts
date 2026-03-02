@@ -1,16 +1,8 @@
-import { env, hasApiKey } from "@/lib/env";
+import { env } from "@/lib/env";
 import { cachedFetch, CACHE_TTL } from "@/server/cache/redis";
 
 /** 서울 열린데이터 광장 API 베이스 URL */
 const SEOUL_API_BASE = "http://openapi.seoul.go.kr:8088";
-
-/**
- * 일평균 산출을 위한 조회 일수.
- * 7일이면 주중/주말 패턴을 포함하여 충분한 대표성을 가진다.
- * 30일에서 7일로 축소: CardSubwayStatsNew API는 전체 역 데이터를 반환하므로
- * 하루당 ~600건, 7일 x 600건 = ~4,200건을 5페이지로 커버 가능.
- */
-const QUERY_DAYS = 7;
 
 // ─── 응답 타입 ─────────────────────────────────────────
 
@@ -24,41 +16,35 @@ interface SeoulApiErrorBody {
   RESULT?: { CODE: string; MESSAGE: string };
 }
 
-/** OA-12914: 일별 승하차 인원 원시 행 */
-interface SubwayDailyRow {
-  /** 사용일자 (YYYYMMDD) */
-  USE_DT: string;
+/**
+ * OA-12252: 호선별 역별 시간대별 승하차 인원 (CardSubwayTime)
+ * 월별 합계 데이터. HR_N_GET_ON_NOPE: N시 승차, HR_N_GET_OFF_NOPE: N시 하차 (04~익일03시)
+ */
+interface SubwayTimeRow {
+  /** 사용월 (YYYYMM) */
+  USE_MM: string;
   /** 호선명 (예: "2호선") */
-  LINE_NUM: string;
-  /** 역명 (예: "강남") */
-  SUB_STA_NM: string;
-  /** 승차 인원 */
-  RIDE_PASGR_NUM: number;
-  /** 하차 인원 */
-  ALIGHT_PASGR_NUM: number;
+  SBWY_ROUT_LN_NM: string;
+  /** 역명 (예: "강남", "서울역") */
+  STTN: string;
+  [key: string]: number | string; // HR_N_GET_ON_NOPE, HR_N_GET_OFF_NOPE
 }
 
 /** 역별 일평균 승하차 집계 결과 */
 export interface SubwayTrafficData {
-  /** 역명 */
   stationName: string;
-  /** 호선명 (대표) */
   lineName: string;
-  /** 일평균 승차 인원 */
   dailyAvgRide: number;
-  /** 일평균 하차 인원 */
   dailyAvgAlight: number;
-  /** 일평균 총 승하차 인원 */
   dailyAvgTotal: number;
-  /** 조회 기간 일수 */
+  /** 일평균 산출 기준 월 일수 */
   days: number;
-  /** 분석 대상 역까지의 거리(m) */
   distanceMeters: number;
 }
 
 // ─── 서울 열린데이터 API 호출 ─────────────────────────
 
-/** 서울 열린데이터 광장 단일 페이지 조회 (seoul-golmok 패턴 재사용) */
+/** 서울 열린데이터 광장 단일 페이지 조회 */
 async function fetchPage<T>(
   serviceName: string,
   start: number,
@@ -73,7 +59,6 @@ async function fetchPage<T>(
   console.log(`[지하철 API 호출] ${label}`);
   const t0 = Date.now();
 
-  // 10초 타임아웃
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10_000);
 
@@ -92,7 +77,6 @@ async function fetchPage<T>(
 
   const text = await res.text();
 
-  // XML 에러 응답 처리
   if (text.startsWith("<")) {
     const code = text.match(/<CODE>([^<]+)<\/CODE>/)?.[1] ?? "UNKNOWN";
     if (code === "INFO-200") return { rows: [], totalCount: 0 };
@@ -124,12 +108,7 @@ async function fetchPage<T>(
   return { rows: svc.row, totalCount: svc.list_total_count };
 }
 
-/**
- * 1000건 제한 우회: 전체 페이지 병렬 호출 (seoul-golmok 패턴 재사용).
- *
- * CardSubwayStatsNew API는 날짜 범위 내 전체 역 데이터를 반환한다.
- * 7일 기준 ~4,200건(~600역-호선 조합/일) → 5페이지 병렬 호출.
- */
+/** 1000건 제한 우회: 전체 페이지 병렬 호출 */
 async function fetchAllPages<T>(
   serviceName: string,
   conditions: string[] = [],
@@ -166,58 +145,70 @@ async function fetchAllPages<T>(
 
 // ─── 날짜 유틸 ─────────────────────────────────────────
 
-/** 최근 N일 기간의 시작/종료 날짜 (YYYYMMDD) */
-function getRecentDateRange(): { startDate: string; endDate: string } {
-  const end = new Date();
-  // 서울 열린데이터 반영 지연 감안하여 7일 전부터 역산
-  end.setDate(end.getDate() - 7);
-  const start = new Date(end);
-  start.setDate(start.getDate() - QUERY_DAYS);
+/**
+ * CardSubwayTime API 조회 대상 월 산출 (YYYYMM)
+ * 매월 5일 이후 전월 데이터 갱신 → 5일 이전이면 전전달 사용
+ */
+function getTargetMonth(): string {
+  const d = new Date();
+  const lag = d.getDate() < 5 ? 2 : 1;
+  d.setMonth(d.getMonth() - lag);
+  return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
 
-  const fmt = (d: Date) =>
-    `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
-  return { startDate: fmt(start), endDate: fmt(end) };
+/** 해당 월의 일수 산출 */
+function daysInMonth(yyyymm: string): number {
+  const year = parseInt(yyyymm.slice(0, 4));
+  const month = parseInt(yyyymm.slice(4, 6));
+  return new Date(year, month, 0).getDate();
 }
 
 // ─── 역명 정규화 ───────────────────────────────────────
 
 /**
- * 카카오 Place에서 반환하는 역명을 서울 열린데이터 API 역명으로 정규화
+ * 카카오 Place 역명을 CardSubwayTime STTN 필드명으로 정규화
  * 예: "강남역 2호선" → "강남", "서울역" → "서울역"
  */
 export function normalizeStationName(kakaoName: string): string {
-  // "OO역 N호선" 패턴 → "OO" 추출
   const match = kakaoName.match(/^(.+?)역?\s*\d*호선?$/);
   if (match) return match[1];
-  // "OO역" → "OO" (단, "서울역"처럼 역 자체가 이름인 경우 보존)
   const KEEP_SUFFIX = ["서울역"];
   if (KEEP_SUFFIX.includes(kakaoName)) return kakaoName;
   return kakaoName.replace(/역$/, "");
 }
 
-// ─── 핵심: 일별 승하차 데이터 조회 ────────────────────
+/** STTN 필드와 정규화된 역명 매칭 (역 접미사 유무 모두 허용) */
+function matchStation(sttn: string, targetName: string): boolean {
+  const norm = (s: string) => s.replace(/역$/, "");
+  return norm(sttn) === norm(targetName);
+}
+
+// ─── 핵심: 월별 승하차 데이터 조회 ────────────────────
+
+/** CardSubwayTime 시간대 목록 (04시~익일03시, 24개 슬롯) */
+const SUBWAY_HOURS = [
+  4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+  0, 1, 2, 3,
+];
 
 /**
- * OA-12914: 역별 일별 승하차 인원 조회 (최근 7일)
+ * OA-12252: 역별 시간대별 월 승하차 인원 조회 (CardSubwayTime)
  *
- * CardSubwayStatsNew API는 날짜 범위 내 전체 역 데이터를 반환한다.
- * 7일 조회 시 ~4,200건 → fetchAllPages로 전체 수집 후 역명 필터링.
- * 결과는 역명+기간 키로 캐시하여 반복 호출 방지.
+ * 전월 데이터(매월 5일 갱신)를 조회하여 역명 필터링 후 반환.
+ * 전체 역 데이터(~620건/월)를 한 번에 수집 후 역명으로 필터.
  */
-export async function getSubwayDailyTraffic(
+export async function getSubwayMonthlyTraffic(
   stationName: string,
-): Promise<SubwayDailyRow[]> {
-  const { startDate, endDate } = getRecentDateRange();
-  const cacheKey = `subway:daily:${stationName}:${startDate}`;
+): Promise<SubwayTimeRow[]> {
+  const month = getTargetMonth();
+  const cacheKey = `subway:monthly:${stationName}:${month}`;
 
   return cachedFetch(cacheKey, CACHE_TTL.SEOUL, async () => {
-    // 전체 페이지 수집 후 역명 필터링
-    const allRows = await fetchAllPages<SubwayDailyRow>(
-      "CardSubwayStatsNew",
-      [startDate, endDate],
-    );
+    const allRows = await fetchAllPages<SubwayTimeRow>("CardSubwayTime", [
+      month,
+    ]);
 
-    const filtered = allRows.filter((r) => r.SUB_STA_NM === stationName);
+    const filtered = allRows.filter((r) => matchStation(String(r.STTN), stationName));
     console.log(
       `[지하철] 전체 ${allRows.length.toLocaleString()}건 → ${stationName}역 필터 → ${filtered.length}건`,
     );
@@ -225,28 +216,33 @@ export async function getSubwayDailyTraffic(
   });
 }
 
-/** 일별 데이터를 일평균으로 집계 */
-export function aggregateDailyTraffic(
-  rows: SubwayDailyRow[],
+/** 월별 시간대 데이터를 일평균으로 집계 */
+export function aggregateMonthlyTraffic(
+  rows: SubwayTimeRow[],
   stationName: string,
   distanceMeters: number,
 ): SubwayTrafficData | null {
   if (rows.length === 0) return null;
 
-  // 날짜별 그룹핑하여 정확한 일수 산출
-  const dateSet = new Set(rows.map((r) => r.USE_DT));
-  const days = dateSet.size;
+  const month = String(rows[0].USE_MM);
+  const days = daysInMonth(month);
 
-  const totalRide = rows.reduce((sum, r) => sum + Number(r.RIDE_PASGR_NUM), 0);
-  const totalAlight = rows.reduce(
-    (sum, r) => sum + Number(r.ALIGHT_PASGR_NUM),
-    0,
-  );
+  let totalRide = 0;
+  let totalAlight = 0;
+  for (const row of rows) {
+    for (const h of SUBWAY_HOURS) {
+      totalRide += Number(row[`HR_${h}_GET_ON_NOPE`]) || 0;
+      totalAlight += Number(row[`HR_${h}_GET_OFF_NOPE`]) || 0;
+    }
+  }
 
   // 대표 호선: 가장 많이 등장하는 호선
   const lineCount = new Map<string, number>();
   for (const r of rows) {
-    lineCount.set(r.LINE_NUM, (lineCount.get(r.LINE_NUM) ?? 0) + 1);
+    lineCount.set(
+      String(r.SBWY_ROUT_LN_NM),
+      (lineCount.get(String(r.SBWY_ROUT_LN_NM)) ?? 0) + 1,
+    );
   }
   const lineName =
     [...lineCount.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "";
@@ -261,7 +257,3 @@ export function aggregateDailyTraffic(
     distanceMeters,
   };
 }
-
-// ─── Mock 데이터 ───────────────────────────────────────
-
-

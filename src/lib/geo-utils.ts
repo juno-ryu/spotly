@@ -26,8 +26,8 @@ export function getPointAtDistance(
   return { lat: centerLat + dLat, lng: centerLng };
 }
 
-/** 반경을 50m 단위로 스냅 + 100~3000m 클램프 */
+/** 반경을 50m 단위로 스냅 + 200~500m 클램프 */
 export function snapRadius(meters: number): number {
   const snapped = Math.round(meters / 50) * 50;
-  return Math.max(100, Math.min(3000, snapped));
+  return Math.max(200, Math.min(500, snapped));
 }

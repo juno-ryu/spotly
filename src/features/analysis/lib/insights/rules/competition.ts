@@ -27,6 +27,18 @@ export const competitionRules: InsightRule = (data) => {
   const grade = (competition.competitionScore?.grade ?? "C") as Grade;
   const insights: InsightItem[] = [];
 
+  // 0. 동종업체 0개 — 수요 부재 가능성 경고
+  // 경쟁자 없음 = 100점이지만, 수요 자체가 없는 지역일 수 있으므로 신중함을 안내
+  if (competition.directCompetitorCount === 0) {
+    insights.push({
+      type: "text",
+      emoji: "⚠️",
+      text: "주변 동종업체가 없어요",
+      sub: "경쟁자가 없다는 건 긍정적이지만, 수요 자체가 없는 지역일 수 있습니다. 상권 활성도를 신중히 검토하세요",
+      category: "fact",
+    });
+  }
+
   // 1. 밀집도 — 경쟁 등급 기반
   if (competition.densityPerMeter > 0) {
     const { emoji, text } = DENSITY_GRADE_TEXT[grade];

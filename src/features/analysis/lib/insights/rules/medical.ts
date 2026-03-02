@@ -3,6 +3,7 @@ import type { InsightData, InsightItem } from "../types";
 export function medicalRules(data: InsightData): InsightItem[] {
   const medical = data.medical;
   const industry = data.industryName;
+  const radius = data.radius;
 
   if (!medical || !medical.hasHospital) return [];
 
@@ -22,7 +23,7 @@ export function medicalRules(data: InsightData): InsightItem[] {
   items.push({
     type: "text",
     emoji: "🏥",
-    text: `반경 2km — 병원 ${count}곳 (${hospitalNames})`,
+    text: `반경 ${radius}m — 병원 ${count}곳 (${hospitalNames})`,
     sub: isPharmacy
       ? count >= 3
         ? "약국 최적 입지 — 복수 병원 인근으로 처방전 수요 안정적"

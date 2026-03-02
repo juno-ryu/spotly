@@ -157,6 +157,19 @@ export const CompetitorMap = memo(function CompetitorMap({
     });
     centerOverlay.setMap(map);
 
+    /* 반경 내 여부 확인 헬퍼 — 모든 마커 섹션에서 공통 사용 */
+    const isInRadius = (lat: number, lng: number): boolean => {
+      const R = 6_371_000;
+      const dLat = ((lat - centerLat) * Math.PI) / 180;
+      const dLng = ((lng - centerLng) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos((centerLat * Math.PI) / 180) *
+          Math.cos((lat * Math.PI) / 180) *
+          Math.sin(dLng / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) <= radius;
+    };
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let activeOverlay: any = null;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -173,6 +186,7 @@ export const CompetitorMap = memo(function CompetitorMap({
     );
 
     places.forEach((place) => {
+      if (!isInRadius(parseFloat(place.y), parseFloat(place.x))) return;
       const position = new kakao.maps.LatLng(
         parseFloat(place.y),
         parseFloat(place.x),
@@ -270,6 +284,7 @@ export const CompetitorMap = memo(function CompetitorMap({
     if (subway?.isStationArea) {
       subway.stationsInRadius.forEach((station) => {
         if (!station.latitude || !station.longitude) return;
+        if (!isInRadius(station.latitude, station.longitude)) return;
 
         const stationPosition = new kakao.maps.LatLng(
           station.latitude,
@@ -352,6 +367,7 @@ export const CompetitorMap = memo(function CompetitorMap({
     if (bus?.hasBusStop && bus.stopsInRadius.length > 0) {
       bus.stopsInRadius.forEach((stop) => {
         if (!stop.latitude || !stop.longitude) return;
+        if (!isInRadius(stop.latitude, stop.longitude)) return;
 
         const stopPosition = new kakao.maps.LatLng(stop.latitude, stop.longitude);
 
@@ -427,6 +443,7 @@ export const CompetitorMap = memo(function CompetitorMap({
     // 학교는 레벨별 반경(초 500m/중 1000m/고 1500m)으로 어댑터에서 이미 필터된 데이터
     if (school && school.schools.length > 0) {
       school.schools.forEach((s) => {
+        if (!isInRadius(s.lat, s.lng)) return;
         const schoolPosition = new kakao.maps.LatLng(s.lat, s.lng);
 
         const pinEl = createPinMarker("🏫", "#16a34a", 30);
@@ -492,19 +509,6 @@ export const CompetitorMap = memo(function CompetitorMap({
         schoolMarkers.push(schoolMarker);
       });
     }
-
-    /* 반경 내 여부 확인 헬퍼 */
-    const isInRadius = (lat: number, lng: number): boolean => {
-      const R = 6_371_000;
-      const dLat = ((lat - centerLat) * Math.PI) / 180;
-      const dLng = ((lng - centerLng) * Math.PI) / 180;
-      const a =
-        Math.sin(dLat / 2) ** 2 +
-        Math.cos((centerLat * Math.PI) / 180) *
-          Math.cos((lat * Math.PI) / 180) *
-          Math.sin(dLng / 2) ** 2;
-      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) <= radius;
-    };
 
     /* 대학교 마커 — 인디고색 이모지 핀 */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -590,6 +594,7 @@ export const CompetitorMap = memo(function CompetitorMap({
 
     if (medical && medical.hospitals.length > 0) {
       medical.hospitals.forEach((h) => {
+        if (h.category !== "종합병원") return;
         if (!isInRadius(h.latitude, h.longitude)) return;
         const hospitalPosition = new kakao.maps.LatLng(h.latitude, h.longitude);
 

@@ -18,7 +18,7 @@ export function schoolRules(data: InsightData): InsightItem[] {
     items.push({
       type: "text",
       emoji: "🏫",
-      text: `인근 학교 없음 (초등 500m / 중·고 1km·1.5km 기준)`,
+      text: `인근 학교 없음 (반경 ${radius}m 기준)`,
       sub: isAcademy
         ? "학원 입지 핵심 요건인 학교가 없습니다 — 입지 신중 검토 필요"
         : "학교 밀집 지역이 아닙니다",

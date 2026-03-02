@@ -3,6 +3,9 @@ import { fetchCommercialVitality } from "@/server/data-sources/seoul-golmok/adap
 import { fetchPopulationData, type PopulationMetrics } from "@/server/data-sources/kosis/adapter";
 import { fetchSubwayAnalysis, type SubwayAnalysis } from "@/server/data-sources/subway/adapter";
 import { fetchBusAnalysis, type BusAnalysis } from "@/server/data-sources/bus/adapter";
+import { fetchSchoolAnalysis, type SchoolAnalysis } from "@/server/data-sources/school/adapter";
+import { fetchUniversityAnalysis, type UniversityAnalysis } from "@/server/data-sources/university/adapter";
+import { fetchMedicalAnalysis, type MedicalAnalysis } from "@/server/data-sources/medical/adapter";
 import { analyzeCompetition, type CompetitionAnalysis, analyzePopulation, type PopulationAnalysis } from "./scoring";
 import { analyzeVitality, type VitalityAnalysis } from "./scoring/vitality";
 
@@ -28,6 +31,12 @@ export interface AnalysisResult {
   subway: SubwayAnalysis | null;
   /** 버스 접근성 분석 (전국, 없으면 null) */
   bus: BusAnalysis | null;
+  /** 학교 접근성 분석 (전국, 없으면 null) */
+  school: SchoolAnalysis | null;
+  /** 대학교 접근성 분석 (전국, 없으면 null) */
+  university: UniversityAnalysis | null;
+  /** 의료시설 접근성 분석 (전국, 없으면 null) */
+  medical: MedicalAnalysis | null;
 }
 
 export type { KakaoPlace, KakaoPlacesRaw };
@@ -45,8 +54,14 @@ export async function runAnalysis(params: {
 }): Promise<AnalysisResult> {
   const isSeoul = params.regionCode.startsWith("11");
 
-  // 데이터 수집 — 카카오 Places + 서울 골목상권(서울만) + KOSIS 인구(전국) + 지하철(전국) + 버스(전국)
-  const [placesRaw, vitalityData, populationData, subwayData, busData] = await Promise.all([
+  console.log(`\n${"─".repeat(55)}`);
+  console.log(
+    `[분석 시작] ${params.industryName} | ${params.dongName ?? `${params.latitude.toFixed(4)},${params.longitude.toFixed(4)}`} | 반경 ${params.radius}m`,
+  );
+  console.log(`${"─".repeat(55)}`);
+
+  // 데이터 수집 — 카카오 Places + 서울 골목상권(서울만) + KOSIS 인구(전국) + 지하철(전국) + 버스(전국) + 학교(전국) + 대학교(전국) + 의료(전국)
+  const [placesRaw, vitalityData, populationData, subwayData, busData, schoolData, universityData, medicalData] = await Promise.all([
     fetchKakaoPlaces({
       keyword: params.industryName,
       latitude: params.latitude,
@@ -85,9 +100,37 @@ export async function runAnalysis(params: {
     fetchBusAnalysis({
       latitude: params.latitude,
       longitude: params.longitude,
+      radius: params.radius,
       regionCode: params.regionCode,
     }).catch((err) => {
       console.warn("[오케스트레이터] 버스 접근성 분석 실패:", err);
+      return null;
+    }),
+    // 학교 접근성 분석 (전국 — DB 기반, 레벨별 반경 분리)
+    fetchSchoolAnalysis({
+      latitude: params.latitude,
+      longitude: params.longitude,
+      radius: params.radius,
+    }).catch((err) => {
+      console.warn("[오케스트레이터] 학교 접근성 분석 실패:", err);
+      return null;
+    }),
+    // 대학교 접근성 분석 (전국 — Kakao 키워드 검색 기반)
+    fetchUniversityAnalysis({
+      latitude: params.latitude,
+      longitude: params.longitude,
+      radius: params.radius,
+    }).catch((err) => {
+      console.warn("[오케스트레이터] 대학교 접근성 분석 실패:", err);
+      return null;
+    }),
+    // 의료시설 접근성 분석 (전국 — Kakao 카테고리 HP8 기반)
+    fetchMedicalAnalysis({
+      latitude: params.latitude,
+      longitude: params.longitude,
+      radius: params.radius,
+    }).catch((err) => {
+      console.warn("[오케스트레이터] 의료시설 접근성 분석 실패:", err);
       return null;
     }),
   ]);
@@ -111,6 +154,8 @@ export async function runAnalysis(params: {
   // 인구 분석 (전국)
   const populationAnalysis = populationData ? analyzePopulation(populationData) : null;
 
+  console.log(`${"─".repeat(55)}\n`);
+
   return {
     places: placesRaw,
     competition,
@@ -125,5 +170,8 @@ export async function runAnalysis(params: {
     populationAnalysis,
     subway: subwayData,
     bus: busData,
+    school: schoolData,
+    university: universityData,
+    medical: medicalData,
   };
 }

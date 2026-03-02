@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useKakaoMap } from "./kakao-map-provider";
-import {
-  getDistanceMeters,
-  getPointAtDistance,
-  snapRadius,
-} from "@/lib/geo-utils";
-import { formatRadius } from "@/lib/format";
+// ── 드래그 반경 조절 비활성화 (추후 재활성화 시 주석 해제) ──────────────────
+// import {
+//   getDistanceMeters,
+//   getPointAtDistance,
+//   snapRadius,
+// } from "@/lib/geo-utils";
+// import { formatRadius } from "@/lib/format";
+// ────────────────────────────────────────────────────────────────────────────
 
 interface RadiusMapProps {
   centerLat: number;
@@ -32,7 +34,7 @@ export function RadiusMap({
   centerLng,
   radius,
   onRadiusChange,
-  initialZoom = 5,
+  initialZoom = 7,
   currentPosition,
   places = [],
   onCenterChanged,
@@ -43,10 +45,9 @@ export function RadiusMap({
   const mapRef = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const circleRef = useRef<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleOverlayRef = useRef<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const labelOverlayRef = useRef<any>(null);
+  // 드래그 핸들 overlay refs (드래그 기능 비활성화 중)
+  // const handleOverlayRef = useRef<any>(null);
+  // const labelOverlayRef = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const currentMarkerRef = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,7 +69,8 @@ export function RadiusMap({
   const onDragStateChangeRef = useRef(onDragStateChange);
   onDragStateChangeRef.current = onDragStateChange;
 
-  const [isDragging, setIsDragging] = useState(false);
+  // 드래그 핸들 상태 (드래그 기능 비활성화 중)
+  // const [isDragging, setIsDragging] = useState(false);
 
   const { isLoaded } = useKakaoMap();
 
@@ -116,48 +118,37 @@ export function RadiusMap({
     circle.setMap(map);
     circleRef.current = circle;
 
-    // 드래그 핸들 + 반경 라벨 (하나의 컨테이너)
-    const handlePos = getPointAtDistance(
-      centerLat,
-      centerLng,
-      radiusRef.current,
-    );
-    const handleContent = document.createElement("div");
-    handleContent.innerHTML = `
-      <div data-handle-dot style="
-        width: 20px; height: 20px; border-radius: 50%;
-        background: white; border: 3px solid #7c3aed;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-        transition: transform 0.15s ease;
-      "></div>
-      <div data-handle-label style="
-        background: #7c3aed; color: white; font-size: 13px; font-weight: 700;
-        padding: 4px 12px; border-radius: 12px; white-space: nowrap;
-        box-shadow: 0 2px 6px rgba(124,58,237,0.4);
-        margin-top: 4px;
-      ">${formatRadius(radiusRef.current)}</div>
-    `;
-    handleContent.style.cssText = `
-      display: flex; flex-direction: column; align-items: center;
-      padding: 10px;
-      touch-action: none; cursor: grab; user-select: none;
-    `;
-
-    const handleOverlay = new kakao.maps.CustomOverlay({
-      position: new kakao.maps.LatLng(handlePos.lat, handlePos.lng),
-      content: handleContent,
-      yAnchor: 0.3,
-      xAnchor: 0.5,
-      zIndex: 10,
-    });
-    handleOverlay.setMap(map);
-    handleOverlayRef.current = handleOverlay;
-
-    // labelOverlayRef는 handleContent 내부 라벨 엘리먼트를 참조
-    const labelEl = handleContent.querySelector(
-      "[data-handle-label]",
-    ) as HTMLDivElement;
-    labelOverlayRef.current = { labelEl, overlay: handleOverlay };
+    // ── 드래그 핸들 비활성화 (추후 재활성화 시 주석 해제) ─────────────────────
+    // const handlePos = getPointAtDistance(centerLat, centerLng, radiusRef.current);
+    // const handleContent = document.createElement("div");
+    // handleContent.innerHTML = `
+    //   <div data-handle-dot style="
+    //     width: 20px; height: 20px; border-radius: 50%;
+    //     background: white; border: 3px solid #7c3aed;
+    //     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    //     transition: transform 0.15s ease;
+    //   "></div>
+    //   <div data-handle-label style="
+    //     background: #7c3aed; color: white; font-size: 13px; font-weight: 700;
+    //     padding: 4px 12px; border-radius: 12px; white-space: nowrap;
+    //     box-shadow: 0 2px 6px rgba(124,58,237,0.4);
+    //     margin-top: 4px;
+    //   ">${formatRadius(radiusRef.current)}</div>
+    // `;
+    // handleContent.style.cssText = `
+    //   display: flex; flex-direction: column; align-items: center;
+    //   padding: 10px; touch-action: none; cursor: grab; user-select: none;
+    // `;
+    // const handleOverlay = new kakao.maps.CustomOverlay({
+    //   position: new kakao.maps.LatLng(handlePos.lat, handlePos.lng),
+    //   content: handleContent,
+    //   yAnchor: 0.3, xAnchor: 0.5, zIndex: 10,
+    // });
+    // handleOverlay.setMap(map);
+    // handleOverlayRef.current = handleOverlay;
+    // const labelEl = handleContent.querySelector("[data-handle-label]") as HTMLDivElement;
+    // labelOverlayRef.current = { labelEl, overlay: handleOverlay };
+    // ─────────────────────────────────────────────────────────────────────────
 
     // ─── idle 이벤트: 지도 중심 이동 시 원 + 핸들 재배치 (onCenterChanged가 있을 때만) ───
     kakao.maps.event.addListener(map, "idle", () => {
@@ -173,15 +164,9 @@ export function RadiusMap({
       // 반경 원 중심 이동
       circle.setPosition(new kakao.maps.LatLng(newLat, newLng));
 
-      // 핸들 재배치
-      const newHandlePos = getPointAtDistance(
-        newLat,
-        newLng,
-        radiusRef.current,
-      );
-      handleOverlay.setPosition(
-        new kakao.maps.LatLng(newHandlePos.lat, newHandlePos.lng),
-      );
+      // 핸들 재배치 (드래그 기능 비활성화 중)
+      // const newHandlePos = getPointAtDistance(newLat, newLng, radiusRef.current);
+      // handleOverlay.setPosition(new kakao.maps.LatLng(newHandlePos.lat, newHandlePos.lng));
 
       onCenterChangedRef.current(newLat, newLng);
     });
@@ -200,171 +185,53 @@ export function RadiusMap({
       onDragStateChangeRef.current?.(false);
     });
 
-    // ─── 드래그 핸들 이벤트 (터치 + 마우스) ───
-    let dragging = false;
-    let prevSnapped = radiusRef.current;
-
-    /** 드래그 시작 공통 로직 */
-    const startDrag = () => {
-      dragging = true;
-      setIsDragging(true);
-      const dot = handleContent.querySelector(
-        "[data-handle-dot]",
-      ) as HTMLDivElement;
-      if (dot) dot.style.transform = "scale(1.3)";
-      handleContent.style.cursor = "grabbing";
-      // 드래그 중에만 mousemove 등록 (성능 최적화)
-      document.addEventListener("mousemove", onMouseMove);
-      try {
-        navigator?.vibrate?.(10);
-      } catch {
-        /* 무시 */
-      }
-    };
-
-    /** 드래그 이동 공통 로직 — 동적 중심 기준 거리 계산 */
-    const moveDrag = (clientX: number, clientY: number) => {
-      if (!dragging) return;
-      const container = mapContainerRef.current!;
-      const rect = container.getBoundingClientRect();
-      const projection = map.getProjection();
-      const point = new kakao.maps.Point(
-        clientX - rect.left,
-        clientY - rect.top,
-      );
-      const pointerLatLng = projection.coordsFromContainerPoint(point);
-
-      const dist = getDistanceMeters(
-        centerLatRef.current,
-        centerLngRef.current,
-        pointerLatLng.getLat(),
-        pointerLatLng.getLng(),
-      );
-      const snapped = snapRadius(dist);
-
-      circle.setRadius(snapped);
-      const newPos = getPointAtDistance(
-        centerLatRef.current,
-        centerLngRef.current,
-        snapped,
-      );
-      handleOverlay.setPosition(new kakao.maps.LatLng(newPos.lat, newPos.lng));
-      labelEl.textContent = formatRadius(snapped);
-
-      if (snapped !== prevSnapped) {
-        prevSnapped = snapped;
-        try {
-          navigator?.vibrate?.(5);
-        } catch {
-          /* 무시 */
-        }
-      }
-
-      radiusRef.current = snapped;
-    };
-
-    /** 드래그 종료 공통 로직 */
-    const endDrag = () => {
-      if (!dragging) return;
-      dragging = false;
-      setIsDragging(false);
-      // 드래그 종료 시 mousemove 해제 (성능 최적화)
-      document.removeEventListener("mousemove", onMouseMove);
-      const dot = handleContent.querySelector(
-        "[data-handle-dot]",
-      ) as HTMLDivElement;
-      if (dot) dot.style.transform = "scale(1)";
-      handleContent.style.cursor = "grab";
-      onRadiusChangeRef.current(radiusRef.current);
-    };
-
-    // ─── 터치 이벤트 ───
-    const onTouchStart = (e: TouchEvent) => {
-      e.stopPropagation();
-      e.preventDefault();
-      kakao.maps.event.preventMap();
-      startDrag();
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      e.stopPropagation();
-      e.preventDefault();
-      moveDrag(e.touches[0].clientX, e.touches[0].clientY);
-    };
-    const onTouchEnd = () => endDrag();
-
-    // ─── 마우스 이벤트 (데스크톱) ───
-    const onMouseDown = (e: MouseEvent) => {
-      e.stopPropagation();
-      e.preventDefault();
-      kakao.maps.event.preventMap();
-      startDrag();
-    };
-    const onMouseMove = (e: MouseEvent) => {
-      moveDrag(e.clientX, e.clientY);
-    };
-    const onMouseUp = () => endDrag();
-
-    handleContent.addEventListener("touchstart", onTouchStart, {
-      passive: false,
-    });
-    handleContent.addEventListener("touchmove", onTouchMove, {
-      passive: false,
-    });
-    handleContent.addEventListener("touchend", onTouchEnd);
-    handleContent.addEventListener("mousedown", onMouseDown);
-    // mousemove는 startDrag()에서 조건부 등록 (성능 최적화)
-    document.addEventListener("mouseup", onMouseUp);
-
-    // 지도 드래그 중 핸들 터치 방지
-    kakao.maps.event.addListener(map, "drag", () => {
-      if (dragging) return;
-    });
+    // ── 드래그 핸들 이벤트 비활성화 (추후 재활성화 시 주석 해제) ─────────────
+    // let dragging = false;
+    // let prevSnapped = radiusRef.current;
+    // const startDrag = () => { dragging = true; setIsDragging(true); ... };
+    // const moveDrag = (clientX, clientY) => { ... snapRadius ... onRadiusChangeRef ... };
+    // const endDrag = () => { dragging = false; setIsDragging(false); ... };
+    // const onTouchStart/onTouchMove/onTouchEnd/onMouseDown/onMouseMove/onMouseUp ...
+    // handleContent.addEventListener("touchstart", onTouchStart, { passive: false });
+    // handleContent.addEventListener("touchmove", onTouchMove, { passive: false });
+    // handleContent.addEventListener("touchend", onTouchEnd);
+    // handleContent.addEventListener("mousedown", onMouseDown);
+    // document.addEventListener("mouseup", onMouseUp);
+    // kakao.maps.event.addListener(map, "drag", () => { if (dragging) return; });
+    // ─────────────────────────────────────────────────────────────────────────
 
     // 초기 콜백 발동
     onCenterChangedRef.current?.(centerLat, centerLng);
 
     return () => {
-      handleContent.removeEventListener("touchstart", onTouchStart);
-      handleContent.removeEventListener("touchmove", onTouchMove);
-      handleContent.removeEventListener("touchend", onTouchEnd);
-      handleContent.removeEventListener("mousedown", onMouseDown);
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
+      // 드래그 이벤트 해제 (드래그 기능 비활성화 중)
+      // handleContent.removeEventListener("touchstart", onTouchStart);
+      // handleContent.removeEventListener("touchmove", onTouchMove);
+      // handleContent.removeEventListener("touchend", onTouchEnd);
+      // handleContent.removeEventListener("mousedown", onMouseDown);
+      // document.removeEventListener("mousemove", onMouseMove);
+      // document.removeEventListener("mouseup", onMouseUp);
       circle.setMap(null);
-      handleOverlay.setMap(null);
+      // handleOverlay.setMap(null);
       if (currentMarkerRef.current) currentMarkerRef.current.setMap(null);
       mapRef.current = null;
       circleRef.current = null;
-      handleOverlayRef.current = null;
-      labelOverlayRef.current = null;
+      // handleOverlayRef.current = null;
+      // labelOverlayRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded]);
 
-  // 반경 외부 변경 시 동기화 (동적 중심 기준)
+  // 반경 버튼 변경 시 원 크기 동기화
   useEffect(() => {
-    if (
-      !circleRef.current ||
-      !handleOverlayRef.current ||
-      !labelOverlayRef.current ||
-      !window.kakao?.maps
-    )
-      return;
-    const kakao = window.kakao;
+    if (!circleRef.current) return;
     circleRef.current.setRadius(radius);
-    const pos = getPointAtDistance(
-      centerLatRef.current,
-      centerLngRef.current,
-      radius,
-    );
-    handleOverlayRef.current.setPosition(
-      new kakao.maps.LatLng(pos.lat, pos.lng),
-    );
-    const ref = labelOverlayRef.current as {
-      labelEl: HTMLDivElement;
-      overlay: unknown;
-    };
-    if (ref.labelEl) ref.labelEl.textContent = formatRadius(radius);
+    // 드래그 핸들 동기화 (드래그 기능 비활성화 중)
+    // const kakao = window.kakao;
+    // const pos = getPointAtDistance(centerLatRef.current, centerLngRef.current, radius);
+    // handleOverlayRef.current?.setPosition(new kakao.maps.LatLng(pos.lat, pos.lng));
+    // const ref = labelOverlayRef.current as { labelEl: HTMLDivElement };
+    // if (ref?.labelEl) ref.labelEl.textContent = formatRadius(radius);
   }, [radius]);
 
   // 현위치 마커
@@ -501,12 +368,12 @@ export function RadiusMap({
   return (
     <>
       <div ref={mapContainerRef} className="fixed inset-0" />
-      {/* 드래그 중 반경 표시 오버레이 */}
-      {isDragging && (
+      {/* 드래그 중 반경 표시 오버레이 (드래그 기능 비활성화 중) */}
+      {/* {isDragging && (
         <div className="fixed top-12 left-1/2 -translate-x-1/2 z-50 bg-violet-600 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg">
           반경 {formatRadius(radius)}
         </div>
-      )}
+      )} */}
     </>
   );
 }

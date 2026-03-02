@@ -1,6 +1,6 @@
 # 창업 분석기 — 구현 현황 & 페이즈별 체크리스트
 
-> 마지막 업데이트: 2026-03-02 (인사이트 업종별 분기, 반경 상수화 완료)
+> 마지막 업데이트: 2026-03-02 (건축물대장 SKIP, 대학교 카페 필터 버그 수정)
 > **이 문서는 Claude가 작업 전 반드시 참조해야 합니다.**
 > 새 기능 구현 / API 추가 / 스코어링 변경 전 이 문서를 먼저 읽고 현황을 파악하세요.
 
@@ -30,7 +30,7 @@ analysis-orchestrator.ts (Promise.all 병렬 수집)
     ├── [2] 서울 골목상권          → 매출/점포/유동인구 (서울만)
     ├── [3] KOSIS 인구             → 배후 인구 (전국)
     ├── [4] 지하철                 → 역세권 분석 (수도권)
-    └── [5] 버스                   → 정류장 접근성 (전국, ⚠️ 노선 조회는 cityCode=11 서울 고정 버그)
+    └── [5] 버스                   → 정류장 접근성 (전국)
     ↓
 스코어링 엔진
     ├── competition.ts  → competitionScore (totalScore로 단독 사용 중)
@@ -39,13 +39,13 @@ analysis-orchestrator.ts (Promise.all 병렬 수집)
     ↓
 인사이트 빌더 (competition / population / subway / bus 4개 룰)
     ↓
-DB 저장 (AnalysisRequest: totalScore=competition, scoreDetail, reportData) + Redis 캐시
+DB 저장 (AnalysisRequest: totalScore=4대지표가중합산, scoreDetail, reportData) + Redis 캐시
     ↓
 Claude AI 리포트 (haiku-4-5)
 ```
 
 > ~~⚠️ NPS, 부동산, 프랜차이즈 API는 Client-Adapter 구현 완료됐으나 orchestrator 미연결~~ → **SKIP** (데이터 무의미 판정)
-> ⚠️ totalScore = competition 단독 점수 (5대 지표 가중 합산 미구현)
+> ✅ totalScore = 4대 지표 가중 합산 (서울: vitality 35% + competition 25% + population 20% + survival 20%)
 
 ---
 
@@ -120,11 +120,11 @@ residentPopulation { totalResident, totalHouseholds }
 | 파일 | `src/server/data-sources/subway/client.ts` + `adapter.ts` |
 | 제공기관 | 서울시 열린데이터광장 + Kakao |
 | API 키 | `SEOUL_OPEN_API_KEY` + `KAKAO_REST_API_KEY` |
-| 서비스명 | CardSubwayStatsNew (서울시 일별 승하차 통계) |
-| Redis 캐시 | ✅ 있음 (TTL 7일, 키: `subway:daily:{역명}:{날짜}`) |
+| 서비스명 | CardSubwayTime (OA-12252, 서울시 월별 시간대별 승하차 통계) |
+| Redis 캐시 | ✅ 있음 (TTL 7일, 키: `subway:monthly:{역명}:{월YYYYMM}`) |
 | Orchestrator | ✅ 연결됨 (슬롯 4, 수도권) |
 
-2단계: Kakao Places(SW8)로 반경 500m 내 역 탐색 → 가장 가까운 역 7일치 승하차 → 일평균 산출
+2단계: Kakao Places(SW8)로 반경 500m 내 역 탐색 → 가장 가까운 역 전월 시간대별 승하차 합산 → 일평균 산출
 출력: `{ isStationArea, nearestStation { name, distance, dailyAvgTotal, days }, stationsInRadius[] }`
 
 ---
@@ -143,7 +143,7 @@ residentPopulation { totalResident, totalHouseholds }
 2단계: `getCrdntPrxmtSttnList`(인근 5개 정류소) → `getSttnThrghRouteList`(경유 노선, 병렬)
 출력: `{ hasBusStop, nearestStop { nodeId, name, distanceMeters, routes[], routeCount }, stopCount, stopsInRadius[], totalRouteCount }`
 
-> ⚠️ **버그**: `cityCode = 11` (서울) 하드코딩 → 서울 외 지역 노선 조회 0건
+> ✅ 전국 커버: `REGION_PREFIX_TO_CITY_CODE` 매핑으로 17개 시도 cityCode 자동 선택 (2026-03-02 완료)
 
 ---
 
@@ -204,11 +204,13 @@ src/features/analysis/lib/scoring/
 ├── competition.ts — 경쟁 강도
 ├── vitality.ts    — 상권 활력도
 ├── population.ts  — 배후 인구
+├── survival.ts    — 생존율 (서울 전용)
 └── types.ts       — 공통 타입 (등급, 정규화)
 ```
 
-> ⚠️ **현재 totalScore = competition 단독 점수**
-> 5대 지표 가중 합산은 미구현. vitality, population은 scoreDetail JSON에만 저장.
+> ✅ **totalScore = 4대 지표 가중 합산** (`actions.ts` `calcTotalScore()`)
+> 서울: vitality(35%) + competition(25%) + population(20%) + survival(20%)
+> 비서울: competition(55%) + population(45%)
 
 ### 등급 체계
 
@@ -222,22 +224,21 @@ src/features/analysis/lib/scoring/
 
 ### 경쟁 강도 (Competition)
 
-수식: `densityScore × 0.90 + franchiseScore × 0.10`
-> ⚠️ 코드-주석 불일치: 주석 "75%/25%" vs 실제 `0.90 / 0.10`
+수식: `densityScore × 0.75 + franchiseScore × 0.25`
 
-밀집도: `score = min(100, (√(πr²/N) / densityBaseline)² × 100)`
+밀집도 (시그모이드): `100 / (1 + exp(-4 × (ratio - 1)))` — ratio = densityBaseline / densityPerMeter
 
 업종별 densityBaseline: 한식 50m / 미용실·부동산 90m / 편의점 110m / 커피 150m / 치킨 160m / 기본 250m
 
-프랜차이즈 U커브: 0%→40점 / 20~40%→100점 / 80%+→0점
+프랜차이즈 U커브: 0%→25점 / 20~40%→100점 / 80%+→0점
 
 ### 상권 활력도 (Vitality) — 서울만 풀스코어
 
 | 하위 지표 | 가중치 | 계산 |
 |----------|--------|------|
 | 점포당 매출 | 35% | 로그 정규화 (50만~3,000만원) |
-| 상권 변화 | 30% | 고정값 LL=90 / LH=70 / HL=40 / HH=20 |
-| 유동인구 | 35% | `max(골목상권, 지하철)` |
+| 상권 변화 | 30% | 고정값 LH=85 / HL=55 / HH=30 / LL=25 |
+| 유동인구 | 35% | `max(골목상권, 지하철)` — max 200만명 기준 로그 정규화 |
 
 비서울: `subwayScore × 0.35` → 최대 35점
 
@@ -250,7 +251,7 @@ src/features/analysis/lib/scoring/
 
 | 지표 | 목표 가중치 | 상태 |
 |------|-----------|------|
-| 생존율 | 20% | ❌ closeRate/openRate 데이터 있음, 점수화 미구현 |
+| ~~생존율~~ | ~~20%~~ | ✅ **구현 완료** — `scoring/survival.ts`. 서울 전용(closeRate/openRate 기반) |
 | ~~소득~~ | ~~10%~~ | ⛔ **SKIP** (NPS·부동산 데이터 소스 무의미 판정) |
 
 ---
@@ -259,18 +260,18 @@ src/features/analysis/lib/scoring/
 
 ```
 src/features/analysis/lib/insights/
-├── builder.ts      — 룰 등록 및 실행 (ALL_RULES 배열로 4개 룰 관리)
-├── index.ts        — buildInsights() / buildCompetitionInsights() / buildVitalityInsights() / buildSubwayInsights() / buildBusInsights() export
+├── builder.ts      — 룰 등록 및 실행 (ALL_RULES 배열)
+├── index.ts        — buildInsights() / buildCompetitionInsights() / buildPopulationInsights() / buildSubwayInsights() / buildBusInsights() / buildSchoolInsights() / buildUniversityInsights() / buildMedicalInsights() export
 ├── types.ts        — InsightData, InsightItem, InsightRule 타입
 └── rules/
     ├── competition.ts  — 경쟁 강도 (densityPerMeter, franchiseRatio 기반)
-    ├── population.ts   — 상권 활력도/인구 인사이트 (파일명 ≠ 역할명 — 주의)
+    ├── population.ts   — 상권 활력도 + 배후인구 인사이트
     ├── subway.ts       — 역세권 (isStationArea, nearestStation)
-    └── bus.ts          — 버스 접근성 (hasBusStop, nearestStop, routeCount)
+    ├── bus.ts          — 버스 접근성 (hasBusStop, nearestStop, routeCount)
+    ├── school.ts       — 초중고 학교 (업종별 분기)
+    ├── university.ts   — 대학교 + 방학 리스크
+    └── medical.ts      — 병의원 (종별 분류, 업종별 분기)
 ```
-
-> ⚠️ **함수명-파일명 불일치**: `builder.ts`의 `buildVitalityInsights()`가 실제로는 `rules/population.ts`의 `populationRules()`를 호출
-> → `population.ts` 파일이 상권 활력도 + 배후인구 인사이트를 동시에 담당
 
 InsightItem: `{ type, emoji, text, sub?, category: "scoring" | "fact" }`
 - scoring = 점수에 반영된 근거
@@ -287,6 +288,12 @@ InsightItem: `{ type, emoji, text, sub?, category: "scoring" | "fact" }`
 
 **버스:** 정류장명+거리+노선수 / 5개+ "밀집" / 없음 "접근성 낮음" / null "데이터 수집 실패"
 
+**학교:** 학원 업종 → "초중고 N곳 인근 — 학원 입지 적합/신중" / 일반 업종 → 개수 팩트 표시
+
+**대학교:** 카페/음식점/편의점/의류 → "대학가 핵심 상권 + 방학 리스크" / 없음 → "대학가 아님"
+
+**의료시설:** 약국 → "처방전 수요" / 편의점 → "환자·보호자 수요" / 종합병원 목록 팩트 표시
+
 ---
 
 ## 5. DB / Redis 캐시 현황
@@ -295,9 +302,9 @@ InsightItem: `{ type, emoji, text, sub?, category: "scoring" | "fact" }`
 
 ```
 AnalysisRequest
-├── totalScore (int)    — 현재 competition 단일값 (5대 지표 합산 미구현)
-├── scoreDetail (Json)  — { competition: CompetitionAnalysis, vitality: VitalityAnalysis|null, population: PopulationAnalysis|null }
-├── reportData (Json)   — AnalysisResult 전체 덤프 (places, competition, vitality, population, subway, bus 포함)
+├── totalScore (int)    — 4대 지표 가중 합산 (서울: vitality+competition+population+survival / 비서울: competition+population)
+├── scoreDetail (Json)  — { competition: CompetitionAnalysis, vitality: VitalityAnalysis|null, population: PopulationAnalysis|null, survival: SurvivalAnalysis|null }
+├── reportData (Json)   — AnalysisResult 전체 덤프 (places, competition, vitality, population, subway, bus, school, university, medical 포함)
 └── status              — PENDING/PROCESSING/COMPLETED/FAILED
 ```
 
@@ -312,7 +319,7 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 | ~~프랜차이즈~~ | ~~`franchise:all-brands:{year}`~~ | ~~30일~~ | ⛔ SKIP |
 | 서울 골목상권 | 상권코드별 분할 | 7~30일 | ✅ |
 | 버스 | `bus:sttn:{lat4}:{lng4}` | 7일 | ✅ |
-| 지하철 | `subway:daily:{역명}:{날짜}` | 7일 | ✅ |
+| 지하철 | `subway:monthly:{역명}:{YYYYMM}` | 7일 | ✅ |
 | Kakao Places | — | — | ❌ 없음 |
 | ~~NPS~~ | — | — | ⛔ SKIP |
 | ~~부동산 실거래~~ | — | — | ⛔ SKIP |
@@ -372,7 +379,7 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 - [x] **병의원/약국 — Kakao HP8 기반 구현 완료 (2026-03-02)**
   - ~~HIRA 의료기관별상세정보서비스~~ → **위치 기반 검색 불가** (2026-03-02 확인)
-  - Kakao `searchByCategory("HP8", coord, 2000m)` + category_name 종별 분류 (종합병원·병원급만, 의원 제외)
+  - Kakao `searchByCategory("HP8", coord, 2000m)` + category_name/place_name 종별 분류 (종합병원 + 의료원/대학병원만, 병원·의원 제외)
   - ⚠️ **업종별 해석 차이**: 약국·편의점은 의원(동네 병원) 수가 핵심 입지 기준. 현재는 종합병원/병원만 표시하므로 향후 선택 업종이 약국/편의점일 때 의원 수를 별도 인사이트로 추가 표시하는 업종별 분기 처리 필요.
   - `src/server/data-sources/medical/adapter.ts` — `fetchMedicalAnalysis()`
   - `AnalysisResult`에 `medical: MedicalAnalysis | null` 추가
@@ -383,16 +390,14 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 ### 6-D. 신규 API 추가 — 주거/부동산
 
-- [ ] **건축물대장 (국토교통부 건축HUB)**
-  - 서비스명: `lawd` 건축물대장 일반 API
-  - 수집: 건물용도, 세대수, 연면적, 사용승인일(신축/노후 판별)
-  - 위경도 기반 반경 내 건축물 조회 → 아파트/주거용 세대수 합산
-  - Client: `src/server/data-sources/building/client.ts`
-  - Redis 캐시: TTL 30일
-  - 인사이트: 배후세대 수 + 신축/노후 비율 → `buildingRules()`
-  - ⚠️ 난도 높음: 대량 조회 최적화 필요
+- ~~[ ] **건축물대장 (국토교통부 건축HUB)**~~ → **SKIP** (구현 난도 대비 효용 낮음 판정 2026-03-02)
+  - **SKIP 근거**:
+    - API가 위경도 반경 조회 불가 — 시군구코드+법정동코드+본번+부번 개별 조회만 지원
+    - 반경 내 배후세대 수를 구하려면 Kakao로 건물 목록 조회 → 주소별 API 개별 호출 → 수십~수백 건 호출 필요
+    - KOSIS 세대수도 같은 읍면동 해상도 불일치 문제로 이미 제거된 상태
+    - 구현 난도 대비 얻는 정보량 미미 판정
 
-- [ ] **입주예정 아파트 (한국부동산원)**
+- ~~[ ] **입주예정 아파트 (한국부동산원)**~~  → **SKIP** (건축물대장 SKIP과 동일 맥락, 불확실성 높음)
   - 수집: 단지명, 주소, 입주예정월, 세대수
   - 인사이트: 향후 N개월 내 입주 예정 세대 → 미래 수요 예측 팩트 표시
   - **점수화 금지** — 불확실성 높아 팩트 표시만
@@ -405,9 +410,12 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
   - `REGION_PREFIX_TO_CITY_CODE` 매핑 + `getCityCodeFromRegionCode()` 추가
   - orchestrator regionCode 전달로 전국 17개 시도 커버
 
-- [ ] **버스(경기/광주/대구/대전/인천) 검증**
-  - 각 도시별 실제 노선 조회 테스트
-  - 도시코드별 API 응답 필드 차이 확인
+- [x] **버스(경기/부산/대구/인천) 검증 → 완료 (2026-03-02)**
+  - 경기(수원): cityCode 잘못된 prefix "31"→"41" 수정. 실제 정류소 citycode 필드 사용으로 노선 5개 조회 성공
+  - 부산(해운대): 노선명 필드 routenm→routeno 수정으로 3개 조회 성공
+  - 대구(중구): 레거시(CGB)/신규(DGB) nodeId 공존 → routeCount>0 정류소 우선 선택으로 12개 조회 성공
+  - 인천(남동구): 4개 노선 조회 성공
+  - **수정 내역**: proxmtSttnItemSchema에 citycode 필드 추가, getCrdntPrxmtSttnList에서 cityCode 파라미터 제거, getSttnThrghRouteList에서 stn.citycode 사용, thrghRouteItemSchema에 routeno 필드 추가
 
 ---
 
@@ -596,7 +604,9 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 ---
 
-### 7-C. 위험 신호 조합 패턴 — 구현 예정
+### 7-C. 위험 신호 조합 패턴 — **구현 완료 (2026-03-02)**
+
+`src/features/analysis/lib/insights/builder.ts` — `combinedRiskInsights()` 구현 완료.
 
 다음 패턴 감지 시 인사이트에 명시적 경고 표시:
 
@@ -614,14 +624,14 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 | # | 항목 | 상태 | 담당 |
 |---|------|:---:|------|
-| C-01 | **비서울 지역 활력도 0점 vs "데이터 없음" 구분 UI** 동일하게 보이면 사용자가 "이 상권이 죽었다"로 오해 | `[ ]` | Frontend |
-| C-02 | **상권코드-반경 매핑 정합성** 사용자 반경 500m 선택 시 2km 상권코드가 매칭되면 점수 왜곡 | `[ ]` | Backend |
-| C-03 | **KOSIS 인구 공간 해상도 한계 고지** 읍면동 인구 4만명 ≠ 반경 500m 거주 인구. 사용자에게 명시 | `[ ]` | Frontend + Insights |
-| C-04 | **점포당 매출 정규화 업종별 분리** 편의점 5,000만원과 네일숍 300만원은 같은 척도 불가 | `[ ]` | Scoring Validator 먼저 |
-| C-05 | **유동인구 정규화 범위 실증 검증** 현재 ln(5,000)~ln(500,000)이 실제 데이터 분포와 일치하는지 확인 | `[ ]` | Data Researcher |
-| C-06 | **5대 지표 가중치 근거 문서화** 이론적 또는 실증적 근거 없는 가중치는 신뢰도 훼손 | `[ ]` | Scoring Validator |
-| C-07 | **상권변화지표 업종별 해석 차이** HH(정체)가 부동산중개는 안정, 학원은 불안정을 의미하는 등 업종별 역전 케이스 | `[ ]` | Scoring Validator |
-| C-08 | **카드 결제 기반 매출 과소추정 명시** 현금 거래 높은 업종에서 골목상권 매출이 실제보다 낮게 표시될 수 있음 | `[ ]` | Insights |
+| C-01 | **비서울 지역 활력도 0점 vs "데이터 없음" 구분 UI** — vitality===null 시 "서울 전용" 배지 + 안내 표시 | `[x]` | Frontend |
+| C-02 | **상권코드-반경 매핑 정합성** — `fetchCommercialVitality`에서 radius가 `getTrdarsByLocation`에 직접 전달 확인. 수정 불필요 | `[x]` | Backend |
+| C-03 | **KOSIS 인구 공간 해상도 한계 고지** — 배후 인구 표시에 "(행정동/시군구 전체 기준 (KOSIS 2024) · 반경 내 실제 거주인구와 다를 수 있음)" 추가 | `[x]` | Frontend + Insights |
+| C-04 | **점포당 매출 정규화 업종별 분리** — ⛔ 현행 유지 (골목상권 API 자체가 업종별 분리 미지원). 인사이트 경고 메시지로 대체 | `[x]` | Scoring Validator |
+| C-05 | **유동인구 정규화 범위 실증 검증** — ⛔ 현행 유지 (ln(5,000)~ln(2,000,000) 범위가 소규모~A급 변별력 충분 확인) | `[x]` | Data Researcher |
+| C-06 | **5대 지표 가중치 근거 문서화** — ⚠️ 미완료. implementation-status.md 가중치 근거 섹션 추가 필요 | `[ ]` | Scoring Validator |
+| C-07 | **상권변화지표 업종별 해석 차이** — 점수 변경 없음. 인사이트 메시지 분기 처리 (부동산/학원/의료 업종별 HH 해석 차이 안내 추가) | `[x]` | Insights |
+| C-08 | **카드 결제 기반 매출 과소추정 명시** — 한식·분식 등 현금 거래 비율 높은 업종에서 경고 팩트 메시지 추가 | `[x]` | Insights |
 
 ---
 
@@ -629,18 +639,18 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 | # | 항목 | 상태 | 담당 |
 |---|------|:---:|------|
-| M-01 | **경쟁업체 0개 = 100점 오해 방지** "수요 없는 곳"일 수 있음. 경고 메시지 추가 | `[ ]` | Insights |
-| M-02 | **종합 A등급인데 핵심 지표 F등급 경고** 한 축이 완전히 무너진 경우 종합 점수만 보고 의사결정 방지 | `[ ]` | Frontend |
-| M-03 | **비선형 커브(^2.0) 도메인 적합성** ratio=0.5일 때 25점 — 실제 상권 감각에 부합하는지 | `[ ]` | Scoring Validator |
-| M-04 | **활력도 점수의 업종 무관 적용** 커피전문점과 부동산중개에 같은 유동인구 가중치 35% 적용 중 | `[ ]` | Scoring Validator |
-| M-05 | **densityBaseline 통계적 근거 확보** 현재 경험 추정값인 densityBaseline의 실제 업종별 밀집도 통계 대조 | `[ ]` | Data Researcher |
-| M-06 | **상권변화지표 30% 가중치의 이산값 점프** 4단계 이산값(20/40/70/90)이 연속 데이터와 합산 시 급격한 점수 변동 | `[ ]` | Scoring Validator |
-| M-07 | **유동인구 fallback 투명성** 유동인구 없어 fallback 가중치 적용 시 사용자에게 명시 | `[ ]` | Insights |
-| M-08 | **프랜차이즈 브랜드 목록 커버리지** ~150개 하드코딩이 실제 시장의 몇%인지 검증. 신규 브랜드 누락 확인 | `[ ]` | Data Researcher |
-| M-09 | **데이터 기준 시점 표시** 서울 골목상권(분기), KOSIS(연도), 부동산(월) — UI에 "X년 X분기 기준" 표시 | `[ ]` | Frontend |
-| M-10 | **비프랜차이즈 업종 U커브 제외** 부동산중개·병의원 업종에서 프랜차이즈 U커브 점수 제외 처리 | `[ ]` | Backend |
-| M-11 | **대학가 방학 리스크 표시** 대학교 인근 입지는 방학 기간 매출 급감 위험 명시 | `[ ]` | Insights |
-| M-12 | **위험 신호 조합 패턴 구현** 유령상권·레드오션·거품상권 등 복합 경고 인사이트 추가 | `[ ]` | Backend + Insights |
+| M-01 | **경쟁업체 0개 = 100점 오해 방지** — `directCompetitorCount === 0` 시 "수요 자체가 없는 지역일 수 있다" 경고 추가 | `[x]` | Insights |
+| M-02 | **종합 A등급인데 핵심 지표 F등급 경고** — competition/vitality/population 중 score < 20이면 amber 경고 배너 표시 | `[x]` | Frontend |
+| M-03 | **비선형 커브(^2.0) 도메인 적합성** — ⛔ 현행 유지 (실제로는 로그 정규화이며 ^2.0 커브 미사용 확인. 정상 동작) | `[x]` | Scoring Validator |
+| M-04 | **활력도 점수의 업종 무관 적용** — ⛔ 현행 유지 (골목상권 데이터 자체가 업종 비특화적이므로 가중치 분기는 근거 없는 차별화) | `[x]` | Scoring Validator |
+| M-05 | **densityBaseline 통계적 근거 확보** — ⚠️ 통계 확보 불완전. 경험 추정값임을 문서화. 실증 검증 추후 과제로 남김 | `[ ]` | Data Researcher |
+| M-06 | **상권변화지표 30% 가중치의 이산값 점프** — ⛔ 현행 유지 (최대 18점 변동으로 등급 1단계 이내. 원본 데이터 자체가 범주형) | `[x]` | Scoring Validator |
+| M-07 | **유동인구 fallback 투명성** — 골목상권 유동인구 없어 지하철 데이터 대체 시 팩트 메시지 추가 | `[x]` | Insights |
+| M-08 | **프랜차이즈 브랜드 목록 커버리지** — ⚠️ 공정위 등록 기준 수천 개 대비 ~150개는 주요 브랜드 위주. 실질적 커버리지 검증 추후 과제 | `[ ]` | Data Researcher |
+| M-09 | **데이터 기준 시점 표시** — KOSIS "(KOSIS 2024)" 기준 연도 표시 추가. 골목상권 매출은 C-08 경고에 포함 | `[x]` | Frontend |
+| M-10 | **비프랜차이즈 업종 U커브 제외** — `competition.ts`에 `industryCategory` 파라미터 추가. 의료/부동산은 franchiseScore=50 고정 | `[x]` | Backend |
+| M-11 | **대학가 방학 리스크 표시** — 수혜 업종(카페/음식점/의류 등) "여름·겨울 방학 시 30~50% 감소 가능" 구체적 경고 추가 | `[x]` | Insights |
+| M-12 | **위험 신호 조합 패턴 구현** — `combinedRiskInsights()` 5개 패턴 구현 완료 (유령/레드오션/거품/수요부족/교통사각지대) | `[x]` | Backend + Insights |
 
 ---
 
@@ -648,12 +658,12 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 | # | 항목 | 상태 | 담당 |
 |---|------|:---:|------|
-| m-01 | **점수 breakdown UI** "경쟁 점수 30점인 이유"를 세부 수치(밀집도/기준값/프랜차이즈%)로 표시 | `[ ]` | Frontend |
-| m-02 | **활력도 세부 점수 공개** 매출 점수 + 상권변화 점수 + 유동인구 점수 breakdown | `[ ]` | Frontend |
-| m-03 | **상권변화지표 자연어 변환 확인** HH/HL/LH/LL이 사용자 화면에 직접 노출되지 않는지 확인 | `[ ]` | Insights |
+| m-01 | **점수 breakdown UI** — AccordionTrigger에 "밀집도 Nm/개 / 프랜차이즈 N개 (N%)" 세부 배지 표시 | `[x]` | Frontend |
+| m-02 | **활력도 세부 점수 공개** — AccordionTrigger에 "매출 N점 / 상권변화 N점 / 유동인구 N점" breakdown 배지 표시 | `[x]` | Frontend |
+| m-03 | **상권변화지표 자연어 변환 확인** — HH/HL/LH/LL은 scoring 내부에서만 사용, UI 미노출 확인. 수정 불필요 | `[x]` | Insights |
 | m-04 | **프랜차이즈 U커브 10% 가중치 영향도** 10% 가중치로 U커브를 유지하는 것의 실질적 효과 분석 | `[ ]` | Scoring Validator |
 | ~~m-05~~ | ~~**NPS 1인 사업장 누락 규모**~~ | ~~`[ ]`~~ | **SKIP** |
-| m-06 | **개업률 단독 표시 방식 검토** 높은 개업률이 "활발함"인지 "과열 직전"인지 양면 해석 가능 — 폐업률과 묶어서만 표시 | `[ ]` | Insights |
+| m-06 | **개업률 단독 표시 방식** — 기존 코드 이미 준수 중 (openRate 단독 표시 없음). 수정 불필요 | `[x]` | Insights |
 
 ---
 
@@ -674,7 +684,7 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 ## 8. 전체 진행률
 
-> 마지막 집계: 2026-02-28
+> 마지막 집계: 2026-03-02
 > SKIP 항목은 분모에서 제외. "완료"는 코드 구현이 실제로 된 것만 인정.
 
 ### Phase 1 — 구현
@@ -684,33 +694,33 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 | 6-A. orchestrator 연결 | 3 | 0 | 3 | 0 | ~~100%~~ (전체 SKIP) |
 | 6-B. 교육시설 API 추가 | 4 | 2 | 2 | 0 | **100%** |
 | 6-C. 의료시설 API 추가 | 1 | 1 | 0 | 0 | **100%** |
-| 6-D. 주거/부동산 API 추가 | 2 | 0 | 0 | 2 | 0% |
-| 6-E. 버스 전국 커버 | 2 | 1 | 0 | 1 | 50% |
+| 6-D. 주거/부동산 API 추가 | 2 | 0 | 2 | 0 | ~~100%~~ (전체 SKIP) |
+| 6-E. 버스 전국 커버 | 2 | 2 | 0 | 0 | **100%** |
 | 6-F. 인사이트 보강 | 4 | 2 | 1 | 1 | 67% |
 | 6-G. 스코어링 보강 | 9 | 9 | 1 | 0 | **100%** (SKIP 제외) |
 | 6-H. 기술부채 해소 | 6 | 5 | 3 | 0 | **100%** (SKIP 제외) |
-| **Phase 1 합계** | **28** | **19** | **11** | **4** | **83%** |
+| **Phase 1 합계** | **28** | **20** | **13** | **1** | **95%** |
 
-> 💡 실질 미완료 항목(SKIP 제외): **4개**
+> 💡 실질 미완료 항목(SKIP 제외): **1개** (6-F 부동산 인사이트 룰 — 데이터소스 SKIP으로 의미 없음)
 
 ### Phase 2 — 검증
 
-| 섹션 | 항목 | 완료 | SKIP | 미완료 | 진행률 |
+| 섹션 | 항목 | 완료 | SKIP(현행유지) | 미완료 | 진행률 |
 |------|:----:|:----:|:----:|:------:|:------:|
-| 7-D. Critical | 8 | 0 | 0 | 8 | 0% |
-| 7-E. Major | 12 | 0 | 0 | 12 | 0% |
-| 7-F. Minor | 6 | 0 | 1 | 5 | 0% |
-| **Phase 2 합계** | **26** | **0** | **1** | **25** | **0%** |
+| 7-D. Critical | 8 | 7 | 0 | 1 | **88%** |
+| 7-E. Major | 12 | 9 | 0 | 3 | **75%** |
+| 7-F. Minor | 6 | 4 | 1 | 1 | **80%** (SKIP 제외) |
+| **Phase 2 합계** | **26** | **20** | **1** | **5** | **80%** |
 
-> ⚠️ Phase 2는 Phase 1 완료 후 진행. 현재는 계획 단계.
+> ⚠️ 미완료 5개: C-06(가중치 근거 문서화), M-05(densityBaseline 실증), M-08(프랜차이즈 커버리지), m-04(U커브 가중치 영향도 분석) + Phase 1 잔여 1개
 
 ### 전체 요약
 
 | 구분 | 전체 항목 | 완료 | SKIP | 실질 미완료 | **진행률** |
 |------|:--------:|:----:|:----:|:-----------:|:---------:|
-| Phase 1 | 28 | 19 | 11 | 4 | **83%** |
-| Phase 2 | 26 | 0 | 1 | 25 | **0% (계획)** |
-| **전체** | **54** | **19** | **11** | **29** | **약 40%** |
+| Phase 1 | 28 | 20 | 11 | 1 | **95%** |
+| Phase 2 | 26 | 20 | 1 | 5 | **80%** |
+| **전체** | **54** | **40** | **12** | **6** | **약 74%** |
 
 > 📌 **단, Phase 1 전제인 기반 인프라(orchestrator 5개 슬롯, 스코어링 3개 모듈, 인사이트 4개 룰)는 이미 구축 완료.**
 > Phase 1 체크리스트는 "추가 기능" 기준이며, 서비스 자체는 현재도 동작함.
@@ -724,7 +734,7 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 | 서울 골목상권 수집 (서울만) | ✅ |
 | KOSIS 배후 인구 수집 (전국) | ✅ |
 | 지하철 역세권 분석 (수도권) | ✅ |
-| 버스 접근성 분석 (전국, 노선 서울만) | ⚠️ |
+| 버스 접근성 분석 (전국) | ✅ |
 | 경쟁 강도 스코어링 | ✅ |
 | 상권 활력도 스코어링 | ✅ |
 | 배후 인구 스코어링 | ✅ |
@@ -743,7 +753,7 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 | 날짜 | 작업 내용 | 상태 | 비고 |
 |------|---------|:----:|------|
 | 2026-02-28 | 버스 API Client-Adapter 구현 (`src/server/data-sources/bus/`) | ✅ | TAGO BusSttnInfoInqireService 연동 |
-| 2026-02-28 | 지하철 역세권 분석 구현 (`src/server/data-sources/subway/`) | ✅ | 서울시 CardSubwayStatsNew + Kakao Places(SW8) |
+| 2026-02-28 | 지하철 역세권 분석 구현 (`src/server/data-sources/subway/`) | ✅ | ~~서울시 CardSubwayStatsNew~~ → 2026-03-02에 CardSubwayTime으로 교체 |
 | 2026-02-28 | 인사이트 룰 추가 — subway, bus (`insights/rules/subway.ts`, `bus.ts`) | ✅ | builder.ts ALL_RULES에 등록 |
 | 2026-02-28 | **전체 mock 데이터 제거** — `src/server/data-sources/mock/` 디렉토리 삭제 | ✅ | 10개 JSON 파일 삭제, USE_MOCK 패턴 7개 클라이언트에서 제거 |
 | 2026-02-28 | kakao/client.ts mock 제거 후 함수 시그니처 손상 → 복구 | ✅ | `searchByKeyword` 반환 타입 선언 재복구 |
@@ -775,6 +785,15 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 | 2026-03-02 | **교육·의료 인사이트 업종별 분기** — school/university/medical rules | ✅ | 학원→학교 강조, 카페·음식점·의류→대학가 강조, 약국→처방전, 편의점→환자 수요 메시지 |
 | 2026-03-02 | **반경 매직 넘버 상수화** — `constants.ts` | ✅ | `UNIVERSITY_RADIUS`, `MEDICAL_RADIUS` 추출. university/medical adapter 하드코딩 제거 |
 | 2026-03-02 | **학교 반경 레벨별 분리 시도 → SKIP** | ⏭️ | 학생수 데이터 없이 개수만 세는 구조에서 의미 없음 판정. 사용자 선택 반경 유지로 롤백 |
+| 2026-03-02 | **[T4] 버스 비서울 지역 검증 + 3개 버그 수정** | ✅ | (1) 경기도 prefix "31"→"41" 수정 (2) 정류소 응답 citycode 필드 노선 조회에 직접 사용 (3) routeno 필드 추가(부산/대구/인천 등) (4) 레거시 nodeId 우선순위 낮춤 — 경기/부산/대구/인천 전 지역 노선 조회 성공 |
+| 2026-03-02 | **버스 인사이트 노선명 표시** — `insights/rules/bus.ts` formatRouteNo 추가 | ✅ | "해운대구2" → "2번" 형식 변환. 최대 5개 + "외 N개" 표시 |
+| 2026-03-02 | **버스 대표 정류소 선택 로직 개선** — `bus/adapter.ts` | ✅ | 가장 가까운 정류소 → 노선 수 가장 많은 정류소 우선. 레거시 CGB nodeId 자연스럽게 후순위 처리 |
+| 2026-03-02 | **의료시설 종합병원+의료원+대학병원만 표시** — `medical/adapter.ts` + `competitor-map.tsx` | ✅ | classifyMedical에 place_name 체크 추가(의료원/대학병원 → 종합병원 분류). 병원·의원 완전 제외. 지도 마커 이중 필터 |
+| 2026-03-02 | **지도 마커 isInRadius 전수검사** — `competitor-map.tsx` | ✅ | isInRadius 함수를 모든 마커 섹션 앞(line 161)으로 이동. places/subway/school 섹션에 isInRadius 체크 추가. 6개 마커 타입 전부 반경 내만 표시 |
+| 2026-03-02 | **대학교 카페/식당 오탐 버그 수정** — `university/adapter.ts` | ✅ | "파스쿠찌 가천대학교" 등 place_name에 "대학교" 포함된 카페가 대학교로 오분류. `category_name.includes("대학교")` 조건 추가로 해결 |
+| 2026-03-02 | **[T6] 건축물대장 SKIP 결정** | ⏭️ | API 위경도 반경 조회 불가(법정동코드+번지 개별 조회만 지원). 구현 난도 대비 효용 낮음. 입주예정 아파트도 동시 SKIP |
+| 2026-03-02 | **지하철 승하차 API 교체** — `CardSubwayStatsNew` → `CardSubwayTime` (OA-12252) | ✅ | 기존 서비스 전 날짜 INFO-200 반환 확인(deprecated). 월별 시간대별 24슬롯 합산 → 일평균 방식으로 전환. subway/client.ts 전면 재작성 + adapter.ts 함수명 업데이트 |
+| 2026-03-02 | **Phase 2 검증 작업 — C-01~C-08, M-01~M-12, m-01~m-06** | ✅/⏭️ | 25개 항목 중 20개 완료(80%). C-04/C-05/M-03/M-04/M-06 현행 유지 결정(박사님). M-10 비프랜차이즈 U커브 제외 구현. M-12 combinedRiskInsights 5패턴 구현. C-01 비서울 UI 구분. M-02 F등급 경고 배너. m-01/m-02 breakdown 배지. 미완료: C-06/M-05/M-08/m-04 |
 
 ---
 
@@ -800,21 +819,19 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 > 우선순위 순서대로 진행한다.
 
-### 🟢 즉시 가능 (다음 세션 1순위)
+### Phase 2 — 80% 완료. 미완료 5개 항목 진행 권장
 
-#### [T4] 버스 검증 — 비서울 지역
-- 경기/부산/대구/인천 실제 주소로 분석 → 노선 조회 정상 여부 확인
-- cityCode 매핑 (`REGION_PREFIX_TO_CITY_CODE`) 정확성 검증
+> Phase 1 + Phase 2 대부분 완료. 남은 주요 항목:
+> 1. **[C-06]** 4대 지표 가중치 근거 문서화 (이 섹션에 직접 추가)
+> 2. **[M-05]** densityBaseline 실증 통계 확보 (Data Researcher)
+> 3. **[M-08]** 프랜차이즈 브랜드 커버리지 검증 (Data Researcher)
+> 4. **[m-04]** U커브 25% 가중치 영향도 분석 (Scoring Validator)
 
-#### [T5] 6-F 잔여 인사이트 — 부동산 룰
-- `insights/rules/real-estate.ts`: 아파트 매매가 팩트 표시 (현재 데이터소스 SKIP 상태라 낮은 우선순위)
+### 🟢 잔여 작업 우선순위
 
-### 🟡 중간 난도 (2순위)
-
-#### [T6] 건축물대장 (6-D)
-- 국토교통부 건축HUB: 건물용도·세대수·연면적·사용승인일
-- 배후세대 수 인사이트 → 편의점/미용실 업종에 핵심
-- 난도 높음 — 대량 조회 최적화 필요, API 키 발급 필요 여부 확인
+1. **[C-06] 가중치 근거 문서화** — 즉시 가능, 코드 변경 없음
+2. **[M-05/M-08]** — 공공데이터 리서처 투입 필요
+3. **[m-04]** — 박사님 분석 필요
 
 ### ⏳ API 키 발급 대기 (추후 진행)
 

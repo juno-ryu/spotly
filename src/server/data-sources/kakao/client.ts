@@ -136,3 +136,42 @@ export async function searchByKeyword(
 
   return { documents: allResults, meta: lastMeta };
 }
+
+export async function searchByCategory(
+  categoryGroupCode: string,
+  coordinate: Coordinate,
+  radius: number,
+  maxPages: number = 1,
+): Promise<{ documents: KakaoPlaceDocument[]; meta: { total_count: number; pageable_count: number; is_end: boolean } }> {
+  const allResults: KakaoPlaceDocument[] = [];
+  let lastMeta = { total_count: 0, pageable_count: 0, is_end: true };
+
+  for (let page = 1; page <= maxPages; page++) {
+    try {
+      const params: Record<string, string> = {
+        category_group_code: categoryGroupCode,
+        x: String(coordinate.longitude),
+        y: String(coordinate.latitude),
+        radius: String(Math.min(radius, 20000)),
+        size: "15",
+        page: String(page),
+        sort: "distance",
+      };
+
+      const data = await kakaoFetch<KakaoPlaceDocument>("/search/category.json", params);
+      allResults.push(...data.documents);
+      lastMeta = {
+        total_count: data.meta.total_count,
+        pageable_count: data.meta.pageable_count ?? 0,
+        is_end: data.meta.is_end ?? true,
+      };
+
+      if (data.meta.is_end) break;
+    } catch (err) {
+      console.warn(`[Kakao Category] 카테고리 ${categoryGroupCode} 페이지 ${page} 실패:`, err);
+      break;
+    }
+  }
+
+  return { documents: allResults, meta: lastMeta };
+}
