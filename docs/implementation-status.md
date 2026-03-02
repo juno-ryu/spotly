@@ -336,45 +336,57 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 ### 6-B. 신규 API 추가 — 교육시설
 
-- [ ] **어린이집 (보건복지부, data.go.kr)**
-  - 서비스명: `I1880` 어린이집 정보 공개 포털 API
+> **⏳ 대기 중 항목은 사용자 API 키 발급 필요 — 문서 하단 "API 키 발급 대기 목록" 참조**
+
+- [ ] **어린이집 (보건복지부)**
+  - ⏳ **API 키 발급 대기** — info.childcare.go.kr 별도 계정 신청 필요
+  - 서비스명: 어린이집 정보 공개 포털 API (data.go.kr 15101155)
   - 수집: 어린이집명, 주소, 위경도, 유형(국공립/민간/가정), 정원
   - Client: `src/server/data-sources/childcare/client.ts`
-  - Redis 캐시: TTL 30일
-  - 인사이트: 반경 내 어린이집 수 + 유형 → `childcareRules()`
-  - 활용 업종: 편의점, 분식, 키즈카페, 학원(영어유치원)
+  - 환경변수: `CHILDCARE_API_KEY` (신규)
 
 - [ ] **유치원 (교육부 유치원알리미)**
+  - ⏳ **API 키 발급 대기** — e-childschoolinfo.moe.go.kr SNS 로그인 후 신청
+  - ⚠️ DATA_GO_KR_API_KEY 사용 불가, 전용 키 필요
   - 수집: 유치원명, 주소, 위경도, 설립유형, 학급수, 원아수
   - Client: `src/server/data-sources/kindergarten/client.ts`
-  - Redis 캐시: TTL 30일
-  - 인사이트: 반경 내 유치원 수 + 원아수 합계 → `kindergartenRules()`
+  - 환경변수: `KINDERGARTEN_API_KEY` (신규)
 
-- [ ] **초중고등학교 (교육부 학교알리미)**
-  - 수집: 학교명, 주소, 위경도, 학교급(초/중/고), 학생수
-  - Client: `src/server/data-sources/school/client.ts`
-  - Redis 캐시: TTL 30일
-  - 인사이트: 학교급별 수 + 학생수 합계 → `schoolRules()`
+- [ ] **초중고등학교 (전국초중등학교위치표준데이터)**
+  - ✅ **다음 세션 즉시 구현 가능** — CSV 파일 확보 완료
+  - **구현 방법: CSV → DB 적재 (방법 A)**
+  - CSV 파일: `~/Downloads/전국초중등학교위치표준데이터.csv` (EUC-KR 인코딩)
+  - 파일 구조: 학교ID, 학교명, 학교급구분(초/중/고), 설립형태, 운영상태, 위도, 경도, 소재지도로명주소
+  - 전국 12,013개 (초 6,312 / 중 3,308 / 고 2,394), 전부 운영 중
+  - **구현 순서**:
+    1. Prisma `School` 모델 추가 → `npx prisma migrate dev`
+    2. `scripts/seed-schools.ts` 작성 (EUC-KR 변환 후 bulk insert)
+    3. `src/server/data-sources/school/adapter.ts` — DB 쿼리 기반 (Redis 캐시 불필요)
+    4. `insights/rules/school.ts` — 학교급별 수 팩트 표시 (학생수 데이터 없음)
+  - ⚠️ NEIS schoolInfo API는 위경도/학생수 없어 사용 불가 → 표준데이터 CSV 사용
+  - 인사이트: "반경 500m — 초등학교 2곳, 중학교 1곳"
   - 활용 업종: 학원(보습), 분식, 문구점
 
 - [ ] **대학교 (한국대학교육협의회 대학알리미)**
-  - 수집: 대학명, 주소, 위경도, 재학생수
+  - ✅ **data.go.kr 활용신청 완료** — DATA_GO_KR_API_KEY 사용 가능
+  - **다음 세션 시작 시 researcher로 실제 API 응답 샘플 먼저 확인 후 구현**
+  - data.go.kr 서비스명: `한국대학교육협의회_대학알리미 대학 기본 정보`
+  - 확인 필요: 위경도 필드 존재 여부 (없으면 Kakao 지오코딩 fallback)
   - Client: `src/server/data-sources/university/client.ts`
-  - Redis 캐시: TTL 30일
-  - 인사이트: 반경 내 대학교 수 + 재학생수 → `universityRules()`
-  - ⚠️ 대학가 특성: 방학 시즌 매출 급감 리스크도 함께 표시
+  - 인사이트: 반경 내 대학교 + 방학 리스크 경고
 
 ---
 
 ### 6-C. 신규 API 추가 — 의료시설
 
 - [ ] **병의원/약국 (건강보험심사평가원 HIRA)**
-  - 서비스명: HIRA 요양기관 현황 API
-  - 수집: 기관명, 주소, 위경도, 종별(종합병원/병원/의원/약국), 진료과목
+  - ✅ **data.go.kr 활용신청 완료** — DATA_GO_KR_API_KEY 사용 가능
+  - **다음 세션 시작 시 researcher로 실제 API 응답 샘플 먼저 확인 후 구현**
+  - data.go.kr 서비스명: `건강보험심사평가원_의료기관별상세정보서비스` (15001699)
+  - 확인 필요: 위경도 필드명, 종별구분 코드값 목록
   - Client: `src/server/data-sources/medical/client.ts`
-  - Redis 캐시: TTL 30일
   - 인사이트: 반경 내 종별 수 → `medicalRules()`
-  - 활용 업종: 약국(동선 분석), 편의점(병원 인근), 병의원(클러스터 효과)
+  - 활용 업종: 약국(동선 분석), 편의점(병원 인근)
 
 ---
 
@@ -760,6 +772,10 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 | 2026-03-02 | **[6-H] buildVitalityInsights → buildPopulationInsights rename** | ✅ | builder.ts·index.ts·analysis-result.tsx 전수 변경, re-export alias 버그 수정 |
 | 2026-03-02 | **[6-H] redis.ts CACHE_TTL.BUS 상수 추가** — `bus/client.ts` CACHE_TTL.SEOUL 오용 수정 | ✅ | 7일 TTL 전용 상수 분리 |
 | 2026-03-02 | **PROJECT_INDEX.md 최신화** | ✅ | SKIP 항목 반영, mock 패턴 제거, 슬롯 구조·survival.ts·totalScore 재설계 반영 |
+| 2026-03-02 | **[6-G m1] 프랜차이즈 U커브 0% 시작점 40→25점** — `scoring/competition.ts` | ✅ | 박사님 조건부 승인. 종합점수 영향 약 -0.94점, 등급 변화 없음 |
+| 2026-03-02 | **NEIS API 조사** — 초중고/유치원/학생수 | ⚠️ | schoolInfo만 성공(위경도·학생수 없음). 유치원 서비스명 미발견. 표준데이터 CSV 방식으로 전환 결정 |
+| 2026-03-02 | **전국초중등학교위치표준데이터 CSV 확보** | ✅ | ~/Downloads/ 저장. 12,013개 전국 학교, 위경도 포함, EUC-KR 인코딩 |
+| 2026-03-02 | **data.go.kr 활용신청** — 대학교·HIRA 의료 | ✅ | 대학알리미 대학 기본 정보 + 의료기관별상세정보 승인 완료. DATA_GO_KR_API_KEY 사용 가능 |
 
 ---
 
@@ -778,3 +794,49 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 | ~~🟡 Mid~~ | ~~유동인구 max=50만 [M1]~~ | ~~`scoring/vitality.ts`~~ | ✅ 완료 (2026-03-02) — 200만으로 상향 |
 | ~~🟡 Mid~~ | ~~경쟁 점수 가중치 불일치 [C2]~~ | ~~`scoring/competition.ts`~~ | ✅ 완료 (2026-03-02) — 75/25로 통일 |
 | ~~🟢 Low~~ | ~~Kakao Places Redis 캐시 없음~~ | — | ⏭️ SKIP — lat/lng 조합 사용자마다 달라 히트율 미미 |
+
+---
+
+## 10. 다음 세션 작업 계획
+
+> 우선순위 순서대로 진행한다. 각 작업 전 반드시 실제 API 응답 확인 후 구현.
+
+### 🟢 즉시 구현 가능 (다음 세션 1순위)
+
+#### [S1] 초중고 학교 DB 적재 + 구현
+- CSV: `~/Downloads/전국초중등학교위치표준데이터.csv` (EUC-KR)
+- 순서:
+  1. Prisma `School` 모델 추가 (`schoolId`, `name`, `level`, `lat`, `lng`, `address`, `establishType`)
+  2. `npx prisma migrate dev --name add-school`
+  3. `scripts/seed-schools.ts` — EUC-KR 변환 + `운영` 필터 + bulk upsert
+  4. `src/server/data-sources/school/adapter.ts` — Prisma DB 쿼리 + Haversine 필터
+  5. `src/features/analysis/lib/insights/rules/school.ts` — 학교급별 수 팩트 표시
+  6. `insights/builder.ts` + `InsightData` 타입 + orchestrator 연결
+- ⚠️ 학생수 없음 (NEIS 미제공) → 학교 수만 표시
+- 환경변수 추가 없음 (DB 사용)
+
+### 🟡 API 응답 샘플 확인 후 구현 (2순위)
+
+#### [S2] 대학교 API (활용신청 완료)
+- 세션 시작 시 `public-data-researcher`로 실제 API 호출 → 응답 필드 확인
+- data.go.kr: 한국대학교육협의회_대학알리미 대학 기본 정보
+- 확인 필요: 위경도 포함 여부, 재학생수 필드 존재 여부
+- 위경도 없으면 Kakao 지오코딩 fallback
+- 환경변수: `DATA_GO_KR_API_KEY` (기존)
+
+#### [S3] HIRA 의료시설 API (활용신청 완료)
+- 세션 시작 시 `public-data-researcher`로 실제 API 호출 → 응답 필드 확인
+- data.go.kr: 건강보험심사평가원_의료기관별상세정보서비스 (15001699)
+- 확인 필요: 위경도 필드명, 종별구분 코드값 (종합병원/병원/의원/약국)
+- 환경변수: `DATA_GO_KR_API_KEY` (기존)
+
+### ⏳ API 키 발급 대기 (추후 진행)
+
+| 시설 | 신청 사이트 | 환경변수 | 상태 |
+|------|-----------|---------|------|
+| 어린이집 | https://info.childcare.go.kr | `CHILDCARE_API_KEY` | ⏳ 가입 + 개발계정 신청 필요 |
+| 유치원 | https://e-childschoolinfo.moe.go.kr | `KINDERGARTEN_API_KEY` | ⏳ SNS 로그인 → OpenAPI 이용 신청 필요 |
+| NEIS (초중고 API) | https://open.neis.go.kr | `NEIS_API_KEY` | ✅ 발급 완료 (`4a544d...`) — but 초중고는 표준데이터 CSV 방식으로 대체 |
+
+> ⚠️ 어린이집·유치원은 키 발급 후 반드시 실제 API 응답 샘플 확인 후 구현할 것.
+> 추측 기반 구현 절대 금지.
