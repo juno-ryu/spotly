@@ -1,5 +1,4 @@
 import { prisma } from "@/server/db/prisma";
-import { SCHOOL_RADIUS } from "@/features/analysis/lib/constants";
 
 /** 반경 내 학교 단일 항목 */
 export interface SchoolItem {
@@ -61,13 +60,11 @@ export async function fetchSchoolAnalysis(params: {
   longitude: number;
   radius: number;
 }): Promise<SchoolAnalysis> {
-  const { latitude, longitude } = params;
+  const { latitude, longitude, radius } = params;
 
-  const MAX_RADIUS = SCHOOL_RADIUS.HIGH;
-
-  // bounding box pre-filter — 최대 반경(고등학교 1500m) 기준으로 인덱스 활용
-  const latDelta = MAX_RADIUS / 111_000;
-  const lngDelta = MAX_RADIUS / (111_000 * Math.cos(toRad(latitude)));
+  // bounding box pre-filter — 인덱스 활용
+  const latDelta = radius / 111_000;
+  const lngDelta = radius / (111_000 * Math.cos(toRad(latitude)));
 
   const candidates = await prisma.school.findMany({
     where: {
@@ -77,33 +74,21 @@ export async function fetchSchoolAnalysis(params: {
     select: { name: true, level: true, lat: true, lng: true, address: true },
   });
 
-  // 각 학교에 거리 계산 후 학교급별 반경 필터 적용
-  const withDistance = candidates.map(
-    (s): SchoolItem & { radiusLimit: number } => {
-      const level = s.level as SchoolItem["level"];
-      const radiusLimit =
-        level === "초등학교"
-          ? SCHOOL_RADIUS.ELEMENTARY
-          : level === "중학교"
-            ? SCHOOL_RADIUS.MIDDLE
-            : SCHOOL_RADIUS.HIGH;
-      return {
+  // Haversine 정밀 필터 — 사용자 선택 반경 기준
+  const inRadius: SchoolItem[] = candidates
+    .map(
+      (s): SchoolItem => ({
         name: s.name,
-        level,
+        level: s.level as SchoolItem["level"],
         distanceMeters: Math.round(
           haversineMeters(latitude, longitude, s.lat, s.lng),
         ),
         address: s.address,
         lat: s.lat,
         lng: s.lng,
-        radiusLimit,
-      };
-    },
-  );
-
-  const inRadius: SchoolItem[] = withDistance
-    .filter((s) => s.distanceMeters <= s.radiusLimit)
-    .map(({ radiusLimit: _r, ...rest }) => rest)
+      }),
+    )
+    .filter((s) => s.distanceMeters <= radius)
     .sort((a, b) => a.distanceMeters - b.distanceMeters);
 
   const elementaryCount = inRadius.filter((s) => s.level === "초등학교").length;
@@ -111,7 +96,7 @@ export async function fetchSchoolAnalysis(params: {
   const highCount = inRadius.filter((s) => s.level === "고등학교").length;
 
   console.log(
-    `[학교 DB] 초(500m) ${elementaryCount}건 / 중(1000m) ${middleCount}건 / 고(1500m) ${highCount}건`,
+    `[학교 DB] 반경 ${radius}m — 초 ${elementaryCount}건 / 중 ${middleCount}건 / 고 ${highCount}건`,
   );
 
   return {
