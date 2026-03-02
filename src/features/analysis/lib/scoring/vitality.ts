@@ -88,10 +88,10 @@ function calcChangeScore(changeIndex: string | null): number {
   if (!changeIndex) return 50; // 데이터 없으면 중립
 
   const CHANGE_SCORES: Record<string, number> = {
-    LL: 90, // 다이나믹 — 활발하게 성장
-    LH: 70, // 상권확장 — 확장세
-    HL: 40, // 상권축소 — 축소세
-    HH: 20, // 정체 — 정체
+    LH: 85, // 확장기 — 신규 진입 활발, 시장 성장 중
+    HL: 55, // 안정/성숙기 — 기존 사업체 안정적 유지
+    HH: 30, // 포화 — 기존 업체 견고하나 신규 기회 제한
+    LL: 25, // 불안정 — 사업체 회전 빠르고 수요 기반 불확실
   };
 
   return CHANGE_SCORES[changeIndex] ?? 50;
@@ -108,10 +108,10 @@ function calcChangeScore(changeIndex: string | null): number {
 function calcFootTrafficScore(totalFloating: number): number {
   if (totalFloating <= 0) return 0;
   // 로그 정규화: 유동인구의 우편향 분포 보정
-  // ln(5000)=8.52, ln(500000)=13.12
+  // ln(5000)=8.52, ln(2000000)=14.51 (실제 데이터 p95 기준)
   const logVal = Math.log(Math.max(totalFloating, 1));
   const logMin = Math.log(5_000);
-  const logMax = Math.log(500_000);
+  const logMax = Math.log(2_000_000);
   const score = Math.max(0, Math.min(1, (logVal - logMin) / (logMax - logMin)));
   return Math.round(score * 100);
 }
@@ -136,8 +136,13 @@ function calcSubwayFootTrafficScore(
     0,
     Math.min(1, (logVal - logMin) / (logMax - logMin)),
   );
-  // 거리 감쇠: 0m → 1.1배, 500m → 1.0배 (선형)
-  const distanceFactor = 1 + 0.1 * (1 - Math.min(distanceMeters, 500) / 500);
+  // 거리 감쇠: 구간별 계단식 (100m 이내 1.4배 ~ 500m 초과 0.85배)
+  const distanceFactor =
+    distanceMeters <= 100 ? 1.4 :
+    distanceMeters <= 200 ? 1.3 :
+    distanceMeters <= 300 ? 1.15 :
+    distanceMeters <= 500 ? 1.0 :
+    0.85;
   return Math.round(Math.min(100, baseScore * distanceFactor * 100));
 }
 

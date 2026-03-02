@@ -14,7 +14,7 @@ import { CompetitorMap } from "./competitor-map";
 import { formatRadius } from "@/lib/format";
 import { GRADIENT_TEXT_STYLE } from "@/constants/site";
 import dayjs from "dayjs";
-import { buildCompetitionInsights, buildVitalityInsights, buildSubwayInsights, buildBusInsights } from "../lib/insights";
+import { buildCompetitionInsights, buildPopulationInsights, buildSubwayInsights, buildBusInsights } from "../lib/insights";
 import { generateReport } from "@/features/report/actions";
 import type { InsightItem, CompetitionAnalysis, InsightData } from "../lib/insights";
 import type { SubwayAnalysis } from "@/server/data-sources/subway/adapter";
@@ -561,7 +561,7 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
     bus: bus,
   };
   const competitionInsights = buildCompetitionInsights(insightData);
-  const vitalityInsights = buildVitalityInsights(insightData);
+  const vitalityInsights = buildPopulationInsights(insightData);
   const subwayInsights = buildSubwayInsights(insightData);
   const busInsights = buildBusInsights(insightData);
 

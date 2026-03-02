@@ -7,6 +7,50 @@ import { runAnalysis } from "./lib/analysis-orchestrator";
 import * as kakaoGeocoding from "@/server/data-sources/kakao/client";
 import { INDUSTRY_CODES } from "./constants/industry-codes";
 import type { AnalysisRequest } from "./schema";
+import type { AnalysisResult } from "./lib/analysis-orchestrator";
+import { analyzeSurvival } from "./lib/scoring";
+
+/**
+ * 4대 지표 가중 합산으로 totalScore 계산
+ *
+ * 서울 (골목상권 데이터 있음):
+ *   vitality × 0.35 + competition × 0.25 + population × 0.20 + survival × 0.20
+ *
+ * 비서울 (골목상권 없음, vitality null):
+ *   - survival도 있으면: competition × 0.40 + population × 0.35 + survival × 0.25
+ *   - survival도 없으면: competition × 0.55 + population × 0.45
+ */
+function calcTotalScore(result: AnalysisResult): number {
+  const competition = result.competition.competitionScore.score;
+  const vitality = result.vitality?.vitalityScore.score ?? null;
+  const population = result.populationAnalysis?.score.score ?? null;
+
+  // 생존율: vitality.details에서 closeRate/openRate 추출 (서울 골목상권 전용)
+  const survivalResult = result.vitality
+    ? analyzeSurvival(result.vitality.details.closeRate, result.vitality.details.openRate)
+    : null;
+  const survival = survivalResult?.survivalScore.score ?? null;
+
+  // 서울: 4대 지표 합산
+  if (vitality !== null && population !== null && survival !== null) {
+    return Math.round(
+      vitality * 0.35 + competition * 0.25 + population * 0.20 + survival * 0.20,
+    );
+  }
+
+  // 비서울: population 있고 survival도 있는 경우 (사실상 발생 안 하지만 방어적 처리)
+  if (population !== null && survival !== null) {
+    return Math.round(competition * 0.40 + population * 0.35 + survival * 0.25);
+  }
+
+  // 비서울: population은 있지만 survival 없음
+  if (population !== null) {
+    return Math.round(competition * 0.55 + population * 0.45);
+  }
+
+  // fallback: competition만
+  return competition;
+}
 
 function extractSearchKeywords(industryCode: string, industryName: string): string[] {
   const industry = INDUSTRY_CODES.find((i) => i.code === industryCode);
@@ -49,12 +93,14 @@ export async function startAnalysis(input: AnalysisRequest) {
       dongName: parsed.data.dongName,
     });
 
+    const totalScore = calcTotalScore(aggregated);
+
     await prisma.analysisRequest.update({
       where: { id: analysis.id },
       data: {
         status: "COMPLETED",
         regionCode: region.code,
-        totalScore: aggregated.competition.competitionScore.score,
+        totalScore,
         scoreDetail: JSON.parse(JSON.stringify({
           competition: aggregated.competition.competitionScore,
           vitality: aggregated.vitality?.vitalityScore ?? null,

@@ -36,11 +36,14 @@ export interface BusAnalysis {
 export async function fetchBusAnalysis(params: {
   latitude: number;
   longitude: number;
+  /** 행정구역코드 — TAGO cityCode 자동 결정에 사용. 미전달 시 서울(11) 기본값. */
+  regionCode?: string;
 }): Promise<BusAnalysis> {
   const stations = await fetchNearbyBusStations({
     latitude: params.latitude,
     longitude: params.longitude,
     numOfRows: 5,
+    regionCode: params.regionCode,
   });
 
   if (stations.length === 0) {

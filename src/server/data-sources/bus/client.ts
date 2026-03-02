@@ -4,6 +4,36 @@ import { cachedFetch, CACHE_TTL } from "@/server/cache/redis";
 /** TAGO BusSttnInfoInqireService 베이스 URL */
 const BASE_URL = "http://apis.data.go.kr/1613000/BusSttnInfoInqireService";
 
+/** 행정구역코드 앞 2자리 → TAGO cityCode 매핑
+ * 행정구역코드(11=서울,21=부산…)와 TAGO cityCode는 서울/광역시만 일치,
+ * 도 단위(경기=31→12, 강원=42→51 등)는 다르므로 별도 매핑 필수.
+ */
+const REGION_PREFIX_TO_CITY_CODE: Record<string, number> = {
+  "11": 11, // 서울
+  "21": 21, // 부산
+  "22": 22, // 대구
+  "23": 23, // 인천
+  "24": 24, // 광주
+  "25": 25, // 대전
+  "26": 26, // 울산
+  "29": 29, // 세종
+  "31": 12, // 경기
+  "42": 51, // 강원
+  "43": 52, // 충북
+  "44": 53, // 충남
+  "45": 54, // 전북
+  "46": 55, // 전남
+  "47": 56, // 경북
+  "48": 57, // 경남
+  "50": 58, // 제주
+};
+
+/** regionCode(행정동코드)로 TAGO cityCode를 결정한다. 미매핑 시 서울(11) 기본값. */
+export function getCityCodeFromRegionCode(regionCode: string): number {
+  const prefix = regionCode.slice(0, 2);
+  return REGION_PREFIX_TO_CITY_CODE[prefix] ?? 11;
+}
+
 // ─── 응답 스키마 ────────────────────────────────────────
 
 /** data.go.kr 공통 응답 래퍼 스키마 빌더 */
@@ -225,12 +255,18 @@ export async function fetchNearbyBusStations(params: {
   latitude: number;
   longitude: number;
   numOfRows?: number;
+  /** 행정구역코드 — cityCode 자동 결정에 사용. 미전달 시 서울(11) 기본값. */
+  regionCode?: string;
 }): Promise<BusStationWithRoutes[]> {
   const lat = Number(params.latitude.toFixed(4));
   const lng = Number(params.longitude.toFixed(4));
   const cacheKey = `bus:sttn:${lat}:${lng}`;
 
-  return cachedFetch(cacheKey, CACHE_TTL.SEOUL, async () => {
+  const cityCode = params.regionCode
+    ? getCityCodeFromRegionCode(params.regionCode)
+    : 11;
+
+  return cachedFetch(cacheKey, CACHE_TTL.BUS, async () => {
     // 1단계: 반경 내 정류소 목록
     const stations = await getCrdntPrxmtSttnList({
       latitude: lat,
@@ -245,6 +281,7 @@ export async function fetchNearbyBusStations(params: {
       stations.map(async (stn) => {
         const routes = await getSttnThrghRouteList({
           nodeId: stn.nodeid,
+          cityCode,
         }).catch((err) => {
           console.warn(
             `[버스] ${stn.nodenm}(${stn.nodeid}) 노선 조회 실패:`,
@@ -272,7 +309,7 @@ export async function fetchNearbyBusStations(params: {
     results.sort((a, b) => a.distanceMeters - b.distanceMeters);
 
     console.log(
-      `[버스] 인근 정류소 ${results.length}개: ${results
+      `[버스] 인근 정류소 ${results.length}개 (cityCode=${cityCode}): ${results
         .map((s) => `${s.name}(${s.distanceMeters}m, ${s.routeCount}개 노선)`)
         .join(", ")}`,
     );

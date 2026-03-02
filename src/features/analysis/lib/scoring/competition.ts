@@ -136,9 +136,9 @@ function calculateFranchiseUCurve(franchiseRatio: number): number {
   return Math.round(Math.max(0, 100 * (1 - excess)));
 }
 
-/** 프랜차이즈 보정 가중치 (경쟁 점수 내 10%) */
-const FRANCHISE_WEIGHT = 0.10;
-const DENSITY_WEIGHT = 1 - FRANCHISE_WEIGHT; // 0.90
+/** 가중치: 밀집도 75%, 프랜차이즈 U커브 25% */
+const FRANCHISE_WEIGHT = 0.25;
+const DENSITY_WEIGHT = 0.75;
 
 /**
  * 경쟁 강도 점수 계산 (0~100, 높을수록 경쟁 약함 = 유리)
@@ -158,9 +158,10 @@ function calculateCompetitionScore(
     return { score: 100, grade, gradeLabel };
   }
 
-  // 비선형 커브(^2.0): 기준 이하(과밀) 구간에서 감점 강화
-  const ratio = densityPerMeter / densityBaseline;
-  const densityScore = Math.min(100, Math.pow(ratio, 2) * 100);
+  // 시그모이드 커브: ratio=1일 때 50점, ratio=2일 때 ~88점, ratio=0.5일 때 ~12점
+  // ratio = densityBaseline / densityPerMeter (클수록 경쟁 적음 = 유리)
+  const ratio = densityBaseline / densityPerMeter;
+  const densityScore = Math.round(100 / (1 + Math.exp(-4 * (ratio - 1))));
 
   const franchiseScore = calculateFranchiseUCurve(franchiseRatio);
 

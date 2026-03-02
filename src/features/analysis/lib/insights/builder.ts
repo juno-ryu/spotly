@@ -17,8 +17,8 @@ export function buildCompetitionInsights(data: InsightData): InsightItem[] {
   return competitionRules(data);
 }
 
-/** 상권 활력도 지표 인사이트 */
-export function buildVitalityInsights(data: InsightData): InsightItem[] {
+/** 배후 인구 지표 인사이트 */
+export function buildPopulationInsights(data: InsightData): InsightItem[] {
   return populationRules(data);
 }
 

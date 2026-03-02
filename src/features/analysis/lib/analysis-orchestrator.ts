@@ -81,10 +81,11 @@ export async function runAnalysis(params: {
       console.warn("[오케스트레이터] 지하철 역세권 분석 실패:", err);
       return null;
     }),
-    // 버스 접근성 분석 (전국)
+    // 버스 접근성 분석 (전국 — regionCode로 cityCode 자동 결정)
     fetchBusAnalysis({
       latitude: params.latitude,
       longitude: params.longitude,
+      regionCode: params.regionCode,
     }).catch((err) => {
       console.warn("[오케스트레이터] 버스 접근성 분석 실패:", err);
       return null;
