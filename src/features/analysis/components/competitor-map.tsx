@@ -591,7 +591,6 @@ export const CompetitorMap = memo(function CompetitorMap({
     if (medical && medical.hospitals.length > 0) {
       medical.hospitals.forEach((h) => {
         if (!isInRadius(h.latitude, h.longitude)) return;
-        if (h.category !== "종합병원") return;
         const hospitalPosition = new kakao.maps.LatLng(h.latitude, h.longitude);
 
         const pinEl = createPinMarker("🏥", "#dc2626", 30);
