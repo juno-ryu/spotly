@@ -1,4 +1,50 @@
+import type { Grade } from "../../scoring/types";
+import { scoreToGrade } from "../../scoring/types";
+import type { BusAnalysis } from "../../../../../server/data-sources/bus/adapter";
 import type { InsightData, InsightItem } from "../types";
+
+/** 버스 접근성 등급 산출 */
+export function calcBusGrade(bus: BusAnalysis): { score: number; grade: Grade } {
+  const distanceScore = (() => {
+    const d = bus.nearestStop?.distanceMeters ?? Infinity;
+    if (d <= 100) return 100;
+    if (d <= 200) return 80;
+    if (d <= 300) return 60;
+    if (d <= 500) return 35;
+    return 0;
+  })();
+
+  const routeScore = (() => {
+    const r = bus.nearestStop?.routeCount ?? 0;
+    if (r >= 10) return 100;
+    if (r >= 7) return 80;
+    if (r >= 4) return 60;
+    if (r >= 2) return 40;
+    if (r >= 1) return 20;
+    return 0;
+  })();
+
+  const densityScore = (() => {
+    const s = bus.stopCount;
+    if (s >= 8) return 100;
+    if (s >= 5) return 75;
+    if (s >= 3) return 50;
+    if (s >= 1) return 25;
+    return 0;
+  })();
+
+  const score = Math.round(distanceScore * 0.4 + routeScore * 0.35 + densityScore * 0.25);
+  return { score, ...scoreToGrade(score) };
+}
+
+/** 버스 등급별 해석 텍스트 */
+export const BUS_GRADE_TEXT: Record<Grade, { emoji: string; text: string }> = {
+  A: { emoji: "🚌", text: "버스 교통이 매우 편리해요" },
+  B: { emoji: "🚌", text: "버스 이용이 수월한 입지예요" },
+  C: { emoji: "🚏", text: "버스 접근성이 보통이에요" },
+  D: { emoji: "🚏", text: "버스 이용이 다소 불편할 수 있어요" },
+  F: { emoji: "🚏", text: "버스 접근이 어려운 입지예요" },
+};
 
 /** 버스 접근성 관련 인사이트 규칙 */
 /** "해운대구2" → "2번", "115-1" → "115-1번" */
@@ -8,58 +54,35 @@ function formatRouteNo(raw: string): string {
 }
 
 export function busRules(data: InsightData): InsightItem[] {
-  const items: InsightItem[] = [];
   const bus = data.bus;
+  if (!bus) return [];
 
-  if (!bus) return items;
+  const { score, grade } = calcBusGrade(bus);
+  const { emoji, text } = BUS_GRADE_TEXT[grade];
+  const items: InsightItem[] = [];
 
-  if (bus.hasBusStop) {
-    if (bus.nearestStop) {
-      const { name, distanceMeters, routeCount, routes } = bus.nearestStop;
-
-      const formatted = routes.map(formatRouteNo);
-      const routeLabel =
-        routeCount > 0
-          ? formatted.slice(0, 5).join(", ") +
-            (routeCount > 5 ? ` 외 ${routeCount - 5}개` : "")
-          : null;
-
-      items.push({
-        type: "text",
-        emoji: "\uD83D\uDE8C",
-        text: `버스 정류장: ${name} ${distanceMeters}m (${routeCount}개 노선)`,
-        sub: routeLabel ? `운행 노선: ${routeLabel}` : "대중교통 접근성 양호",
-        category: "fact",
-      });
-
-      if (bus.stopCount >= 5) {
-        items.push({
-          type: "text",
-          emoji: "\uD83D\uDE8F",
-          text: `반경 내 버스 정류장 ${bus.stopCount}개 밀집`,
-          sub: "다양한 노선이 경유하여 접근성이 높습니다",
-          category: "fact",
-        });
-      }
-    } else {
-      const nearest = bus.stopsInRadius[0];
-      items.push({
-        type: "text",
-        emoji: "\uD83D\uDE8C",
-        text: `버스 정류장: ${nearest?.name ?? "인근 정류장"} ${nearest?.distance ?? ""}m`,
-        sub: `반경 내 정류장 ${bus.stopCount}개 — 대중교통 접근 가능`,
-        category: "fact",
-      });
-    }
+  // 등급 기반 스코어링 인사이트
+  const nearest = bus.nearestStop;
+  let sub: string;
+  if (nearest) {
+    const formatted = nearest.routes.map(formatRouteNo);
+    const routeLabel =
+      nearest.routeCount > 0
+        ? formatted.slice(0, 5).join(", ") +
+          (nearest.routeCount > 5 ? ` 외 ${nearest.routeCount - 5}개` : "")
+        : null;
+    sub = `${nearest.name} ${nearest.distanceMeters}m · ${nearest.routeCount}개 노선${routeLabel ? ` (${routeLabel})` : ""}`;
   } else {
-    items.push({
-      type: "text",
-      emoji: "\uD83D\uDE8C",
-      text: "반경 500m 내 버스 정류장 없음",
-      sub: "대중교통(버스) 접근성이 낮습니다",
-      category: "fact",
-    });
+    sub = `반경 내 정류장 ${bus.stopCount}개`;
   }
+
+  items.push({
+    type: "text",
+    emoji,
+    text,
+    sub,
+    category: "scoring",
+  });
 
   return items;
 }

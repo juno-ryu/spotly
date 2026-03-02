@@ -35,7 +35,7 @@ export const scoreBreakdownSchema = z.object({
   vitality: indicatorScoreSchema.nullable(),
   /** 배후 인구 (0~100, KOSIS 읍면동 인구 기반, 전국) */
   population: indicatorScoreSchema.nullable(),
-  /** 생존율 (0~100, 미구현 — 항상 null) */
+  /** 생존율 (0~100, 서울 골목상권 기반 — 비서울은 null) */
   survival: indicatorScoreSchema.nullable(),
 });
 export type ScoreBreakdown = z.infer<typeof scoreBreakdownSchema>;

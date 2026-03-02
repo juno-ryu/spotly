@@ -1,4 +1,4 @@
-export { buildInsights, buildCompetitionInsights, buildPopulationInsights, buildSubwayInsights, buildBusInsights, buildSchoolInsights, buildUniversityInsights, buildMedicalInsights } from "./builder";
+export { buildInsights, buildCompetitionInsights, buildPopulationInsights, buildSubwayInsights, buildBusInsights, buildSchoolInsights, buildUniversityInsights, buildMedicalInsights, buildTransitHeader, buildUniversityHeader, buildSchoolHeader, buildMedicalHeader, buildPopulationHeader, buildCompetitionHeader, buildVitalityHeader } from "./builder";
 export type {
   InsightItem,
   InsightCategory,

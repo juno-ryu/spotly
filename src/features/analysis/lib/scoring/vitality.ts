@@ -157,7 +157,7 @@ const WEIGHTS = {
   /** 유동인구 데이터 없을 때 (2지표 fallback)
    * change 0.45 → 0.35로 하향: 동일 매출에서 changeIndex만으로
    * D/B 등급 역전이 발생하는 과대 가중치 문제 수정
-   * (scoring-engine-validator 최종 검증 필요) */
+   * (scoring-engine-validator 검증 완료 2026-03-03) */
   withoutFootTraffic: {
     sales: 0.65,
     change: 0.35,

@@ -88,10 +88,11 @@ export async function runAnalysis(params: {
       console.warn("[오케스트레이터] KOSIS 인구 조회 실패:", err);
       return null;
     }),
-    // 지하철 역세권 분석 (전국 — 수도권 지하철 커버)
+    // 지하철 역세권 분석 (전국 — 서울/부산/대구/광주/대전)
     fetchSubwayAnalysis({
       latitude: params.latitude,
       longitude: params.longitude,
+      regionCode: params.regionCode,
     }).catch((err) => {
       console.warn("[오케스트레이터] 지하철 역세권 분석 실패:", err);
       return null;

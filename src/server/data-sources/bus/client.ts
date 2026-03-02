@@ -41,8 +41,8 @@ function dataGoKrResponseSchema<T extends z.ZodTypeAny>(itemSchema: T) {
   return z.object({
     response: z.object({
       header: z.object({
-        resultCode: z.string(),
-        resultMsg: z.string(),
+        resultCode: z.coerce.string(),
+        resultMsg: z.coerce.string(),
       }),
       body: z.object({
         items: z

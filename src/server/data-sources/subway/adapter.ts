@@ -2,7 +2,12 @@ import { searchByKeyword } from "@/server/data-sources/kakao/client";
 import type { Coordinate } from "@/server/data-sources/types";
 import {
   aggregateMonthlyTraffic,
+  getBusanSubwayTraffic,
+  getDaeguSubwayTraffic,
+  getDaejeonSubwayTraffic,
+  getGwangjuSubwayTraffic,
   getSubwayMonthlyTraffic,
+  getTargetMonth,
   normalizeStationName,
   type SubwayTrafficData,
 } from "./client";
@@ -46,15 +51,67 @@ export interface SubwayAnalysis {
 }
 
 /**
+ * regionCode 앞 2자리 기준으로 도시별 승하차 API 호출 후 distanceMeters 주입
+ * - "11": 서울 (열린데이터 광장 CardSubwayTime)
+ * - "21": 부산 (odcloud 자동변환)
+ * - "22": 대구 (odcloud 자동변환)
+ * - "24": 광주 (광주교통공사 OpenAPI)
+ * - "25": 대전 (대전교통공사 OpenAPI, XML)
+ * - 그 외: null (승하차 데이터 미지원)
+ */
+async function fetchTrafficByCity(
+  cityPrefix: string,
+  stationName: string,
+  distanceMeters: number,
+): Promise<SubwayTrafficData | null> {
+  const yyyymm = getTargetMonth();
+  let data: SubwayTrafficData | null = null;
+
+  switch (cityPrefix) {
+    case "11": {
+      // 서울 — 열린데이터 광장 CardSubwayTime (월별 집계)
+      const rows = await getSubwayMonthlyTraffic(stationName);
+      data = aggregateMonthlyTraffic(rows, stationName, distanceMeters);
+      break;
+    }
+    case "26":
+      // 부산
+      data = await getBusanSubwayTraffic(stationName, yyyymm);
+      break;
+    case "27":
+      // 대구
+      data = await getDaeguSubwayTraffic(stationName, yyyymm);
+      break;
+    case "29":
+      // 광주
+      data = await getGwangjuSubwayTraffic(stationName, yyyymm);
+      break;
+    case "30":
+      // 대전
+      data = await getDaejeonSubwayTraffic(stationName, yyyymm);
+      break;
+    default:
+      console.log(`[지하철] regionCode ${cityPrefix}xx: 승하차 데이터 미지원`);
+      return null;
+  }
+
+  if (!data) return null;
+  // client 함수들은 distanceMeters=0으로 반환하므로 adapter에서 실제 거리 주입
+  return { ...data, distanceMeters };
+}
+
+/**
  * 좌표 기반 역세권 분석
  *
  * 1. 카카오 키워드 검색으로 반경 내 지하철역 탐색 (SW8 카테고리)
- * 2. 가장 가까운 역의 승하차 데이터 조회
+ * 2. 가장 가까운 역의 승하차 데이터 조회 (도시별 API 라우팅)
  * 3. 일평균 승하차 인원 집계
  */
 export async function fetchSubwayAnalysis(params: {
   latitude: number;
   longitude: number;
+  /** 행정동 코드 앞 2자리로 도시 판별 (11=서울, 21=부산, 22=대구, 24=광주, 25=대전) */
+  regionCode?: string;
 }): Promise<SubwayAnalysis> {
   const coordinate: Coordinate = {
     latitude: params.latitude,
@@ -103,15 +160,15 @@ export async function fetchSubwayAnalysis(params: {
     `[지하철] 반경 내 역 ${sorted.length}개: ${sorted.map((s) => `${s.name}(${s.distance}m)`).join(", ")}`,
   );
 
-  // 2단계: 가장 가까운 역의 승하차 데이터 조회
+  // 2단계: 가장 가까운 역의 승하차 데이터 조회 (도시별 API 라우팅)
   const nearest = sorted[0];
   const normalizedName = normalizeStationName(nearest.name);
+  const cityPrefix = params.regionCode?.slice(0, 2) ?? "11";
 
   let nearestStation: SubwayTrafficData | null = null;
   try {
-    const monthlyRows = await getSubwayMonthlyTraffic(normalizedName);
-    nearestStation = aggregateMonthlyTraffic(
-      monthlyRows,
+    nearestStation = await fetchTrafficByCity(
+      cityPrefix,
       normalizedName,
       nearest.distance,
     );

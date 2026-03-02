@@ -2,7 +2,7 @@ import type { Grade } from "../../scoring/types";
 import type { InsightRule, InsightItem } from "../types";
 
 /** 경쟁 등급별 밀집도 해석 */
-const DENSITY_GRADE_TEXT: Record<Grade, { emoji: string; text: string }> = {
+export const DENSITY_GRADE_TEXT: Record<Grade, { emoji: string; text: string }> = {
   A: { emoji: "🟢", text: "경쟁업체가 적어 진입 여건이 좋아요" },
   B: { emoji: "🔵", text: "경쟁이 있지만 여유 있는 편이에요" },
   C: { emoji: "🟡", text: "보통 수준의 경쟁이에요" },
@@ -48,7 +48,7 @@ export const competitionRules: InsightRule = (data) => {
       type: "text",
       emoji,
       text,
-      sub: `약 ${competition.densityPerMeter}m마다 1개 매장 (${grade}등급)`,
+      sub: `약 ${competition.densityPerMeter}m마다 1개 매장`,
       category: "scoring",
     });
   }

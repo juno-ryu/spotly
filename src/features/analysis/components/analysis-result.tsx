@@ -14,7 +14,7 @@ import { CompetitorMap } from "./competitor-map";
 import { formatRadius } from "@/lib/format";
 import { GRADIENT_TEXT_STYLE } from "@/constants/site";
 import dayjs from "dayjs";
-import { buildCompetitionInsights, buildPopulationInsights, buildSubwayInsights, buildBusInsights, buildSchoolInsights, buildUniversityInsights, buildMedicalInsights } from "../lib/insights";
+import { buildCompetitionInsights, buildPopulationInsights, buildSubwayInsights, buildBusInsights, buildSchoolInsights, buildUniversityInsights, buildMedicalInsights, buildTransitHeader, buildUniversityHeader, buildSchoolHeader, buildMedicalHeader, buildPopulationHeader, buildCompetitionHeader, buildVitalityHeader } from "../lib/insights";
 import { generateReport } from "@/features/report/actions";
 import type { InsightItem, CompetitionAnalysis, InsightData } from "../lib/insights";
 import type { SubwayAnalysis } from "@/server/data-sources/subway/adapter";
@@ -26,7 +26,6 @@ import type { VitalityAnalysis } from "../lib/scoring/vitality";
 import type { PopulationAnalysis } from "../lib/scoring/population";
 import type { AnalysisRequest } from "@prisma/client";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 
@@ -128,15 +127,6 @@ function Header({
   );
 }
 
-/** 등급 뱃지 공통 스타일 */
-const BADGE: Record<string, string> = {
-  A: "bg-emerald-100 text-emerald-700 hover:bg-emerald-100",
-  B: "bg-blue-100 text-blue-700 hover:bg-blue-100",
-  C: "bg-amber-100 text-amber-700 hover:bg-amber-100",
-  D: "bg-orange-100 text-orange-700 hover:bg-orange-100",
-  F: "bg-red-100 text-red-700 hover:bg-red-100",
-};
-
 /** 경쟁강도 등급별 설명 */
 const COMPETITION_GRADE: Record<string, string> = {
   A: "경쟁이 매우 낮아 창업에 유리한 상권이에요",
@@ -144,24 +134,6 @@ const COMPETITION_GRADE: Record<string, string> = {
   C: "상권 경쟁이 치열할 것으로 예상돼요",
   D: "경쟁이 높아 신중한 접근이 필요해요",
   F: "경쟁이 매우 치열해 창업 시 주의가 필요해요",
-};
-
-/** 상권 활력도 등급별 설명 */
-const VITALITY_GRADE: Record<string, string> = {
-  A: "활력이 좋은 상권이에요",
-  B: "상권 활력이 양호한 편이에요",
-  C: "상권 활력이 보통 수준이에요",
-  D: "상권 활력이 다소 낮아요",
-  F: "상권 활력이 낮은 편이에요",
-};
-
-/** 인구 밀집도 등급별 설명 */
-const POPULATION_GRADE: Record<string, string> = {
-  A: "유동 배후 인구가 매우 많아 수요가 풍부해요",
-  B: "배후 인구가 많아 안정적인 수요를 기대할 수 있어요",
-  C: "배후 인구가 평균 수준이에요",
-  D: "배후 인구가 다소 적어 수요에 주의가 필요해요",
-  F: "배후 인구가 적어 수요 확보가 어려울 수 있어요",
 };
 
 /** 인사이트 항목 — 순차 페이드인 */
@@ -554,8 +526,6 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
   const centerLng = report?.centerLongitude as number | undefined;
 
   const competitionGrade = competition?.competitionScore?.grade ?? "-";
-  const vitalityGrade = vitality?.vitalityScore?.grade ?? "-";
-  const populationGrade = populationAnalysis?.score?.grade ?? "-";
 
   // 핵심 지표 20점 미만 여부 확인 (M-02: 총점 A등급이라도 개별 지표 F 경고)
   const lowScoreWarnings: string[] = [];
@@ -589,6 +559,15 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
   const schoolInsights = buildSchoolInsights(insightData);
   const universityInsights = buildUniversityInsights(insightData);
   const medicalInsights = buildMedicalInsights(insightData);
+
+  // 각 섹션 헤더 (의견형 타이틀 + 팩트 디스크립션)
+  const competitionHeader = buildCompetitionHeader(insightData);
+  const vitalityHeader = buildVitalityHeader(insightData);
+  const transitHeader = buildTransitHeader(insightData);
+  const universityHeader = buildUniversityHeader(insightData);
+  const schoolHeader = buildSchoolHeader(insightData);
+  const medicalHeader = buildMedicalHeader(insightData);
+  const populationHeader = buildPopulationHeader(insightData);
 
   return (
     <div className="fixed inset-0 pointer-events-none">
@@ -655,43 +634,27 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
               </div>
             </div>
           )}
-          <Accordion type="multiple" defaultValue={["competition", "vitality", "subway", "bus", "school", "university", "medical", "population"]}>
+          <Accordion type="multiple" defaultValue={["competition", "vitality", "transit", "school", "university", "medical", "population"]}>
             {/* 경쟁강도 */}
-            <AccordionItem value="competition">
-              <AccordionTrigger>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold flex items-center gap-1.5">
-                    경쟁강도
-                    <Badge className={BADGE[competitionGrade] ?? BADGE.C}>
-                      {competitionGrade}
-                    </Badge>
-                  </p>
-                  <p className="text-[12px] text-muted-foreground font-normal mt-0.5">
-                    {COMPETITION_GRADE[competitionGrade] ?? COMPETITION_GRADE.C}
-                  </p>
-                  {/* m-02: 경쟁강도 세부 breakdown */}
-                  {competition && (
-                    <div className="flex gap-2 mt-1.5 flex-wrap">
-                      <span className="text-[10px] text-muted-foreground/70 bg-muted rounded px-1.5 py-0.5">
-                        밀집도 {competition.densityPerMeter}m/개
-                      </span>
-                      <span className="text-[10px] text-muted-foreground/70 bg-muted rounded px-1.5 py-0.5">
-                        프랜차이즈 {competition.franchiseCount}개 ({Math.round(competition.franchiseRatio)}%)
-                      </span>
+            {competitionHeader && (
+              <AccordionItem value="competition">
+                <AccordionTrigger>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold">{competitionHeader.emoji} {competitionHeader.text}</p>
+                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">{competitionHeader.sub}</p>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {competitionInsights.length > 0 && (
+                    <div className="space-y-0.5">
+                      {competitionInsights.map((item, i) => (
+                        <Insight key={i} item={item} delay={i * 150} />
+                      ))}
                     </div>
                   )}
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                {competitionInsights.length > 0 && (
-                  <div className="space-y-0.5">
-                    {competitionInsights.map((item, i) => (
-                      <Insight key={i} item={item} delay={i * 150} />
-                    ))}
-                  </div>
-                )}
-              </AccordionContent>
-            </AccordionItem>
+                </AccordionContent>
+              </AccordionItem>
+            )}
 
             {/* C-01: 비서울 지역 — 활력도 데이터 없음 안내 */}
             {!vitality && (
@@ -717,33 +680,12 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
               </AccordionItem>
             )}
             {/* 상권 활력도 — 데이터 있을 때만 */}
-            {vitality && vitalityInsights.length > 0 && (
+            {vitalityHeader && vitalityInsights.length > 0 && (
               <AccordionItem value="vitality">
                 <AccordionTrigger>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold flex items-center gap-1.5">
-                      상권 활력도
-                      <Badge className={BADGE[vitalityGrade] ?? BADGE.C}>
-                        {vitalityGrade}
-                      </Badge>
-                    </p>
-                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">
-                      근처 활성화 상권을 찾았어요 · {VITALITY_GRADE[vitalityGrade] ?? VITALITY_GRADE.C}
-                    </p>
-                    {/* m-01: 활력도 세부 점수 breakdown */}
-                    <div className="flex gap-2 mt-1.5 flex-wrap">
-                      <span className="text-[10px] text-muted-foreground/70 bg-muted rounded px-1.5 py-0.5">
-                        매출 {vitality.salesScore}점
-                      </span>
-                      <span className="text-[10px] text-muted-foreground/70 bg-muted rounded px-1.5 py-0.5">
-                        상권변화 {vitality.changeScore}점
-                      </span>
-                      {vitality.details.floatingPopulation && (
-                        <span className="text-[10px] text-muted-foreground/70 bg-muted rounded px-1.5 py-0.5">
-                          유동인구 {vitality.footTrafficScore}점
-                        </span>
-                      )}
-                    </div>
+                    <p className="text-sm font-semibold">{vitalityHeader.emoji} {vitalityHeader.text}</p>
+                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">{vitalityHeader.sub}</p>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
@@ -755,17 +697,13 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
                 </AccordionContent>
               </AccordionItem>
             )}
-            {/* 역세권 — 데이터 있을 때만 */}
-            {subway && subwayInsights.length > 0 && (
-              <AccordionItem value="subway">
+            {/* 교통입지 — subway + bus 통합 */}
+            {transitHeader && (
+              <AccordionItem value="transit">
                 <AccordionTrigger>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold flex items-center gap-1.5">
-                      역세권
-                    </p>
-                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">
-                      주변 지하철역 접근성 분석
-                    </p>
+                    <p className="text-sm font-semibold">{transitHeader.emoji} {transitHeader.text}</p>
+                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">{transitHeader.sub}</p>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
@@ -773,47 +711,20 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
                     {subwayInsights.map((item, i) => (
                       <Insight key={i} item={item} delay={i * 150} />
                     ))}
+                    {busInsights.map((item, i) => (
+                      <Insight key={i} item={item} delay={(subwayInsights.length + i) * 150} />
+                    ))}
                   </div>
                 </AccordionContent>
               </AccordionItem>
             )}
-            {/* 버스 접근성 */}
-            <AccordionItem value="bus">
-              <AccordionTrigger>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold flex items-center gap-1.5">
-                    버스 접근성
-                  </p>
-                  <p className="text-[12px] text-muted-foreground font-normal mt-0.5">
-                    {bus ? "주변 버스 정류장 접근성 분석" : "데이터 수집 실패"}
-                  </p>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                {bus && busInsights.length > 0 ? (
-                  <div className="space-y-0.5">
-                    {busInsights.map((item, i) => (
-                      <Insight key={i} item={item} delay={i * 150} />
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-[13px] text-muted-foreground py-2">
-                    버스 정류장 데이터를 가져오지 못했습니다. API 키를 확인해 주세요.
-                  </p>
-                )}
-              </AccordionContent>
-            </AccordionItem>
             {/* 학교 접근성 — 데이터 있을 때만 */}
-            {school && schoolInsights.length > 0 && (
+            {schoolHeader && (
               <AccordionItem value="school">
                 <AccordionTrigger>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold flex items-center gap-1.5">
-                      학교 접근성
-                    </p>
-                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">
-                      반경 {radiusLabel} 내 초중고 학교 현황
-                    </p>
+                    <p className="text-sm font-semibold">{schoolHeader.emoji} {schoolHeader.text}</p>
+                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">{schoolHeader.sub}</p>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
@@ -826,16 +737,12 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
               </AccordionItem>
             )}
             {/* 대학교 접근성 — 데이터 있을 때만 */}
-            {university && universityInsights.length > 0 && (
+            {universityHeader && (
               <AccordionItem value="university">
                 <AccordionTrigger>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold flex items-center gap-1.5">
-                      대학교 접근성
-                    </p>
-                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">
-                      반경 {radiusLabel} 내 대학교 현황
-                    </p>
+                    <p className="text-sm font-semibold">{universityHeader.emoji} {universityHeader.text}</p>
+                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">{universityHeader.sub}</p>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
@@ -847,55 +754,31 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
                 </AccordionContent>
               </AccordionItem>
             )}
-            {/* 의료시설 접근성 — medical 데이터 존재 시 항상 표시 */}
-            {medical && (
+            {/* 의료시설 접근성 — medicalHeader 있을 때만 */}
+            {medicalHeader && (
               <AccordionItem value="medical">
                 <AccordionTrigger>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold flex items-center gap-1.5">
-                      의료시설 접근성
-                    </p>
-                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">
-                      반경 {radiusLabel} 내 병의원 현황
-                    </p>
+                    <p className="text-sm font-semibold">{medicalHeader.emoji} {medicalHeader.text}</p>
+                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">{medicalHeader.sub}</p>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-0.5">
-                    {medicalInsights.length > 0 ? (
-                      medicalInsights.map((item, i) => (
-                        <Insight key={i} item={item} delay={i * 150} />
-                      ))
-                    ) : (
-                      <Insight
-                        item={{
-                          type: "text",
-                          category: "fact",
-                          emoji: "🏥",
-                          text: `반경 ${radiusLabel} 내 병의원 없음`,
-                          sub: "인근 의료시설이 확인되지 않았습니다",
-                        }}
-                        delay={0}
-                      />
-                    )}
+                    {medicalInsights.map((item, i) => (
+                      <Insight key={i} item={item} delay={i * 150} />
+                    ))}
                   </div>
                 </AccordionContent>
               </AccordionItem>
             )}
-            {/* 인구 밀집도 — 데이터 있을 때만 */}
-            {populationAnalysis && (
+            {/* 배후 인구 — 데이터 있을 때만 */}
+            {populationHeader && (
               <AccordionItem value="population">
                 <AccordionTrigger>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold flex items-center gap-1.5">
-                      배후 인구 밀집도
-                      <Badge className={BADGE[populationGrade] ?? BADGE.C}>
-                        {populationGrade}
-                      </Badge>
-                    </p>
-                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">
-                      {POPULATION_GRADE[populationGrade] ?? POPULATION_GRADE.C}
-                    </p>
+                    <p className="text-sm font-semibold">{populationHeader.emoji} {populationHeader.text}</p>
+                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">{populationHeader.sub}</p>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
@@ -905,20 +788,18 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
                         type: "text",
                         category: "fact",
                         emoji: "👥",
-                        text: `${populationAnalysis.details.isDongLevel ? "행정동" : "시군구"} 기준 거주 인구 ${populationAnalysis.details.totalPopulation.toLocaleString()}명`,
-                        sub: `인구 점수 ${populationAnalysis.populationScore}점`,
+                        text: `${populationAnalysis!.details.isDongLevel ? "행정동" : "시군구"} 기준 거주 인구 ${populationAnalysis!.details.totalPopulation.toLocaleString()}명`,
                       }}
                       delay={0}
                     />
-                    
                     <Insight
                       item={{
                         type: "text",
                         category: "scoring",
                         emoji: "📊",
-                        text: `인구 종합 점수 ${populationAnalysis.score.score}점 (${populationAnalysis.score.gradeLabel})`,
+                        text: "배후 인구 규모 분석",
                         // C-03: 읍면동 전체 기준임을 명시, M-09: 기준 연도 표시
-                        sub: populationAnalysis.details.isDongLevel
+                        sub: populationAnalysis!.details.isDongLevel
                           ? "행정동 전체 기준 (KOSIS 2024) · 반경 내 실제 거주인구와 다를 수 있음"
                           : "시군구 전체 기준 (KOSIS 2024) · 반경 내 실제 거주인구와 다를 수 있음",
                       }}

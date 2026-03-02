@@ -39,7 +39,7 @@ export const populationRules: InsightRule = (data) => {
       type: "text",
       emoji,
       text,
-      sub: `점포당 월 평균 ${monthlyPerStore.toLocaleString()}만원 (${grade}등급) · 피크: ${d.peakTimeSlot} · 주 소비층: ${d.mainAgeGroup}`,
+      sub: `점포당 월 평균 ${monthlyPerStore.toLocaleString()}만원 · 피크: ${d.peakTimeSlot} · 주 소비층: ${d.mainAgeGroup}`,
       category: "scoring",
     });
 
@@ -71,7 +71,7 @@ export const populationRules: InsightRule = (data) => {
       type: "text",
       emoji,
       text,
-      sub: `분기 ${(total / 10_000).toFixed(0)}만명 (${grade}등급) · 피크: ${floatingPopulation.peakDay} ${floatingPopulation.peakTimeSlot} · 주 연령대: ${floatingPopulation.mainAgeGroup}`,
+      sub: `분기 ${(total / 10_000).toFixed(0)}만명 · 피크: ${floatingPopulation.peakDay} ${floatingPopulation.peakTimeSlot} · 주 연령대: ${floatingPopulation.mainAgeGroup}`,
       category: "scoring",
     });
   } else if (d.subway && vitality.footTrafficScore > 0) {
@@ -84,7 +84,7 @@ export const populationRules: InsightRule = (data) => {
       type: "text",
       emoji,
       text,
-      sub: `${d.subway.stationName}역 일평균 승하차 ${(d.subway.dailyAvgTotal / 10_000).toFixed(1)}만명 기반 (${grade}등급) · 골목상권 유동인구 데이터 없음`,
+      sub: `${d.subway.stationName}역 일평균 승하차 ${(d.subway.dailyAvgTotal / 10_000).toFixed(1)}만명 기반 · 골목상권 유동인구 데이터 없음`,
       category: "scoring",
     });
     insights.push({

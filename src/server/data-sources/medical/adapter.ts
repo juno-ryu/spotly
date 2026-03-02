@@ -1,4 +1,5 @@
-import { searchByCategory } from "@/server/data-sources/kakao/client";
+import { searchByCategory, searchByKeyword } from "@/server/data-sources/kakao/client";
+import { MEDICAL_SEARCH_RADIUS } from "@/features/analysis/lib/constants";
 
 /** 의료시설 종별 */
 export type MedicalCategory = "종합병원" | "병원" | "의원" | "기타";
@@ -23,6 +24,8 @@ export interface MedicalAnalysis {
   count: number;
   /** 반경 내 병의원 목록 (거리순) */
   hospitals: HospitalItem[];
+  /** 실제 탐색에 사용한 반경 (MEDICAL_SEARCH_RADIUS = 3000m 고정) */
+  searchRadius: number;
 }
 
 /** Kakao category_name → 종별 분류 */
@@ -57,19 +60,29 @@ export async function fetchMedicalAnalysis(params: {
   longitude: number;
   radius: number;
 }): Promise<MedicalAnalysis> {
-  const { latitude, longitude, radius } = params;
+  const { latitude, longitude } = params;
+  // 사용자 선택 반경과 무관하게 3000m 고정 탐색 — 종합병원·의료원은 넓게 분포
+  const searchRadius = MEDICAL_SEARCH_RADIUS;
+  const coord = { latitude, longitude };
 
-  // HP8: 병원 카테고리 그룹 코드
-  const { documents } = await searchByCategory(
-    "HP8",
-    { latitude, longitude },
-    radius,
-    3,
-  );
+  // 1) HP8 카테고리 검색 (병원 전체)
+  const { documents: hp8Docs } = await searchByCategory("HP8", coord, searchRadius, 3);
 
-  const hospitals: HospitalItem[] = documents
-    // 반경 필터 — Kakao distance 필드가 "0"을 반환하는 버그가 있으므로 Haversine으로 직접 계산
-    .filter((doc) => haversineMeters(latitude, longitude, parseFloat(doc.y), parseFloat(doc.x)) <= radius)
+  // 2) 키워드 검색으로 보완 — Kakao가 HP8 외 카테고리로 분류하는 종합병원/의료원 포착
+  const [kwResult1, kwResult2] = await Promise.all([
+    searchByKeyword("종합병원", coord, searchRadius, 1),
+    searchByKeyword("의료원", coord, searchRadius, 1),
+  ]);
+
+  // 중복 제거 (place_id 기준)
+  const seen = new Set<string>();
+  const allDocs = [...hp8Docs, ...kwResult1.documents, ...kwResult2.documents].filter((doc) => {
+    if (seen.has(doc.id)) return false;
+    seen.add(doc.id);
+    return true;
+  });
+
+  const hospitals: HospitalItem[] = allDocs
     .map((doc) => ({
       name: doc.place_name,
       distanceMeters: Math.round(haversineMeters(latitude, longitude, parseFloat(doc.y), parseFloat(doc.x))),
@@ -77,16 +90,15 @@ export async function fetchMedicalAnalysis(params: {
       latitude: parseFloat(doc.y),
       longitude: parseFloat(doc.x),
     }))
-    // 상급병원만 포함 — 중소병원·의원은 지역 상권 집객 영향 미미
-    // 상급병원 = 종합병원(category) + 의료원/대학병원(place_name 기반, Kakao에서 "병원"으로 분류됨)
-    .filter((h) => h.category === "종합병원")
+    .filter((h) => h.distanceMeters <= searchRadius && h.category === "종합병원")
     .sort((a, b) => a.distanceMeters - b.distanceMeters);
 
-  console.log(`[의료시설] 반경 ${radius}m — ${hospitals.length}건 (상급병원 한정)`);
+  console.log(`[의료시설] 반경 ${searchRadius}m — ${hospitals.length}건 (상급병원 한정)`);
 
   return {
     hasHospital: hospitals.length > 0,
     count: hospitals.length,
     hospitals,
+    searchRadius,
   };
 }
