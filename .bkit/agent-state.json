@@ -1,35 +1,14 @@
 {
   "version": "1.0",
-  "enabled": true,
+  "enabled": false,
   "teamName": "",
   "feature": "scripts",
   "pdcaPhase": "do",
   "orchestrationPattern": "leader",
   "ctoAgent": "opus",
-  "startedAt": "2026-03-02T14:54:13.577Z",
-  "lastUpdated": "2026-03-02T14:54:24.338Z",
-  "teammates": [
-    {
-      "name": "aec9e7e1d33612fb6",
-      "role": "backend",
-      "model": "sonnet",
-      "status": "completed",
-      "currentTask": null,
-      "taskId": null,
-      "startedAt": "2026-03-02T14:54:13.578Z",
-      "lastActivityAt": "2026-03-02T14:54:17.173Z"
-    },
-    {
-      "name": "a3311454eb02496cd",
-      "role": "backend",
-      "model": "sonnet",
-      "status": "spawning",
-      "currentTask": null,
-      "taskId": null,
-      "startedAt": "2026-03-02T14:54:24.337Z",
-      "lastActivityAt": "2026-03-02T14:54:24.337Z"
-    }
-  ],
+  "startedAt": "2026-03-02T17:41:47.516Z",
+  "lastUpdated": "2026-03-02T17:48:33.051Z",
+  "teammates": [],
   "progress": {
     "totalTasks": 0,
     "completedTasks": 0,
@@ -38,5 +17,5 @@
     "pendingTasks": 0
   },
   "recentMessages": [],
-  "sessionId": "c6f30d07-6517-4b01-87b8-3af2b1390d35"
+  "sessionId": "012f6d3f-095d-4498-94ed-3cc6c249634d"
 }
