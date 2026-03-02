@@ -1,6 +1,6 @@
 # 창업 분석기 — 구현 현황 & 페이즈별 체크리스트
 
-> 마지막 업데이트: 2026-03-02 (C3 상권변화지표 수정, M4 생존율 구현, C1 totalScore 재설계)
+> 마지막 업데이트: 2026-03-02 (S1 초중고, S2 대학교, S3 의료시설 구현 완료. 지도 마커 반경 버그 수정)
 > **이 문서는 Claude가 작업 전 반드시 참조해야 합니다.**
 > 새 기능 구현 / API 추가 / 스코어링 변경 전 이 문서를 먼저 읽고 현황을 파악하세요.
 
@@ -338,21 +338,11 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 > **⏳ 대기 중 항목은 사용자 API 키 발급 필요 — 문서 하단 "API 키 발급 대기 목록" 참조**
 
-- [ ] **어린이집 (보건복지부)**
-  - ⏳ **API 키 발급 대기** — info.childcare.go.kr 별도 계정 신청 필요
-  - 서비스명: 어린이집 정보 공개 포털 API (data.go.kr 15101155)
-  - 수집: 어린이집명, 주소, 위경도, 유형(국공립/민간/가정), 정원
-  - Client: `src/server/data-sources/childcare/client.ts`
-  - 환경변수: `CHILDCARE_API_KEY` (신규)
+- ~~[ ] **어린이집 (보건복지부)**~~ → **SKIP** (상권 분석 임팩트 미미 판정)
 
-- [ ] **유치원 (교육부 유치원알리미)**
-  - ⏳ **API 키 발급 대기** — e-childschoolinfo.moe.go.kr SNS 로그인 후 신청
-  - ⚠️ DATA_GO_KR_API_KEY 사용 불가, 전용 키 필요
-  - 수집: 유치원명, 주소, 위경도, 설립유형, 학급수, 원아수
-  - Client: `src/server/data-sources/kindergarten/client.ts`
-  - 환경변수: `KINDERGARTEN_API_KEY` (신규)
+- ~~[ ] **유치원 (교육부 유치원알리미)**~~ → **SKIP** (상권 분석 임팩트 미미 판정)
 
-- [ ] **초중고등학교 (전국초중등학교위치표준데이터)**
+- [x] **초중고등학교 (전국초중등학교위치표준데이터)**
   - ✅ **다음 세션 즉시 구현 가능** — CSV 파일 확보 완료
   - **구현 방법: CSV → DB 적재 (방법 A)**
   - CSV 파일: `~/Downloads/전국초중등학교위치표준데이터.csv` (EUC-KR 인코딩)
@@ -367,26 +357,27 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
   - 인사이트: "반경 500m — 초등학교 2곳, 중학교 1곳"
   - 활용 업종: 학원(보습), 분식, 문구점
 
-- [ ] **대학교 (한국대학교육협의회 대학알리미)**
-  - ✅ **data.go.kr 활용신청 완료** — DATA_GO_KR_API_KEY 사용 가능
-  - **다음 세션 시작 시 researcher로 실제 API 응답 샘플 먼저 확인 후 구현**
-  - data.go.kr 서비스명: `한국대학교육협의회_대학알리미 대학 기본 정보`
-  - 확인 필요: 위경도 필드 존재 여부 (없으면 Kakao 지오코딩 fallback)
-  - Client: `src/server/data-sources/university/client.ts`
-  - 인사이트: 반경 내 대학교 + 방학 리스크 경고
+- [x] **대학교 — Kakao 기반 구현 완료 (2026-03-02)**
+  - ~~대학알리미 API~~ → **사용 불가** (브라우저 직접 조사 2026-03-02 확인)
+  - Kakao `searchByKeyword("대학교", coord, 2000m)` + place_name 필터
+  - `src/server/data-sources/kakao/client.ts` — `searchByCategory` 함수 추가
+  - `src/server/data-sources/university/adapter.ts` — `fetchUniversityAnalysis()`
+  - `AnalysisResult`에 `university: UniversityAnalysis | null` 추가
+  - `insights/rules/university.ts` — 대학교 목록 + 방학 리스크 경고 (category: "fact")
+  - orchestrator 슬롯 7 연결, UI 추가
 
 ---
 
 ### 6-C. 신규 API 추가 — 의료시설
 
-- [ ] **병의원/약국 (건강보험심사평가원 HIRA)**
-  - ✅ **data.go.kr 활용신청 완료** — DATA_GO_KR_API_KEY 사용 가능
-  - **다음 세션 시작 시 researcher로 실제 API 응답 샘플 먼저 확인 후 구현**
-  - data.go.kr 서비스명: `건강보험심사평가원_의료기관별상세정보서비스` (15001699)
-  - 확인 필요: 위경도 필드명, 종별구분 코드값 목록
-  - Client: `src/server/data-sources/medical/client.ts`
-  - 인사이트: 반경 내 종별 수 → `medicalRules()`
-  - 활용 업종: 약국(동선 분석), 편의점(병원 인근)
+- [x] **병의원/약국 — Kakao HP8 기반 구현 완료 (2026-03-02)**
+  - ~~HIRA 의료기관별상세정보서비스~~ → **위치 기반 검색 불가** (2026-03-02 확인)
+  - Kakao `searchByCategory("HP8", coord, 2000m)` + category_name 종별 분류 (종합병원·병원급만, 의원 제외)
+  - ⚠️ **업종별 해석 차이**: 약국·편의점은 의원(동네 병원) 수가 핵심 입지 기준. 현재는 종합병원/병원만 표시하므로 향후 선택 업종이 약국/편의점일 때 의원 수를 별도 인사이트로 추가 표시하는 업종별 분기 처리 필요.
+  - `src/server/data-sources/medical/adapter.ts` — `fetchMedicalAnalysis()`
+  - `AnalysisResult`에 `medical: MedicalAnalysis | null` 추가
+  - `insights/rules/medical.ts` — 병의원 수 + 종별 표시 (category: "fact")
+  - orchestrator 슬롯 8 연결, UI 추가
 
 ---
 
@@ -410,10 +401,9 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 ### 6-E. 버스 전국 커버 완성
 
-- [ ] **버스 cityCode 하드코딩 제거**
-  - `getSttnThrghRouteList`의 `cityCode = 11` 서울 고정 제거
-  - 위경도 기반 시도 코드 자동 판별 로직 추가
-  - TAGO cityCode 매핑 테이블 작성 (서울=11, 경기=12, 부산=21, 대구=22, 인천=23, 광주=24, 대전=25 등)
+- [x] **버스 cityCode 하드코딩 제거 → 완료 (2026-03-02)**
+  - `REGION_PREFIX_TO_CITY_CODE` 매핑 + `getCityCodeFromRegionCode()` 추가
+  - orchestrator regionCode 전달로 전국 17개 시도 커버
 
 - [ ] **버스(경기/광주/대구/대전/인천) 검증**
   - 각 도시별 실제 노선 조회 테스트
@@ -474,10 +464,8 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 #### 🟢 Minor
 
-- [ ] **[m1] 프랜차이즈 U커브 0% 시작점 조정**
-  - 현재: 0% → 40점
-  - 권장: 0% → 20~30점으로 하향 검토
-  - `scoring/competition.ts`의 `calculateFranchiseUCurve()` 수정
+- [x] **[m1] 프랜차이즈 U커브 0% 시작점 조정 → 완료 (2026-03-02)**
+  - 40점 → 25점으로 하향 (박사님 조건부 승인)
 
 - ~~[ ] **소득 지표 구현**~~ → **SKIP** (NPS·부동산 데이터 소스 무의미 판정)
 
@@ -492,17 +480,24 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 - ~~[ ] **부동산 실거래 Redis 캐시 적용**~~ → **SKIP**
 
-- [ ] **인사이트 함수명 정리**
-  - `buildVitalityInsights()` → 실제 호출하는 `populationRules`와 이름 일치시키기
-  - 또는 빌더 내 역할 명확히 주석화
+- [x] **인사이트 함수명 정리 → 완료 (2026-03-02)**
+  - `buildVitalityInsights()` → `buildPopulationInsights()`로 rename 완료
 
-- [ ] **scoreBreakdownSchema에 population 추가**
-  - `actions.ts`에서 population을 저장하지만 zod 스키마 누락 → 타입 안전성 보강
+- [x] **scoreBreakdownSchema에 population 추가 → 완료 (2026-03-02)**
+  - population + survival 필드 추가
 
-- [ ] **PROJECT_INDEX.md 최신화**
-  - 오케스트레이터 플로우에 nps/real-estate가 여전히 연결된 것으로 표기됨 → SKIP 반영
-  - "Graceful Degradation: hasApiKey() → false이면 mock 데이터 자동 전환" 표기 삭제 (mock 전면 제거됨)
-  - 외부 API 연동 테이블의 "모킹" 열 → SKIP/없음으로 수정
+- [x] **PROJECT_INDEX.md 최신화 → 완료 (2026-03-02)**
+
+- [ ] **분석 반경 매직 넘버 상수화**
+  - 시스템 전반의 `500` 하드코딩 → `ANALYSIS_RADIUS_DEFAULT = 500` 상수로 추출
+  - 박사님 단기 권고 (2026-03-02)
+
+- [ ] **학교 어댑터 반경 레벨별 분리**
+  - 현재: 초중고 모두 500m 고정
+  - 변경: 초등 500m / 중학교 1,000m / 고등학교 1,500m
+  - 근거: 중고생 실제 통학 반경은 1~3km — 500m 고정 시 인사이트 과소 포착
+  - `src/server/data-sources/school/adapter.ts` 수정
+  - 박사님 단기 권고 (2026-03-02)
 
 ---
 
@@ -567,7 +562,7 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 | 데이터 | 음식점 | 카페 | 편의점 | 미용실 | 학원 | 의류 | 부동산 | 병의원 |
 |--------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| 어린이집/유치원 수 | L | L | M | L | H | X | M | M |
+| ~~어린이집/유치원 수~~ | — | — | — | — | — | — | — | — |
 | 초중고 수 / 학생수 | L | M | M | L | H | L | M | L |
 | 대학교 수 / 재학생 | H | H | H | M | L | H | L | L |
 | 병의원/약국 수 | L | L | L | L | X | L | L | H |
@@ -691,16 +686,16 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 | 섹션 | 항목 | 완료 | SKIP | 미완료 | 진행률 |
 |------|:----:|:----:|:----:|:------:|:------:|
 | 6-A. orchestrator 연결 | 3 | 0 | 3 | 0 | ~~100%~~ (전체 SKIP) |
-| 6-B. 교육시설 API 추가 | 4 | 0 | 0 | 4 | 0% |
-| 6-C. 의료시설 API 추가 | 1 | 0 | 0 | 1 | 0% |
+| 6-B. 교육시설 API 추가 | 4 | 2 | 2 | 0 | **100%** |
+| 6-C. 의료시설 API 추가 | 1 | 1 | 0 | 0 | **100%** |
 | 6-D. 주거/부동산 API 추가 | 2 | 0 | 0 | 2 | 0% |
-| 6-E. 버스 전국 커버 | 2 | 0 | 0 | 2 | 0% |
+| 6-E. 버스 전국 커버 | 2 | 1 | 0 | 1 | 50% |
 | 6-F. 인사이트 보강 | 4 | 0 | 1 | 3 | 0% |
-| 6-G. 스코어링 보강 | 9 | 7 | 1 | 1 | 88% |
-| 6-H. 기술부채 해소 | 6 | 1 | 4 | 1 | 50% |
-| **Phase 1 합계** | **28** | **8** | **10** | **10** | **44%** |
+| 6-G. 스코어링 보강 | 9 | 9 | 1 | 0 | **100%** (SKIP 제외) |
+| 6-H. 기술부채 해소 | 6 | 4 | 2 | 0 | **100%** (SKIP 제외) |
+| **Phase 1 합계** | **28** | **17** | **9** | **6** | **74%** |
 
-> 💡 실질 미완료 항목(SKIP 제외): **10개**
+> 💡 실질 미완료 항목(SKIP 제외): **6개**
 
 ### Phase 2 — 검증
 
@@ -717,9 +712,9 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 | 구분 | 전체 항목 | 완료 | SKIP | 실질 미완료 | **진행률** |
 |------|:--------:|:----:|:----:|:-----------:|:---------:|
-| Phase 1 | 28 | 8 | 10 | 10 | **44%** |
+| Phase 1 | 28 | 17 | 9 | 6 | **74%** |
 | Phase 2 | 26 | 0 | 1 | 25 | **0% (계획)** |
-| **전체** | **54** | **8** | **11** | **35** | **약 19%** |
+| **전체** | **54** | **17** | **10** | **31** | **약 35%** |
 
 > 📌 **단, Phase 1 전제인 기반 인프라(orchestrator 5개 슬롯, 스코어링 3개 모듈, 인사이트 4개 룰)는 이미 구축 완료.**
 > Phase 1 체크리스트는 "추가 기능" 기준이며, 서비스 자체는 현재도 동작함.
@@ -776,6 +771,11 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 | 2026-03-02 | **NEIS API 조사** — 초중고/유치원/학생수 | ⚠️ | schoolInfo만 성공(위경도·학생수 없음). 유치원 서비스명 미발견. 표준데이터 CSV 방식으로 전환 결정 |
 | 2026-03-02 | **전국초중등학교위치표준데이터 CSV 확보** | ✅ | ~/Downloads/ 저장. 12,013개 전국 학교, 위경도 포함, EUC-KR 인코딩 |
 | 2026-03-02 | **data.go.kr 활용신청** — 대학교·HIRA 의료 | ✅ | 대학알리미 대학 기본 정보 + 의료기관별상세정보 승인 완료. DATA_GO_KR_API_KEY 사용 가능 |
+| 2026-03-02 | **[S1] 초중고 학교 DB 적재 + 인사이트 구현** | ✅ | CSV(12,014개) → Prisma School 모델 → seed 적재 → school/adapter.ts → insights/rules/school.ts → orchestrator 슬롯 6 연결 + UI 추가 |
+| 2026-03-02 | **[S2] 대학교 Kakao 기반 구현** | ✅ | kakao/client.ts searchByCategory 추가 → university/adapter.ts → insights/rules/university.ts (방학 리스크 포함) → orchestrator 슬롯 7 + UI |
+| 2026-03-02 | **[S3] 의료시설 Kakao HP8 기반 구현** | ✅ | medical/adapter.ts → insights/rules/medical.ts (종별 분류) → orchestrator 슬롯 8 + UI |
+| 2026-03-02 | **지도 마커 반경 밖 버그 수정** — competitor-map.tsx isInRadius 체크 추가 | ✅ | 대학교·의료시설 forEach에 반경 체크 추가. Kakao distance 필드 `"0"` 반환 → haversine 직접 계산으로 전환 |
+| 2026-03-02 | **의료시설 마커 종류 조정** — 병원+종합병원 표시 (의원만 제외) | ✅ | 성남시의료원 등 시립의료원이 Kakao에서 "병원"으로 분류됨 → 지도 레벨 필터 제거, adapter 수준에서 의원만 제외 유지 |
 
 ---
 
@@ -799,43 +799,41 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 ## 10. 다음 세션 작업 계획
 
-> 우선순위 순서대로 진행한다. 각 작업 전 반드시 실제 API 응답 확인 후 구현.
+> 우선순위 순서대로 진행한다.
 
 ### 🟢 즉시 구현 가능 (다음 세션 1순위)
 
-#### [S1] 초중고 학교 DB 적재 + 구현
-- CSV: `~/Downloads/전국초중등학교위치표준데이터.csv` (EUC-KR)
-- 순서:
-  1. Prisma `School` 모델 추가 (`schoolId`, `name`, `level`, `lat`, `lng`, `address`, `establishType`)
-  2. `npx prisma migrate dev --name add-school`
-  3. `scripts/seed-schools.ts` — EUC-KR 변환 + `운영` 필터 + bulk upsert
-  4. `src/server/data-sources/school/adapter.ts` — Prisma DB 쿼리 + Haversine 필터
-  5. `src/features/analysis/lib/insights/rules/school.ts` — 학교급별 수 팩트 표시
-  6. `insights/builder.ts` + `InsightData` 타입 + orchestrator 연결
-- ⚠️ 학생수 없음 (NEIS 미제공) → 학교 수만 표시
-- 환경변수 추가 없음 (DB 사용)
+#### [T1] 학교 어댑터 반경 레벨별 분리 (박사님 권고)
+- `src/server/data-sources/school/adapter.ts` 수정
+- 초등 500m / 중학교 1,000m / 고등학교 1,500m 분리 적용
+- 근거: 중고생 실제 통학 반경 1~3km — 500m 고정 시 인사이트 과소 포착
 
-### 🟡 API 응답 샘플 확인 후 구현 (2순위)
+#### [T2] 교육/의료 인사이트 업종별 분기 (6-F)
+- `insights/rules/school.ts` 업종 파라미터 추가: 학원 업종 시 초중고 수 강조
+- `insights/rules/medical.ts` 업종 파라미터 추가: 약국/편의점 업종 시 의원 수 별도 표시
+- `insights/rules/university.ts` 업종 파라미터 추가: 카페/음식점/의류 업종 시 대학교 강조
 
-#### [S2] 대학교 API (활용신청 완료)
-- 세션 시작 시 `public-data-researcher`로 실제 API 호출 → 응답 필드 확인
-- data.go.kr: 한국대학교육협의회_대학알리미 대학 기본 정보
-- 확인 필요: 위경도 포함 여부, 재학생수 필드 존재 여부
-- 위경도 없으면 Kakao 지오코딩 fallback
-- 환경변수: `DATA_GO_KR_API_KEY` (기존)
+#### [T3] 매직 넘버 상수화 (6-H, 박사님 권고)
+- 시스템 전반의 반경 `500` 하드코딩 → `ANALYSIS_RADIUS_DEFAULT = 500` 상수 추출
+- `constants.ts` 파일에 통합 관리
 
-#### [S3] HIRA 의료시설 API (활용신청 완료)
-- 세션 시작 시 `public-data-researcher`로 실제 API 호출 → 응답 필드 확인
-- data.go.kr: 건강보험심사평가원_의료기관별상세정보서비스 (15001699)
-- 확인 필요: 위경도 필드명, 종별구분 코드값 (종합병원/병원/의원/약국)
-- 환경변수: `DATA_GO_KR_API_KEY` (기존)
+### 🟡 중간 난도 (2순위)
+
+#### [T4] 버스 검증 — 비서울 지역
+- 경기/부산/대구/인천/광주/대전 실제 주소로 분석 테스트
+- cityCode 매핑 정확성 + 노선 조회 성공 여부 확인
+
+#### [T5] 건축물대장 (6-D)
+- 국토교통부 건축HUB: 건물용도·세대수·연면적·사용승인일
+- 배후세대 수 인사이트 → 편의점/미용실 업종에 핵심
+- 난도 높음 — 대량 조회 최적화 필요
 
 ### ⏳ API 키 발급 대기 (추후 진행)
 
 | 시설 | 신청 사이트 | 환경변수 | 상태 |
 |------|-----------|---------|------|
-| 어린이집 | https://info.childcare.go.kr | `CHILDCARE_API_KEY` | ⏳ 가입 + 개발계정 신청 필요 |
-| 유치원 | https://e-childschoolinfo.moe.go.kr | `KINDERGARTEN_API_KEY` | ⏳ SNS 로그인 → OpenAPI 이용 신청 필요 |
+| ~~어린이집~~ | — | — | ⛔ SKIP (임팩트 미미) |
+| ~~유치원~~ | — | — | ⛔ SKIP (임팩트 미미) |
 | NEIS (초중고 API) | https://open.neis.go.kr | `NEIS_API_KEY` | ✅ 발급 완료 (`4a544d...`) — but 초중고는 표준데이터 CSV 방식으로 대체 |
 
 > ⚠️ 어린이집·유치원은 키 발급 후 반드시 실제 API 응답 샘플 확인 후 구현할 것.
