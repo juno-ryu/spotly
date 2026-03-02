@@ -4,6 +4,7 @@ import { memo, useEffect, useRef } from "react";
 import { useKakaoMap } from "@/features/map/components/kakao-map-provider";
 import { useNearbyPlaces } from "@/features/map/hooks/use-nearby-places";
 import type { SubwayAnalysis } from "@/server/data-sources/subway/adapter";
+import type { BusAnalysis } from "@/server/data-sources/bus/adapter";
 
 interface CompetitorMapProps {
   /** 분석 중심 위도 */
@@ -18,6 +19,8 @@ interface CompetitorMapProps {
   fullScreen?: boolean;
   /** 지하철 역세권 분석 데이터 */
   subway?: SubwayAnalysis | null;
+  /** 버스 접근성 분석 데이터 */
+  bus?: BusAnalysis | null;
 }
 
 const MARKER_COLOR = "#7c3aed";
@@ -30,6 +33,7 @@ export const CompetitorMap = memo(function CompetitorMap({
   keyword,
   fullScreen = false,
   subway,
+  bus,
 }: CompetitorMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const { isLoaded } = useKakaoMap();
@@ -276,16 +280,105 @@ export const CompetitorMap = memo(function CompetitorMap({
       });
     }
 
+    /* 버스 정류장 마커 — 초록색 마커로 표시 */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const busMarkers: any[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const busOverlays: any[] = [];
+
+    if (bus?.hasBusStop && bus.stopsInRadius.length > 0) {
+      const busSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><circle cx="12" cy="12" r="10" fill="#16a34a" stroke="white" stroke-width="2"/><text x="12" y="17" text-anchor="middle" font-size="13" fill="white" font-family="sans-serif">&#x1F68C;</text></svg>`;
+      const busMarkerImage = new kakao.maps.MarkerImage(
+        `data:image/svg+xml;charset=utf-8,${encodeURIComponent(busSvg)}`,
+        new kakao.maps.Size(24, 24),
+        { offset: new kakao.maps.Point(12, 12) },
+      );
+
+      bus.stopsInRadius.forEach((stop) => {
+        if (!stop.latitude || !stop.longitude) return;
+
+        const stopPosition = new kakao.maps.LatLng(stop.latitude, stop.longitude);
+
+        const stopMarker = new kakao.maps.Marker({
+          position: stopPosition,
+          map,
+          image: busMarkerImage,
+        });
+
+        // 정류장 정보 오버레이 (XSS 방지: DOM API 사용)
+        const overlayContent = document.createElement("div");
+
+        const wrapper = document.createElement("div");
+        Object.assign(wrapper.style, {
+          padding: "8px 12px",
+          fontSize: "13px",
+          minWidth: "120px",
+          color: "#14532d",
+          background: "#f0fdf4",
+          borderRadius: "8px",
+          border: "1px solid #86efac",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+          transform: "translateY(-100%)",
+          marginBottom: "12px",
+          position: "relative",
+        });
+
+        const nameEl = document.createElement("strong");
+        nameEl.style.display = "block";
+        nameEl.style.marginBottom = "2px";
+        nameEl.textContent = stop.name;
+
+        const distEl = document.createElement("span");
+        Object.assign(distEl.style, { color: "#16a34a", fontSize: "12px" });
+        distEl.textContent = `도보 ${Math.round(stop.distance)}m`;
+
+        const arrow = document.createElement("div");
+        Object.assign(arrow.style, {
+          position: "absolute",
+          bottom: "-8px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "0",
+          height: "0",
+          borderLeft: "8px solid transparent",
+          borderRight: "8px solid transparent",
+          borderTop: "8px solid #f0fdf4",
+          filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.1))",
+        });
+
+        wrapper.append(nameEl, distEl, arrow);
+        overlayContent.appendChild(wrapper);
+
+        const stopOverlay = new kakao.maps.CustomOverlay({
+          content: overlayContent,
+          position: stopPosition,
+          yAnchor: 1,
+          clickable: true,
+        });
+
+        kakao.maps.event.addListener(stopMarker, "click", () => {
+          if (activeOverlay) activeOverlay.setMap(null);
+          stopOverlay.setMap(map);
+          activeOverlay = stopOverlay;
+        });
+
+        busMarkers.push(stopMarker);
+        busOverlays.push(stopOverlay);
+      });
+    }
+
     // cleanup: 마커·오버레이·원 제거 (메모리 누수 방지)
     return () => {
       markers.forEach((m) => m.setMap(null));
       overlays.forEach((o) => o.setMap(null));
       subwayMarkers.forEach((m) => m.setMap(null));
       subwayOverlays.forEach((o) => o.setMap(null));
+      busMarkers.forEach((m) => m.setMap(null));
+      busOverlays.forEach((o) => o.setMap(null));
       if (activeOverlay) activeOverlay.setMap(null);
       circle.setMap(null);
     };
-  }, [isLoaded, centerLat, centerLng, radius, places, fullScreen, subway]);
+  }, [isLoaded, centerLat, centerLng, radius, places, fullScreen, subway, bus]);
 
   /* 전체 화면 모드 (배경 지도) */
   if (fullScreen) {

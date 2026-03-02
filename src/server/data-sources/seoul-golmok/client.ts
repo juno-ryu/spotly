@@ -3,7 +3,7 @@ import { hasApiKey, env } from "@/lib/env";
 import { cachedFetch, redis } from "@/server/cache/redis";
 
 const SEOUL_API_BASE = "http://openapi.seoul.go.kr:8088";
-const USE_MOCK = !hasApiKey.seoul;
+
 
 /** 캐시 TTL (초) */
 const TTL = {
@@ -459,8 +459,6 @@ export async function getTrdarsByLocation(params: {
   longitude: number;
   radius: number;
 }): Promise<TrdarArea[]> {
-  if (USE_MOCK) return [];
-
   const allAreas = await getAllTrdarAreas();
   const center = wgs84ToTM(params.latitude, params.longitude);
 
@@ -485,8 +483,6 @@ export async function getTrdarsByLocation(params: {
 export async function getTrdarsByDongCode(
   adminDongCode: string,
 ): Promise<TrdarArea[]> {
-  if (USE_MOCK) return [];
-
   const allAreas = await getAllTrdarAreas();
 
   const matched = allAreas
@@ -509,13 +505,6 @@ export async function getStoreStatus(params: {
   industryKeyword: string;
   trdarCodes: string[];
 }): Promise<GolmokStore[]> {
-  if (USE_MOCK) {
-    const mock = await import("../mock/seoul-golmok-store.json");
-    return z.array(golmokStoreSchema)
-      .parse(mock.default.row)
-      .filter((r) => matchesIndustry(r.SVC_INDUTY_CD_NM, params.industryKeyword));
-  }
-
   const qc = params.quarter ?? getRecentQuarterCode();
 
   // 상권코드별 캐시 조회
@@ -583,11 +572,6 @@ export async function getChangeIndex(params: {
   quarter?: string;
   trdarCodes?: string[];
 }): Promise<GolmokChangeIndex[]> {
-  if (USE_MOCK) {
-    const mock = await import("../mock/seoul-golmok-change-index.json");
-    return z.array(golmokChangeIndexSchema).parse(mock.default.row);
-  }
-
   const qc = params.quarter ?? getRecentQuarterCode();
 
   const all = await cachedFetch(
@@ -614,8 +598,6 @@ export async function getFloatingPopulation(params: {
   quarter?: string;
   trdarCodes: string[];
 }): Promise<GolmokFloatingPop[]> {
-  if (USE_MOCK) return [];
-
   const qc = params.quarter ?? getRecentQuarterCode();
 
   // 유동인구는 ~1,650건으로 소량 → 단일 키 캐싱 가능
@@ -641,8 +623,6 @@ export async function getResidentPopulation(params: {
   quarter?: string;
   trdarCodes: string[];
 }): Promise<GolmokResidentPop[]> {
-  if (USE_MOCK) return [];
-
   const qc = params.quarter ?? getRecentQuarterCode();
 
   // 상주인구 39K건 → 단일 키 캐싱 불가 (Upstash 1MB 제한)
@@ -747,13 +727,6 @@ export async function getEstimatedSales(params: {
   industryKeyword: string;
   trdarCodes: string[];
 }): Promise<GolmokSales[]> {
-  if (USE_MOCK) {
-    const mock = await import("../mock/seoul-golmok-sales.json");
-    return z.array(golmokSalesSchema)
-      .parse(mock.default.row)
-      .filter((r) => matchesIndustry(r.SVC_INDUTY_CD_NM, params.industryKeyword));
-  }
-
   const qc = params.quarter ?? getRecentQuarterCode();
 
   // 상권코드별 분할 캐싱 (전체 21K건 23MB > Upstash 10MB 제한)

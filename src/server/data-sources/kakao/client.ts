@@ -2,7 +2,6 @@ import type { KakaoResponse, Coordinate, RegionInfo } from "../types";
 
 const KAKAO_BASE_URL = "https://dapi.kakao.com/v2/local";
 
-const USE_MOCK = !process.env.KAKAO_REST_API_KEY;
 const IS_DEV = process.env.NODE_ENV === "development";
 
 /** Kakao REST API 공통 fetch */
@@ -28,11 +27,6 @@ async function kakaoFetch<T>(path: string, params: Record<string, string>): Prom
 
 /** 주소 → 좌표 변환 */
 export async function addressToCoord(address: string): Promise<Coordinate | null> {
-  if (USE_MOCK) {
-    // 모킹: 강남구 역삼동 기본 좌표
-    return { latitude: 37.4979, longitude: 127.0276 };
-  }
-
   const data = await kakaoFetch<{
     x: string;
     y: string;
@@ -50,19 +44,6 @@ export async function addressToCoord(address: string): Promise<Coordinate | null
 
 /** 좌표 → 법정동 코드 변환 */
 export async function coordToRegion(latitude: number, longitude: number): Promise<RegionInfo> {
-  if (USE_MOCK) {
-    // 모킹: 강남구 역삼동 기본 정보
-    return {
-      code: "1168010100",
-      region1: "서울특별시",
-      region2: "강남구",
-      region3: "역삼동",
-      districtCode: "11680",
-      adminDongCode: "1168058000",
-      dongName: "역삼동",
-    };
-  }
-
   const data = await kakaoFetch<{
     region_type: string;
     code: string;
@@ -118,86 +99,6 @@ export async function searchByKeyword(
   radius?: number,
   maxPages: number = 1,
 ): Promise<{ documents: KakaoPlaceDocument[]; meta: { total_count: number; pageable_count: number; is_end: boolean } }> {
-  if (USE_MOCK) {
-    // mock 모드에서도 경쟁도 분석이 가능하도록 합리적인 샘플 데이터 반환
-    const mockDocuments: KakaoPlaceDocument[] = [
-      {
-        id: "mock-1",
-        place_name: "맛있는 김밥",
-        category_name: "음식점 > 분식",
-        category_group_code: "FD6",
-        category_group_name: "음식점",
-        phone: "02-1234-5678",
-        address_name: "서울 강남구 역삼동 123-4",
-        road_address_name: "서울 강남구 테헤란로 123",
-        x: String(coordinate?.longitude ?? 127.0276),
-        y: String(coordinate?.latitude ?? 37.4979),
-        place_url: "https://place.map.kakao.com/mock-1",
-        distance: "150",
-      },
-      {
-        id: "mock-2",
-        place_name: "스타벅스 역삼점",
-        category_name: "음식점 > 카페",
-        category_group_code: "CE7",
-        category_group_name: "카페",
-        phone: "02-2345-6789",
-        address_name: "서울 강남구 역삼동 234-5",
-        road_address_name: "서울 강남구 테헤란로 234",
-        x: String((coordinate?.longitude ?? 127.0276) + 0.001),
-        y: String((coordinate?.latitude ?? 37.4979) + 0.001),
-        place_url: "https://place.map.kakao.com/mock-2",
-        distance: "300",
-      },
-      {
-        id: "mock-3",
-        place_name: "CU 역삼점",
-        category_name: "가정,생활 > 편의점",
-        category_group_code: "CS2",
-        category_group_name: "편의점",
-        phone: "02-3456-7890",
-        address_name: "서울 강남구 역삼동 345-6",
-        road_address_name: "서울 강남구 테헤란로 345",
-        x: String((coordinate?.longitude ?? 127.0276) - 0.001),
-        y: String((coordinate?.latitude ?? 37.4979) - 0.001),
-        place_url: "https://place.map.kakao.com/mock-3",
-        distance: "450",
-      },
-      {
-        id: "mock-4",
-        place_name: "이디야커피 테헤란로점",
-        category_name: "음식점 > 카페",
-        category_group_code: "CE7",
-        category_group_name: "카페",
-        phone: "02-4567-8901",
-        address_name: "서울 강남구 역삼동 456-7",
-        road_address_name: "서울 강남구 테헤란로 456",
-        x: String((coordinate?.longitude ?? 127.0276) + 0.002),
-        y: String((coordinate?.latitude ?? 37.4979) - 0.001),
-        place_url: "https://place.map.kakao.com/mock-4",
-        distance: "500",
-      },
-      {
-        id: "mock-5",
-        place_name: "한솥도시락 강남점",
-        category_name: "음식점 > 한식",
-        category_group_code: "FD6",
-        category_group_name: "음식점",
-        phone: "02-5678-9012",
-        address_name: "서울 강남구 역삼동 567-8",
-        road_address_name: "서울 강남구 테헤란로 567",
-        x: String((coordinate?.longitude ?? 127.0276) - 0.002),
-        y: String((coordinate?.latitude ?? 37.4979) + 0.001),
-        place_url: "https://place.map.kakao.com/mock-5",
-        distance: "600",
-      },
-    ];
-    return {
-      documents: mockDocuments,
-      meta: { total_count: 12, pageable_count: 12, is_end: false },
-    };
-  }
-
   const allResults: KakaoPlaceDocument[] = [];
   let lastMeta = { total_count: 0, pageable_count: 0, is_end: true };
 
@@ -211,6 +112,8 @@ export async function searchByKeyword(
       if (coordinate) {
         params.x = String(coordinate.longitude);
         params.y = String(coordinate.latitude);
+        // 좌표 기반 검색 시 거리순 정렬 — distance 필드 정확성 보장
+        params.sort = "distance";
       }
       if (radius) {
         params.radius = String(Math.min(radius, 20000));

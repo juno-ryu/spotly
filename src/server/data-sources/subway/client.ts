@@ -4,9 +4,6 @@ import { cachedFetch, CACHE_TTL } from "@/server/cache/redis";
 /** 서울 열린데이터 광장 API 베이스 URL */
 const SEOUL_API_BASE = "http://openapi.seoul.go.kr:8088";
 
-/** API 키 미설정 시 mock 모드 */
-const USE_MOCK = !hasApiKey.seoul;
-
 /**
  * 일평균 산출을 위한 조회 일수.
  * 7일이면 주중/주말 패턴을 포함하여 충분한 대표성을 가진다.
@@ -210,10 +207,6 @@ export function normalizeStationName(kakaoName: string): string {
 export async function getSubwayDailyTraffic(
   stationName: string,
 ): Promise<SubwayDailyRow[]> {
-  if (USE_MOCK) {
-    return generateMockDailyData(stationName);
-  }
-
   const { startDate, endDate } = getRecentDateRange();
   const cacheKey = `subway:daily:${stationName}:${startDate}`;
 
@@ -271,22 +264,4 @@ export function aggregateDailyTraffic(
 
 // ─── Mock 데이터 ───────────────────────────────────────
 
-function generateMockDailyData(stationName: string): SubwayDailyRow[] {
-  const rows: SubwayDailyRow[] = [];
-  const base = new Date();
-  base.setDate(base.getDate() - 7);
 
-  for (let i = 0; i < QUERY_DAYS; i++) {
-    const d = new Date(base);
-    d.setDate(d.getDate() - i);
-    const dt = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
-    rows.push({
-      USE_DT: dt,
-      LINE_NUM: "2호선",
-      SUB_STA_NM: stationName,
-      RIDE_PASGR_NUM: 45000 + Math.round(Math.random() * 10000),
-      ALIGHT_PASGR_NUM: 43000 + Math.round(Math.random() * 10000),
-    });
-  }
-  return rows;
-}

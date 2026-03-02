@@ -4,8 +4,7 @@ import type { DataGoKrResponse } from "../types";
 const NPS_BASE_URL =
   "https://apis.data.go.kr/B552015/NpsBplcInfoInqireServiceV2";
 
-const USE_MOCK =
-  process.env.NODE_ENV === "development" && !process.env.DATA_GO_KR_API_KEY;
+
 
 // data.go.kr은 User-Agent 없으면 502 반환
 const FETCH_HEADERS = { "User-Agent": "Mozilla/5.0" } as const;
@@ -109,12 +108,6 @@ export async function searchBusinesses(params: {
   page?: number;
   size?: number;
 }): Promise<{ items: NpsBusiness[]; totalCount: number }> {
-  if (USE_MOCK) {
-    const mock = await import("../mock/nps-search.json");
-    const items = z.array(npsBusinessSchema).parse(mock.default.items);
-    return { items, totalCount: items.length };
-  }
-
   // 5자리 시군구코드를 시도(2) + 시군구(3)로 분리
   const sidoCode = params.regionCode.substring(0, 2);
   const sgguCode = params.regionCode.substring(2, 5);
@@ -143,11 +136,6 @@ export async function searchBusinesses(params: {
 
 /** 사업장 상세 조회 */
 export async function getBusinessDetail(seq: string): Promise<NpsDetail | null> {
-  if (USE_MOCK) {
-    const mock = await import("../mock/nps-detail.json");
-    return npsDetailSchema.parse(mock.default);
-  }
-
   const url = new URL(`${NPS_BASE_URL}/getDetailInfoSearchV2`);
   url.searchParams.set("serviceKey", process.env.DATA_GO_KR_API_KEY!);
   url.searchParams.set("seq", seq);
@@ -170,11 +158,6 @@ export async function getMonthlyTrend(
   seq: string,
   months: number = 12,
 ): Promise<NpsTrendItem[]> {
-  if (USE_MOCK) {
-    const mock = await import("../mock/nps-trend.json");
-    return z.array(npsTrendItemSchema).parse(mock.default.items);
-  }
-
   const now = new Date();
   const endYm = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}`;
   const startDate = new Date(now);

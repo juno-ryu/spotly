@@ -14,10 +14,11 @@ import { CompetitorMap } from "./competitor-map";
 import { formatRadius } from "@/lib/format";
 import { GRADIENT_TEXT_STYLE } from "@/constants/site";
 import dayjs from "dayjs";
-import { buildCompetitionInsights, buildVitalityInsights, buildSubwayInsights } from "../lib/insights";
+import { buildCompetitionInsights, buildVitalityInsights, buildSubwayInsights, buildBusInsights } from "../lib/insights";
 import { generateReport } from "@/features/report/actions";
 import type { InsightItem, CompetitionAnalysis, InsightData } from "../lib/insights";
 import type { SubwayAnalysis } from "@/server/data-sources/subway/adapter";
+import type { BusAnalysis } from "@/server/data-sources/bus/adapter";
 import type { VitalityAnalysis } from "../lib/scoring/vitality";
 import type { PopulationAnalysis } from "../lib/scoring/population";
 import type { AnalysisRequest } from "@prisma/client";
@@ -542,6 +543,7 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
   const vitality = report?.vitality as VitalityAnalysis | undefined;
   const populationAnalysis = report?.populationAnalysis as PopulationAnalysis | undefined;
   const subway = (report?.subway ?? null) as SubwayAnalysis | null;
+  const bus = (report?.bus ?? null) as BusAnalysis | null;
   const centerLat = report?.centerLatitude as number | undefined;
   const centerLng = report?.centerLongitude as number | undefined;
 
@@ -556,10 +558,12 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
     industryName: data.industryName,
     radius: data.radius,
     subway: subway,
+    bus: bus,
   };
   const competitionInsights = buildCompetitionInsights(insightData);
   const vitalityInsights = buildVitalityInsights(insightData);
   const subwayInsights = buildSubwayInsights(insightData);
+  const busInsights = buildBusInsights(insightData);
 
   return (
     <div className="fixed inset-0 pointer-events-none">
@@ -572,6 +576,7 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
             radius={data.radius}
             keyword={data.industryName}
             subway={subway}
+            bus={bus}
             fullScreen
           />
         </div>
@@ -608,7 +613,7 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
 
         {/* ── 콘텐츠 ── */}
         <div className="flex-1 overflow-y-auto px-4 pb-10 mt-3">
-          <Accordion type="multiple" defaultValue={["competition", "vitality", "subway", "population"]}>
+          <Accordion type="multiple" defaultValue={["competition", "vitality", "subway", "bus", "population"]}>
             {/* 경쟁강도 */}
             <AccordionItem value="competition">
               <AccordionTrigger>
@@ -682,6 +687,32 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
                 </AccordionContent>
               </AccordionItem>
             )}
+            {/* 버스 접근성 */}
+            <AccordionItem value="bus">
+              <AccordionTrigger>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold flex items-center gap-1.5">
+                    버스 접근성
+                  </p>
+                  <p className="text-[12px] text-muted-foreground font-normal mt-0.5">
+                    {bus ? "주변 버스 정류장 접근성 분석" : "데이터 수집 실패"}
+                  </p>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                {bus && busInsights.length > 0 ? (
+                  <div className="space-y-0.5">
+                    {busInsights.map((item, i) => (
+                      <Insight key={i} item={item} delay={i * 150} />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[13px] text-muted-foreground py-2">
+                    버스 정류장 데이터를 가져오지 못했습니다. API 키를 확인해 주세요.
+                  </p>
+                )}
+              </AccordionContent>
+            </AccordionItem>
             {/* 인구 밀집도 — 데이터 있을 때만 */}
             {populationAnalysis && (
               <AccordionItem value="population">

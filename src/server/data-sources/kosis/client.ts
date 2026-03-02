@@ -3,8 +3,7 @@ import { z } from "zod";
 const KOSIS_BASE_URL =
   "https://kosis.kr/openapi/Param/statisticsParameterData.do";
 
-const USE_MOCK =
-  process.env.NODE_ENV === "development" && !process.env.KOSIS_API_KEY;
+
 
 // ─── Zod 스키마 ───
 
@@ -117,12 +116,6 @@ async function kosisRequest(params: {
 export async function getPopulationByDistrict(
   districtCode: string,
 ): Promise<PopulationData> {
-  if (USE_MOCK) {
-    const mock = await import("../mock/kosis-population.json");
-    const items = z.array(kosisItemSchema).parse(mock.default);
-    return itemsToPopulationData(items);
-  }
-
   const lastYear = String(new Date().getFullYear() - 1);
 
   // 인구수만 조회 (세대수는 읍면동/시군구 해상도 불일치로 제거)
@@ -155,13 +148,6 @@ export async function getPopulationByDong(
   adminDongCode: string | undefined,
   districtCode: string,
 ): Promise<PopulationData> {
-  // Mock 분기: API 키 없으면 시군구 mock으로 fallback
-  if (USE_MOCK) {
-    console.log(`[KOSIS] Mock 모드 → 시군구(${districtCode}) mock 사용`);
-    const result = await getPopulationByDistrict(districtCode);
-    return { ...result, isDongLevel: false };
-  }
-
   // 행정동코드가 없으면 바로 시군구 fallback
   if (!adminDongCode) {
     console.log(`[KOSIS] 행정동코드 없음 → 시군구(${districtCode}) fallback`);

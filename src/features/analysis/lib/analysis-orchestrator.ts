@@ -2,6 +2,7 @@ import { fetchKakaoPlaces, type KakaoPlacesRaw, type KakaoPlace } from "@/server
 import { fetchCommercialVitality } from "@/server/data-sources/seoul-golmok/adapter";
 import { fetchPopulationData, type PopulationMetrics } from "@/server/data-sources/kosis/adapter";
 import { fetchSubwayAnalysis, type SubwayAnalysis } from "@/server/data-sources/subway/adapter";
+import { fetchBusAnalysis, type BusAnalysis } from "@/server/data-sources/bus/adapter";
 import { analyzeCompetition, type CompetitionAnalysis, analyzePopulation, type PopulationAnalysis } from "./scoring";
 import { analyzeVitality, type VitalityAnalysis } from "./scoring/vitality";
 
@@ -25,6 +26,8 @@ export interface AnalysisResult {
   populationAnalysis: PopulationAnalysis | null;
   /** 지하철 역세권 분석 (전국, 없으면 null) */
   subway: SubwayAnalysis | null;
+  /** 버스 접근성 분석 (전국, 없으면 null) */
+  bus: BusAnalysis | null;
 }
 
 export type { KakaoPlace, KakaoPlacesRaw };
@@ -42,8 +45,8 @@ export async function runAnalysis(params: {
 }): Promise<AnalysisResult> {
   const isSeoul = params.regionCode.startsWith("11");
 
-  // 데이터 수집 — 카카오 Places + 서울 골목상권(서울만) + KOSIS 인구(전국) + 지하철(전국)
-  const [placesRaw, vitalityData, populationData, subwayData] = await Promise.all([
+  // 데이터 수집 — 카카오 Places + 서울 골목상권(서울만) + KOSIS 인구(전국) + 지하철(전국) + 버스(전국)
+  const [placesRaw, vitalityData, populationData, subwayData, busData] = await Promise.all([
     fetchKakaoPlaces({
       keyword: params.industryName,
       latitude: params.latitude,
@@ -76,6 +79,14 @@ export async function runAnalysis(params: {
       longitude: params.longitude,
     }).catch((err) => {
       console.warn("[오케스트레이터] 지하철 역세권 분석 실패:", err);
+      return null;
+    }),
+    // 버스 접근성 분석 (전국)
+    fetchBusAnalysis({
+      latitude: params.latitude,
+      longitude: params.longitude,
+    }).catch((err) => {
+      console.warn("[오케스트레이터] 버스 접근성 분석 실패:", err);
       return null;
     }),
   ]);
@@ -112,5 +123,6 @@ export async function runAnalysis(params: {
     population: populationData,
     populationAnalysis,
     subway: subwayData,
+    bus: busData,
   };
 }

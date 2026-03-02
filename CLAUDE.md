@@ -8,24 +8,35 @@ Next.js 16 (App Router) | TypeScript 5.7 | React 19 | PostgreSQL + Prisma 6 | Up
 Claude API (haiku-4-5) | shadcn-ui + Tailwind 4 | Recharts | Kakao Maps | react-hook-form + zod
 zustand | dayjs | ts-pattern | es-toolkit | npm
 
-## 에이전트 오케스트레이션 규칙
+## ⛔⛔⛔ 에이전트 오케스트레이션 — 최고 우선순위 규칙 ⛔⛔⛔
 
-- **분석/검증/구현 작업은 반드시 `cto-lead` 에이전트에게 먼저 위임한다.**
-- **완료 보고는 `cto-lead`가 raw 결과를 직접 반환한다. 별도 report-writer 없음.**
-- Claude(나)는 사용자 대화 창구 역할만 한다.
-- 흐름: `사용자 요청 → cto-lead → 전문 에이전트들 → cto-lead (raw 결과 반환) → 사용자`
+> 세부 규칙 전문: `.claude/rules/orchestration.md` **(필독 필수)**
 
-### 사용 가능한 에이전트 목록
+### 실제 검증된 오케스트레이션 방식
 
-| 에이전트 | 역할 |
-|---------|------|
-| `cto-lead` | 팀 오케스트레이션, 작업 분배, 우선순위 결정 |
-| `senior-backend-architect` | Server Action / API Route / DB / 캐시 / 외부 API |
-| `senior-frontend-architect` | 컴포넌트 / 훅 / 상태 관리 / UI |
-| `code-reviewer` | 코드 품질 + API 연동 + 성능 통합 리뷰 |
-| `scoring-engine-validator` | 스코어링 로직 설계·검증·자문 |
-| `ai-report-specialist` | AI 리포트 품질 (프롬프트, 인사이트, 응답 정제) |
-| `public-data-researcher` | 공공데이터 API 리서치, 신규 지표 발굴 |
+```
+Claude(나) → TeamCreate → Task(팀원, team_name, name, run_in_background) → SendMessage 협업 → TeamDelete
+```
+
+**핵심 원칙**:
+- `TeamCreate`는 **Claude(나)가 직접** 호출한다
+- 팀원 spawn도 **Claude(나)가 직접** `Task` 도구로 한다 (`team_name` + `name` 파라미터 필수)
+- spawn 시 `run_in_background: true` → tmux 분할 창으로 각 팀원이 별도 창에 뜸
+- 팀원들은 `SendMessage`로 직접 소통하고, 메시지는 Claude(나)에게 자동 전달됨
+- 작업 완료 후 `SendMessage(shutdown_request)` → `TeamDelete` 순으로 정리
+
+---
+
+## ⛔ 작업 전 필수 — 구현 현황 파악
+
+> **모든 새 기능 구현 / API 추가 / 스코어링 변경 전 반드시 먼저 읽을 것**
+
+- **`docs/implementation-status.md`** — 전체 구현 현황, 체크리스트, 알려진 버그
+  - 어떤 API가 연동됐는지 / 연결 끊겼는지
+  - 스코어링 현재 구조 (5대 지표 중 무엇이 미구현인지)
+  - 인사이트 빌더 동작 방식
+  - Redis 캐시 여부 / DB 저장 방식
+  - 추가 예정 API 목록
 
 ---
 

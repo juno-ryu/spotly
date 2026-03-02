@@ -1,4 +1,5 @@
 import type { SubwayAnalysis } from "@/server/data-sources/subway/adapter";
+import type { BusAnalysis } from "@/server/data-sources/bus/adapter";
 import type { VitalityAnalysis } from "../scoring/vitality";
 
 /** 인사이트 카테고리 — 내부 구분용, UI 노출 안 함 */
@@ -39,6 +40,8 @@ export interface InsightData {
   radius: number;
   /** 지하철 역세권 분석 */
   subway: SubwayAnalysis | null;
+  /** 버스 접근성 분석 */
+  bus: BusAnalysis | null;
 }
 
 /** 각 룰 모듈이 export하는 함수 시그니처 */

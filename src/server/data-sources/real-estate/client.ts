@@ -3,8 +3,7 @@ import { z } from "zod";
 const REAL_ESTATE_BASE_URL =
   "https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev";
 
-const USE_MOCK =
-  process.env.NODE_ENV === "development" && !process.env.DATA_GO_KR_API_KEY;
+
 
 // ─── Zod 스키마 ───
 
@@ -75,11 +74,6 @@ export async function getApartmentTransactions(
   lawdCd: string,
   dealYmd: string,
 ): Promise<ApartmentTrade[]> {
-  if (USE_MOCK) {
-    const mock = await import("../mock/real-estate.json");
-    return z.array(apartmentTradeSchema).parse(mock.default.items);
-  }
-
   const apiKey = process.env.DATA_GO_KR_API_KEY!;
   const url = `${REAL_ESTATE_BASE_URL}/getRTMSDataSvcAptTradeDev?serviceKey=${apiKey}&LAWD_CD=${lawdCd}&DEAL_YMD=${dealYmd}&pageNo=1&numOfRows=1000`;
 
