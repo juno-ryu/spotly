@@ -27,9 +27,11 @@ export const competitionRules: InsightRule = (data) => {
   const grade = (competition.competitionScore?.grade ?? "C") as Grade;
   const insights: InsightItem[] = [];
 
-  // 0. 동종업체 0개 — 수요 부재 가능성 경고
+  // 0. 동종업체 0개 — places.totalCount 기준 (Kakao 실제 총 수)
+  // directCompetitorCount는 샘플(최대 15개) 기반이라 신뢰 불가 → totalCount 사용
   // 경쟁자 없음 = 100점이지만, 수요 자체가 없는 지역일 수 있으므로 신중함을 안내
-  if (competition.directCompetitorCount === 0) {
+  const totalCount = data.places?.totalCount ?? 0;
+  if (totalCount === 0) {
     insights.push({
       type: "text",
       emoji: "⚠️",

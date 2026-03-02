@@ -1,6 +1,6 @@
 # 창업 분석기 — 구현 현황 & 페이즈별 체크리스트
 
-> 마지막 업데이트: 2026-03-02 (건축물대장 SKIP, 대학교 카페 필터 버그 수정)
+> 마지막 업데이트: 2026-03-02 (반경 옵션 200/300/500m 변경, 전 어댑터 사용자 선택 반경 통일)
 > **이 문서는 Claude가 작업 전 반드시 참조해야 합니다.**
 > 새 기능 구현 / API 추가 / 스코어링 변경 전 이 문서를 먼저 읽고 현황을 파악하세요.
 
@@ -25,19 +25,23 @@
     ↓
 Kakao Geocoding → 위경도 + 법정동코드 + 행정동코드
     ↓
-analysis-orchestrator.ts (Promise.all 병렬 수집)
-    ├── [1] Kakao Places          → 경쟁업체 목록
+analysis-orchestrator.ts (Promise.allSettled 병렬 수집)
+    ├── [1] Kakao Places          → 경쟁업체 목록 (사용자 선택 반경)
     ├── [2] 서울 골목상권          → 매출/점포/유동인구 (서울만)
     ├── [3] KOSIS 인구             → 배후 인구 (전국)
     ├── [4] 지하철                 → 역세권 분석 (수도권)
-    └── [5] 버스                   → 정류장 접근성 (전국)
+    ├── [5] 버스                   → 정류장 접근성 (전국, 사용자 선택 반경 내 필터)
+    ├── [6] 학교 DB                → 초중고 (전국, 사용자 선택 반경)
+    ├── [7] 대학교 Kakao           → 대학교 (전국, 사용자 선택 반경)
+    └── [8] 병의원 Kakao           → 종합병원 (전국, 사용자 선택 반경)
     ↓
 스코어링 엔진
-    ├── competition.ts  → competitionScore (totalScore로 단독 사용 중)
-    ├── vitality.ts     → vitalityScore (scoreDetail JSON에만 저장)
-    └── population.ts   → populationScore (scoreDetail JSON에만 저장)
+    ├── competition.ts  → competitionScore
+    ├── vitality.ts     → vitalityScore (서울만)
+    ├── population.ts   → populationScore (전국)
+    └── survival.ts     → survivalScore (서울만)
     ↓
-인사이트 빌더 (competition / population / subway / bus 4개 룰)
+인사이트 빌더 (8개 룰: competition / population / subway / bus / school / university / medical + combinedRisk)
     ↓
 DB 저장 (AnalysisRequest: totalScore=4대지표가중합산, scoreDetail, reportData) + Redis 캐시
     ↓
@@ -140,10 +144,11 @@ residentPopulation { totalResident, totalHouseholds }
 | Redis 캐시 | ✅ 있음 (TTL 7일, 키: `bus:sttn:{lat4}:{lng4}`) |
 | Orchestrator | ✅ 연결됨 (슬롯 5, 전국) |
 
-2단계: `getCrdntPrxmtSttnList`(인근 5개 정류소) → `getSttnThrghRouteList`(경유 노선, 병렬)
+2단계: `getCrdntPrxmtSttnList`(인근 5개 정류소) → `getSttnThrghRouteList`(경유 노선, 병렬) → **사용자 선택 반경 내 필터링** (`distanceMeters <= radius`)
 출력: `{ hasBusStop, nearestStop { nodeId, name, distanceMeters, routes[], routeCount }, stopCount, stopsInRadius[], totalRouteCount }`
 
 > ✅ 전국 커버: `REGION_PREFIX_TO_CITY_CODE` 매핑으로 17개 시도 cityCode 자동 선택 (2026-03-02 완료)
+> ✅ 사용자 선택 반경 필터: adapter에서 haversine 거리 기준 반경 외 정류소 제외 (2026-03-02)
 
 ---
 
@@ -366,9 +371,10 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 - [x] **대학교 — Kakao 기반 구현 완료 (2026-03-02)**
   - ~~대학알리미 API~~ → **사용 불가** (브라우저 직접 조사 2026-03-02 확인)
-  - Kakao `searchByKeyword("대학교", coord, 2000m)` + place_name 필터
-  - `src/server/data-sources/kakao/client.ts` — `searchByCategory` 함수 추가
-  - `src/server/data-sources/university/adapter.ts` — `fetchUniversityAnalysis()`
+  - Kakao `searchByKeyword("대학교", coord, **사용자 선택 반경**)` + place_name/category_name 이중 필터
+  - `src/server/data-sources/university/adapter.ts` — `fetchUniversityAnalysis({ latitude, longitude, radius })`
+    - `radius` 파라미터로 Kakao 검색 + Haversine 재필터 (Kakao가 반경 밖 결과 반환하는 버그 대응)
+    - 하드코딩 `UNIVERSITY_RADIUS = 2000` 제거 → 사용자 선택 반경 사용
   - `AnalysisResult`에 `university: UniversityAnalysis | null` 추가
   - `insights/rules/university.ts` — 대학교 목록 + 방학 리스크 경고 (category: "fact")
   - orchestrator 슬롯 7 연결, UI 추가
@@ -379,9 +385,11 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 - [x] **병의원/약국 — Kakao HP8 기반 구현 완료 (2026-03-02)**
   - ~~HIRA 의료기관별상세정보서비스~~ → **위치 기반 검색 불가** (2026-03-02 확인)
-  - Kakao `searchByCategory("HP8", coord, 2000m)` + category_name/place_name 종별 분류 (종합병원 + 의료원/대학병원만, 병원·의원 제외)
-  - ⚠️ **업종별 해석 차이**: 약국·편의점은 의원(동네 병원) 수가 핵심 입지 기준. 현재는 종합병원/병원만 표시하므로 향후 선택 업종이 약국/편의점일 때 의원 수를 별도 인사이트로 추가 표시하는 업종별 분기 처리 필요.
-  - `src/server/data-sources/medical/adapter.ts` — `fetchMedicalAnalysis()`
+  - Kakao `searchByCategory("HP8", coord, **사용자 선택 반경**)` + category_name/place_name 종별 분류 (종합병원 + 의료원/대학병원만, 병원·의원 제외)
+  - `src/server/data-sources/medical/adapter.ts` — `fetchMedicalAnalysis({ latitude, longitude, radius })`
+    - `radius` 파라미터로 Kakao 검색 + Haversine 재필터
+    - 하드코딩 `MEDICAL_RADIUS = 2000` 제거 → 사용자 선택 반경 사용
+  - ⚠️ **업종별 해석 차이**: 약국·편의점은 의원(동네 병원) 수가 핵심 입지 기준. 현재는 종합병원만 표시하므로 향후 선택 업종이 약국/편의점일 때 의원 수를 별도 인사이트로 추가 표시하는 업종별 분기 처리 필요.
   - `AnalysisResult`에 `medical: MedicalAnalysis | null` 추가
   - `insights/rules/medical.ts` — 병의원 수 + 종별 표시 (category: "fact")
   - orchestrator 슬롯 8 연결, UI 추가
@@ -495,9 +503,12 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 - [x] **PROJECT_INDEX.md 최신화 → 완료 (2026-03-02)**
 
-- [x] **분석 반경 매직 넘버 상수화 → 완료 (2026-03-02)**
-  - `constants.ts`: `ANALYSIS_RADIUS_DEFAULT`, `UNIVERSITY_RADIUS`, `MEDICAL_RADIUS` 추출
-  - university/medical adapter에서 하드코딩 2000 → import로 교체
+- [x] **전 어댑터 사용자 선택 반경 통일 → 완료 (2026-03-02)**
+  - `medical/adapter.ts`: `radius` 파라미터 추가, `MEDICAL_RADIUS = 2000` 완전 제거
+  - `university/adapter.ts`: `radius` 파라미터 추가, `UNIVERSITY_RADIUS = 2000` 완전 제거
+  - `bus/adapter.ts`: `radius` 파라미터 추가, API 반환 정류소 중 반경 초과 제외
+  - `constants.ts`: `MEDICAL_RADIUS`, `UNIVERSITY_RADIUS` 상수 삭제 (더 이상 불필요)
+  - 인사이트 텍스트 전수 수정: `analysis-result.tsx` 섹션 헤더 3개 + `school/medical/university.ts` 하드코딩 텍스트 → `radius` 변수 사용
 
 - ~~[ ] **학교 어댑터 반경 레벨별 분리**~~ → **SKIP** (의미 없음 판정 2026-03-02)
   - 학생수 데이터 없이 개수만 세는 구조에서 반경 분리는 오히려 지도 마커와 불일치 유발
@@ -698,10 +709,10 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 | 6-E. 버스 전국 커버 | 2 | 2 | 0 | 0 | **100%** |
 | 6-F. 인사이트 보강 | 4 | 2 | 1 | 1 | 67% |
 | 6-G. 스코어링 보강 | 9 | 9 | 1 | 0 | **100%** (SKIP 제외) |
-| 6-H. 기술부채 해소 | 6 | 5 | 3 | 0 | **100%** (SKIP 제외) |
-| **Phase 1 합계** | **28** | **20** | **13** | **1** | **95%** |
+| 6-H. 기술부채 해소 | 6 | 6 | 3 | 0 | **100%** (SKIP 제외) |
+| **Phase 1 합계** | **28** | **21** | **13** | **0** | **100%** (SKIP 제외) |
 
-> 💡 실질 미완료 항목(SKIP 제외): **1개** (6-F 부동산 인사이트 룰 — 데이터소스 SKIP으로 의미 없음)
+> ✅ **Phase 1 실질 미완료 항목 없음** (6-F 부동산 인사이트는 데이터소스 SKIP으로 의미 없음, 반경 통일 완료)
 
 ### Phase 2 — 검증
 
@@ -718,9 +729,9 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 | 구분 | 전체 항목 | 완료 | SKIP | 실질 미완료 | **진행률** |
 |------|:--------:|:----:|:----:|:-----------:|:---------:|
-| Phase 1 | 28 | 20 | 11 | 1 | **95%** |
+| Phase 1 | 28 | 21 | 11 | 0 | **100%** (SKIP 제외) |
 | Phase 2 | 26 | 20 | 1 | 5 | **80%** |
-| **전체** | **54** | **40** | **12** | **6** | **약 74%** |
+| **전체** | **54** | **41** | **12** | **5** | **약 76%** |
 
 > 📌 **단, Phase 1 전제인 기반 인프라(orchestrator 5개 슬롯, 스코어링 3개 모듈, 인사이트 4개 룰)는 이미 구축 완료.**
 > Phase 1 체크리스트는 "추가 기능" 기준이며, 서비스 자체는 현재도 동작함.
@@ -785,6 +796,11 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 | 2026-03-02 | **교육·의료 인사이트 업종별 분기** — school/university/medical rules | ✅ | 학원→학교 강조, 카페·음식점·의류→대학가 강조, 약국→처방전, 편의점→환자 수요 메시지 |
 | 2026-03-02 | **반경 매직 넘버 상수화** — `constants.ts` | ✅ | `UNIVERSITY_RADIUS`, `MEDICAL_RADIUS` 추출. university/medical adapter 하드코딩 제거 |
 | 2026-03-02 | **학교 반경 레벨별 분리 시도 → SKIP** | ⏭️ | 학생수 데이터 없이 개수만 세는 구조에서 의미 없음 판정. 사용자 선택 반경 유지로 롤백 |
+| 2026-03-02 | **반경 옵션 200/300/500m 변경** | ✅ | 박사님 검토: 100m 통계적 신뢰도 부족(표본 수 너무 적음) → 200/300/500m 권장. `RadiusOption` 상수 + `RADIUS_OPTIONS` 레이블 전체 변경 |
+| 2026-03-02 | **드래그 반경 조절 기능 주석 처리** | ⏭️ | 사용성 문제로 일시 비활성화. `radius-map.tsx` 드래그 핸들 전체 주석 처리 (추후 재활성화 가능). 반경 원 표시는 유지 |
+| 2026-03-02 | **드래그 반경 max 500m 제한** | ✅ | `geo-utils.ts` `snapRadius()` 클램프 100~3000m → 200~500m |
+| 2026-03-02 | **전 어댑터 사용자 선택 반경 통일** | ✅ | medical/university/bus adapter가 각각 하드코딩 2000m을 사용하던 것을 `params.radius`로 통일. `MEDICAL_RADIUS`/`UNIVERSITY_RADIUS` 상수 삭제. 인사이트 텍스트 하드코딩 전수 제거 (analysis-result.tsx, school/medical/university rules) |
+| 2026-03-02 | **지도/분석 UX 개선** | ✅ | 디바운스 1500ms → 600ms, 지도 기본 줌 조정(DEFAULT_MAP_ZOOM), ESLint 오류 수정(region-selector.tsx addRecentRegion deps) |
 | 2026-03-02 | **[T4] 버스 비서울 지역 검증 + 3개 버그 수정** | ✅ | (1) 경기도 prefix "31"→"41" 수정 (2) 정류소 응답 citycode 필드 노선 조회에 직접 사용 (3) routeno 필드 추가(부산/대구/인천 등) (4) 레거시 nodeId 우선순위 낮춤 — 경기/부산/대구/인천 전 지역 노선 조회 성공 |
 | 2026-03-02 | **버스 인사이트 노선명 표시** — `insights/rules/bus.ts` formatRouteNo 추가 | ✅ | "해운대구2" → "2번" 형식 변환. 최대 5개 + "외 N개" 표시 |
 | 2026-03-02 | **버스 대표 정류소 선택 로직 개선** — `bus/adapter.ts` | ✅ | 가장 가까운 정류소 → 노선 수 가장 많은 정류소 우선. 레거시 CGB nodeId 자연스럽게 후순위 처리 |
@@ -819,9 +835,11 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 
 > 우선순위 순서대로 진행한다.
 
-### Phase 2 — 80% 완료. 미완료 5개 항목 진행 권장
+### Phase 1 — 100% 완료 ✅
 
-> Phase 1 + Phase 2 대부분 완료. 남은 주요 항목:
+### Phase 2 — 80% 완료. 미완료 5개 항목
+
+> 남은 주요 항목:
 > 1. **[C-06]** 4대 지표 가중치 근거 문서화 (이 섹션에 직접 추가)
 > 2. **[M-05]** densityBaseline 실증 통계 확보 (Data Researcher)
 > 3. **[M-08]** 프랜차이즈 브랜드 커버리지 검증 (Data Researcher)
@@ -832,6 +850,15 @@ subway, bus 데이터도 reportData 안에 포함됨 (scoreDetail에는 없음).
 1. **[C-06] 가중치 근거 문서화** — 즉시 가능, 코드 변경 없음
 2. **[M-05/M-08]** — 공공데이터 리서처 투입 필요
 3. **[m-04]** — 박사님 분석 필요
+
+### 📌 현재 반경 정책 (2026-03-02 확정)
+
+| 항목 | 값 | 비고 |
+|------|-----|------|
+| 반경 옵션 | 200m / 300m / 500m | 박사님 승인. 100m 통계 신뢰도 부족으로 거부 |
+| 반경 적용 범위 | **전 어댑터 통일** | Kakao Places, 버스, 대학교, 병의원, 학교 전부 사용자 선택 반경 |
+| 드래그 반경 조절 | 주석 처리 (비활성) | `radius-map.tsx`. 추후 재활성화 가능 |
+| 지하철 탐색 반경 | 500m 고정 | 역세권 분석은 특성상 고정값 유지 |
 
 ### ⏳ API 키 발급 대기 (추후 진행)
 

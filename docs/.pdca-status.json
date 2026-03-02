@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-03-02T12:36:15.227Z",
+  "lastUpdated": "2026-03-02T14:25:26.329Z",
   "activeFeatures": [
     "scripts",
     "school",
@@ -71,9 +71,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-02T12:36:15.227Z",
-        "lastUpdated": "2026-03-02T12:36:15.227Z"
+        "lastUpdated": "2026-03-02T14:25:26.329Z"
       },
-      "lastFile": "/Users/juno/work/my/src/server/data-sources/subway/client.ts"
+      "lastFile": "/Users/juno/work/my/src/server/data-sources/subway/adapter.ts"
     }
   },
   "pipeline": {
@@ -84,7 +84,7 @@
   "session": {
     "startedAt": "2026-02-25T07:13:05.276Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-03-02T12:36:15.227Z"
+    "lastActivity": "2026-03-02T14:25:26.329Z"
   },
   "history": [
     {
@@ -137,6 +137,12 @@
     },
     {
       "timestamp": "2026-03-02T12:36:15.227Z",
+      "feature": "subway",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-02T14:25:26.329Z",
       "feature": "subway",
       "phase": "do",
       "action": "updated"

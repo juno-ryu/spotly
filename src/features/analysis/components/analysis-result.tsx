@@ -847,8 +847,8 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
                 </AccordionContent>
               </AccordionItem>
             )}
-            {/* 의료시설 접근성 — 데이터 있을 때만 */}
-            {medical && medicalInsights.length > 0 && (
+            {/* 의료시설 접근성 — medical 데이터 존재 시 항상 표시 */}
+            {medical && (
               <AccordionItem value="medical">
                 <AccordionTrigger>
                   <div className="min-w-0">
@@ -862,9 +862,22 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-0.5">
-                    {medicalInsights.map((item, i) => (
-                      <Insight key={i} item={item} delay={i * 150} />
-                    ))}
+                    {medicalInsights.length > 0 ? (
+                      medicalInsights.map((item, i) => (
+                        <Insight key={i} item={item} delay={i * 150} />
+                      ))
+                    ) : (
+                      <Insight
+                        item={{
+                          type: "text",
+                          category: "fact",
+                          emoji: "🏥",
+                          text: `반경 ${radiusLabel} 내 병의원 없음`,
+                          sub: "인근 의료시설이 확인되지 않았습니다",
+                        }}
+                        delay={0}
+                      />
+                    )}
                   </div>
                 </AccordionContent>
               </AccordionItem>

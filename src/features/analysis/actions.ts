@@ -105,6 +105,13 @@ export async function startAnalysis(input: AnalysisRequest) {
           competition: aggregated.competition.competitionScore,
           vitality: aggregated.vitality?.vitalityScore ?? null,
           population: aggregated.populationAnalysis?.score ?? null,
+          // survival은 vitality.details에서 추출 (서울 전용, 비서울은 null)
+          survival: aggregated.vitality
+            ? analyzeSurvival(
+                aggregated.vitality.details.closeRate,
+                aggregated.vitality.details.openRate,
+              )?.survivalScore ?? null
+            : null,
         })),
         reportData: JSON.parse(JSON.stringify(aggregated)),
       },
