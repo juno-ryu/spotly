@@ -128,8 +128,8 @@ function calculateFranchiseUCurve(franchiseRatio: number): number {
     return 100;
   }
   if (franchiseRatio < FRANCHISE_OPTIMAL_MIN) {
-    // 0% → 40점, 20% → 100점 (선형)
-    return Math.round(40 + (franchiseRatio / FRANCHISE_OPTIMAL_MIN) * 60);
+    // 0% → 25점, 20% → 100점 (선형)
+    return Math.round(25 + (franchiseRatio / FRANCHISE_OPTIMAL_MIN) * 75);
   }
   // 40% → 100점, 80%+ → 0점 (선형)
   const excess = (franchiseRatio - FRANCHISE_OPTIMAL_MAX) / (0.8 - FRANCHISE_OPTIMAL_MAX);
@@ -237,7 +237,7 @@ export function analyzeCompetition(params: {
     ? franchiseCount / places.length
     : 0;
 
-  // 경쟁 강도 점수 (밀집도 90% + 프랜차이즈 U커브 10%, 비선형 ^2.0)
+  // 경쟁 강도 점수 (밀집도 75% + 프랜차이즈 U커브 25%)
   const competitionScore = calculateCompetitionScore(densityPerMeter, densityBaseline, franchiseRatio);
 
   return {
