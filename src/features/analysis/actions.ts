@@ -9,6 +9,7 @@ import { INDUSTRY_CODES } from "./constants/industry-codes";
 import type { AnalysisRequest } from "./schema";
 import type { AnalysisResult } from "./lib/analysis-orchestrator";
 import { analyzeSurvival } from "./lib/scoring";
+import { calcInfraBonus, type InfraBonusResult } from "./lib/scoring/infra-bonus";
 
 /**
  * 4대 지표 가중 합산으로 totalScore 계산
@@ -20,7 +21,10 @@ import { analyzeSurvival } from "./lib/scoring";
  *   - survival도 있으면: competition × 0.40 + population × 0.35 + survival × 0.25
  *   - survival도 없으면: competition × 0.55 + population × 0.45
  */
-function calcTotalScore(result: AnalysisResult): number {
+function calcTotalScore(
+  result: AnalysisResult,
+  industryName: string,
+): { total: number; infraBonus: InfraBonusResult } {
   const competition = result.competition.competitionScore.score;
   const vitality = result.vitality?.vitalityScore.score ?? null;
   const population = result.populationAnalysis?.score.score ?? null;
@@ -32,24 +36,34 @@ function calcTotalScore(result: AnalysisResult): number {
   const survival = survivalResult?.survivalScore.score ?? null;
 
   // 서울: 4대 지표 합산
+  let baseScore: number;
   if (vitality !== null && population !== null && survival !== null) {
-    return Math.round(
+    baseScore = Math.round(
       vitality * 0.35 + competition * 0.25 + population * 0.20 + survival * 0.20,
     );
+  } else if (population !== null && survival !== null) {
+    // 비서울: population 있고 survival도 있는 경우 (사실상 발생 안 하지만 방어적 처리)
+    baseScore = Math.round(competition * 0.40 + population * 0.35 + survival * 0.25);
+  } else if (population !== null) {
+    // 비서울: population은 있지만 survival 없음
+    baseScore = Math.round(competition * 0.55 + population * 0.45);
+  } else {
+    // fallback: competition만
+    baseScore = competition;
   }
 
-  // 비서울: population 있고 survival도 있는 경우 (사실상 발생 안 하지만 방어적 처리)
-  if (population !== null && survival !== null) {
-    return Math.round(competition * 0.40 + population * 0.35 + survival * 0.25);
-  }
+  const infraBonus = calcInfraBonus({
+    bus: result.bus ?? null,
+    school: result.school ?? null,
+    university: result.university ?? null,
+    medical: result.medical ?? null,
+    industryName,
+  });
 
-  // 비서울: population은 있지만 survival 없음
-  if (population !== null) {
-    return Math.round(competition * 0.55 + population * 0.45);
-  }
-
-  // fallback: competition만
-  return competition;
+  return {
+    total: Math.min(100, baseScore + infraBonus.score),
+    infraBonus,
+  };
 }
 
 function extractSearchKeywords(industryCode: string, industryName: string): string[] {
@@ -93,7 +107,7 @@ export async function startAnalysis(input: AnalysisRequest) {
       dongName: parsed.data.dongName,
     });
 
-    const totalScore = calcTotalScore(aggregated);
+    const { total: totalScore, infraBonus } = calcTotalScore(aggregated, parsed.data.industryName);
 
     await prisma.analysisRequest.update({
       where: { id: analysis.id },
@@ -112,6 +126,7 @@ export async function startAnalysis(input: AnalysisRequest) {
                 aggregated.vitality.details.openRate,
               )?.survivalScore ?? null
             : null,
+          infraBonus,
         })),
         reportData: JSON.parse(JSON.stringify(aggregated)),
       },
