@@ -656,29 +656,7 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
               </AccordionItem>
             )}
 
-            {/* C-01: 비서울 지역 — 활력도 데이터 없음 안내 */}
-            {!vitality && (
-              <AccordionItem value="vitality-unavailable">
-                <AccordionTrigger>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold flex items-center gap-1.5">
-                      상권 활력도
-                      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium bg-muted text-muted-foreground">
-                        서울 전용
-                      </span>
-                    </p>
-                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">
-                      서울 골목상권 데이터를 사용할 수 없습니다
-                    </p>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-[13px] text-muted-foreground py-2 break-keep">
-                    상권 활력도(매출·유동인구·상권변화지표)는 서울시 골목상권 데이터를 기반으로 하며, 서울 이외 지역에서는 제공되지 않습니다.
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-            )}
+            {/* 비서울 지역은 상권 활력도 섹션 자체를 숨김 */}
             {/* 상권 활력도 — 데이터 있을 때만 */}
             {vitalityHeader && vitalityInsights.length > 0 && (
               <AccordionItem value="vitality">

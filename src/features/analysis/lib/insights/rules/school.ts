@@ -39,33 +39,61 @@ export function calcSchoolGrade(school: SchoolAnalysis, isAcademy: boolean): { s
 }
 
 
-/** 학교 접근성 관련 인사이트 룰 — 팩트 표시만, 점수화 없음 */
+/** 학교 접근성 관련 인사이트 룰 */
 export function schoolRules(data: InsightData): InsightItem[] {
   const school = data.school;
   const industry = data.industryName;
-  if (!school) return [];
+  if (!school || school.totalCount === 0) return [];
 
   const isAcademy = industry.includes("학원");
-  const { grade } = calcSchoolGrade(school, isAcademy);
+  const items: InsightItem[] = [];
 
-  // 학교 이름 나열 (거리순, 최대 4곳)
-  const sorted = school.schools.slice(0, 4);
-  const nameList = sorted.map((s) => `${s.name} ${Math.round(s.distanceMeters)}m`).join(", ");
-  const factText =
-    school.totalCount > 4
-      ? `${nameList} 외 ${school.totalCount - 4}곳`
-      : nameList || `반경 내 학교 ${school.totalCount}곳`;
-
-  // 학원 외 업종은 팩트로만 표시 (학교 데이터는 학원과 직접 관련)
-  const category = isAcademy ? "scoring" : "fact";
-
-  return [
-    {
+  // 가장 가까운 학교 목록 (거리순, 최대 3곳)
+  const sorted = school.schools.slice(0, 3);
+  if (sorted.length > 0) {
+    const nameList = sorted.map((s) => `${s.name}(${Math.round(s.distanceMeters)}m)`).join(", ");
+    const moreText = school.totalCount > 3 ? ` 외 ${school.totalCount - 3}곳` : "";
+    items.push({
       type: "text",
       emoji: "🏫",
-      text: factText,
+      text: `${nameList}${moreText}`,
       sub: undefined,
-      category,
-    },
-  ];
+      category: "fact",
+    });
+  }
+
+  // 종류별 분포
+  const kinds: string[] = [];
+  if (school.elementaryCount > 0) kinds.push(`초등학교 ${school.elementaryCount}곳`);
+  if (school.middleCount > 0) kinds.push(`중학교 ${school.middleCount}곳`);
+  if (school.highCount > 0) kinds.push(`고등학교 ${school.highCount}곳`);
+  if (kinds.length > 0) {
+    items.push({
+      type: "text",
+      emoji: "📊",
+      text: kinds.join(" · "),
+      sub: undefined,
+      category: "fact",
+    });
+  }
+
+  // 학원 업종 시 수요 평가
+  if (isAcademy) {
+    const { grade } = calcSchoolGrade(school, true);
+    const comment =
+      grade === "A"
+        ? "학원 수요 유입에 유리한 환경입니다"
+        : grade === "B" || grade === "C"
+          ? "학원 수요를 어느 정도 기대할 수 있는 환경입니다"
+          : "반경 내 학교 수가 적어 학원 수요는 제한적일 수 있습니다";
+    items.push({
+      type: "text",
+      emoji: grade === "A" ? "✅" : grade === "B" || grade === "C" ? "🟡" : "⚠️",
+      text: comment,
+      sub: undefined,
+      category: "scoring",
+    });
+  }
+
+  return items;
 }

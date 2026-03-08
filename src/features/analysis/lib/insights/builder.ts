@@ -216,6 +216,20 @@ export function buildTransitHeader(data: InsightData): HeaderInfo | null {
     return { emoji: "🚌", text: "버스 접근성이 좋아요, 유동인구 수요를 기대할 수 있어요", sub: `반경 내 정류장 ${bus.stopCount}개` };
   }
 
+  // 지하철/버스 등급이 낮아도 데이터가 있으면 교통 현황 표시
+  if (subway || bus) {
+    const nearest = bus?.nearestStop;
+    const subwayNearest = subway?.nearestStation;
+    const sub = subwayNearest
+      ? `${subwayNearest.stationName}(${subwayNearest.lineName}) ${subwayNearest.distanceMeters}m`
+      : nearest
+        ? `${nearest.name} ${nearest.distanceMeters}m · ${nearest.routeCount}개 노선`
+        : bus
+          ? `반경 내 버스 정류장 ${bus.stopCount}개`
+          : "지하철역 정보";
+    return { emoji: "🚌", text: "교통 접근성 현황", sub };
+  }
+
   return null;
 }
 
@@ -245,19 +259,16 @@ export function buildSchoolHeader(data: InsightData): HeaderInfo | null {
   if (!school || school.totalCount === 0) return null;
 
   const isAcademy = data.industryName.includes("학원");
-  const { grade } = calcSchoolGrade(school, isAcademy);
-  // C 이하 등급은 헤더로 노출하지 않음 (마이너스 시그널)
-  if (grade === "D" || grade === "F") return null;
 
   const text = isAcademy
     ? "근처에 학교들을 찾았어요, 학원 수요를 기대할 수 있어요"
-    : "근처에 학교들을 찾았어요, 학생 수요를 기대할 수 있어요";
+    : "반경 내 학교 현황";
 
   const parts: string[] = [];
   if (school.elementaryCount > 0) parts.push(`초${school.elementaryCount}`);
   if (school.middleCount > 0) parts.push(`중${school.middleCount}`);
   if (school.highCount > 0) parts.push(`고${school.highCount}`);
-  const sub = parts.join(" · ");
+  const sub = parts.length > 0 ? parts.join(" · ") : `총 ${school.totalCount}곳`;
 
   return { emoji: "🏫", text, sub };
 }
