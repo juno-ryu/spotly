@@ -154,10 +154,10 @@ function calculateCompetitionScore(
   /** 업종 카테고리 — 의료/부동산은 프랜차이즈 U커브 적용 제외 */
   industryCategory?: string,
 ): CompetitionScore {
-  // 경쟁 업체가 없으면 경쟁 강도 최저 → 만점
+  // V-02: 경쟁 0개 → 중립 50점 (블루오션도 위험도 아닌 불확실 상태)
   if (densityPerMeter === 0) {
-    const { grade, gradeLabel } = scoreToGrade(100);
-    return { score: 100, grade, gradeLabel };
+    const { grade, gradeLabel } = scoreToGrade(50);
+    return { score: 50, grade, gradeLabel };
   }
 
   // 시그모이드 커브: ratio=1일 때 50점, ratio=2일 때 ~88점, ratio=0.5일 때 ~12점
@@ -249,7 +249,28 @@ export function analyzeCompetition(params: {
 
   // 경쟁 강도 점수 (밀집도 75% + 프랜차이즈 U커브 25%)
   // 의료/부동산 업종은 프랜차이즈 U커브 대신 50점 중립값 적용 (M-10)
-  const competitionScore = calculateCompetitionScore(densityPerMeter, densityBaseline, franchiseRatio, industry?.category);
+  let competitionScore = calculateCompetitionScore(densityPerMeter, densityBaseline, franchiseRatio, industry?.category);
+
+  // V-03: 소수 표본 보정 — totalCount < 5이면 50점(중립)으로 수렴
+  // totalCount=1 → score×0.2 + 50×0.8, totalCount=4 → score×0.8 + 50×0.2
+  if (totalCount > 0 && totalCount < 5) {
+    const confidence = totalCount / 5;
+    const adjustedScore = Math.round(
+      competitionScore.score * confidence + 50 * (1 - confidence)
+    );
+    const { grade, gradeLabel } = scoreToGrade(adjustedScore);
+    competitionScore = { score: adjustedScore, grade, gradeLabel };
+  }
+
+  // V-09: 프랜차이즈 0% 차별화 — 충분한 표본에서 프랜차이즈 없음 = 독립 상권
+  // totalCount >= 10이고 franchiseRatio=0이면 독립 상권으로 판단 → 45점
+  if (totalCount >= 10 && franchiseRatio === 0) {
+    const ratio = densityPerMeter / densityBaseline;
+    const densityScore = Math.round(100 / (1 + Math.exp(-4 * (ratio - 1))));
+    const adjustedScore = Math.round(densityScore * 0.75 + 45 * 0.25);
+    const { grade, gradeLabel } = scoreToGrade(adjustedScore);
+    competitionScore = { score: adjustedScore, grade, gradeLabel };
+  }
 
   return {
     densityPerMeter,

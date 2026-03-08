@@ -34,7 +34,8 @@ function calcCloseScore(closeRate: number): number {
  */
 function calcNetChangeScore(openRate: number, closeRate: number): number {
   const netChange = openRate - closeRate;
-  return normalize(netChange, -5, 10) * 100;
+  // V-08: 대칭 범위로 변경 — netChange=0(균형) → 50점(중립)
+  return normalize(netChange, -7.5, 7.5) * 100;
 }
 
 /**

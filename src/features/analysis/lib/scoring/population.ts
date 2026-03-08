@@ -36,8 +36,9 @@ export function analyzePopulation(data: PopulationMetrics): PopulationAnalysis {
   // 실제 전국 KOSIS 2024년 데이터 기반:
   //   읍면동 — 중앙값 10,469명 / 90%ile 31,863명 / 최대 116,836명
   //   시군구 — 중앙값 186,882명 / 90%ile 488,348명 / 최대 1,193,005명
+  // V-07: 읍면동 상한을 시군구 하한(50,000)과 일치시켜 경계값 불연속 해소
   const [min, max] = data.isDongLevel
-    ? [3_000, 40_000]
+    ? [3_000, 50_000]
     : [50_000, 600_000];
 
   const populationScore = Math.round(logNormalize(data.totalPopulation, min, max) * 100);

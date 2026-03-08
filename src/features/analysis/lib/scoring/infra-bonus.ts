@@ -14,25 +14,25 @@ import type { UniversityAnalysis } from "@/server/data-sources/university/adapte
 // H=0.30, M=0.15, L=0.05, X=0.00 (dev-guide.md H/M/L/X 기준)
 const INDUSTRY_WEIGHTS: Record<string, { bus: number; school: number; univ: number; med: number }> =
   {
-    음식점: { bus: 0.15, school: 0.05, univ: 0.30, med: 0.05 },
-    한식: { bus: 0.15, school: 0.05, univ: 0.30, med: 0.05 },
-    카페: { bus: 0.15, school: 0.15, univ: 0.30, med: 0.05 },
-    커피: { bus: 0.15, school: 0.15, univ: 0.30, med: 0.05 },
-    편의점: { bus: 0.05, school: 0.15, univ: 0.30, med: 0.05 },
-    학원: { bus: 0.05, school: 0.30, univ: 0.05, med: 0.00 },
-    미용: { bus: 0.05, school: 0.05, univ: 0.15, med: 0.05 },
-    의류: { bus: 0.15, school: 0.05, univ: 0.30, med: 0.05 },
-    부동산: { bus: 0.05, school: 0.15, univ: 0.05, med: 0.05 },
-    약국: { bus: 0.05, school: 0.05, univ: 0.05, med: 0.30 },
-    분식: { bus: 0.15, school: 0.05, univ: 0.30, med: 0.05 },
-    중식: { bus: 0.15, school: 0.05, univ: 0.30, med: 0.05 },
-    일식: { bus: 0.15, school: 0.05, univ: 0.30, med: 0.05 },
-    치킨: { bus: 0.15, school: 0.05, univ: 0.30, med: 0.05 },
-    병원: { bus: 0.05, school: 0.05, univ: 0.05, med: 0.30 },
-    의원: { bus: 0.05, school: 0.05, univ: 0.05, med: 0.30 },
+    음식점: { bus: 0.15, school: 0.05, univ: 0.30, med: 0.05 }, // 합 0.55
+    한식:   { bus: 0.15, school: 0.05, univ: 0.30, med: 0.05 }, // 합 0.55
+    카페:   { bus: 0.10, school: 0.10, univ: 0.30, med: 0.05 }, // 합 0.55
+    커피:   { bus: 0.10, school: 0.10, univ: 0.30, med: 0.05 }, // 합 0.55
+    편의점: { bus: 0.05, school: 0.15, univ: 0.30, med: 0.05 }, // 합 0.55
+    학원:   { bus: 0.10, school: 0.30, univ: 0.10, med: 0.05 }, // 합 0.55
+    미용:   { bus: 0.10, school: 0.10, univ: 0.25, med: 0.10 }, // 합 0.55
+    의류:   { bus: 0.15, school: 0.05, univ: 0.30, med: 0.05 }, // 합 0.55
+    부동산: { bus: 0.10, school: 0.15, univ: 0.10, med: 0.20 }, // 합 0.55
+    약국:   { bus: 0.05, school: 0.05, univ: 0.10, med: 0.35 }, // 합 0.55
+    분식:   { bus: 0.15, school: 0.05, univ: 0.30, med: 0.05 }, // 합 0.55
+    중식:   { bus: 0.15, school: 0.05, univ: 0.30, med: 0.05 }, // 합 0.55
+    일식:   { bus: 0.15, school: 0.05, univ: 0.30, med: 0.05 }, // 합 0.55
+    치킨:   { bus: 0.15, school: 0.05, univ: 0.30, med: 0.05 }, // 합 0.55
+    병원:   { bus: 0.05, school: 0.05, univ: 0.10, med: 0.35 }, // 합 0.55
+    의원:   { bus: 0.05, school: 0.05, univ: 0.10, med: 0.35 }, // 합 0.55
   };
 
-const DEFAULT_WEIGHTS = { bus: 0.10, school: 0.10, univ: 0.15, med: 0.05 };
+const DEFAULT_WEIGHTS = { bus: 0.15, school: 0.10, univ: 0.20, med: 0.10 } // 합 0.55;
 
 const MAX_BONUS = 15; // 최대 가산점
 
@@ -47,10 +47,10 @@ function getIndustryWeights(industryName: string) {
 export interface InfraBonusResult {
   score: number; // 0~15
   breakdown: {
-    bus: number;
-    school: number;
-    university: number;
-    medical: number;
+    bus: number | null;
+    school: number | null;
+    university: number | null;
+    medical: number | null;
   };
 }
 
@@ -64,22 +64,33 @@ export function calcInfraBonus(params: {
   const weights = getIndustryWeights(params.industryName);
   const isAcademy = params.industryName.includes("학원");
 
-  const busScore = params.bus ? calcBusGrade(params.bus).score : 0;
-  const schoolScore = params.school ? calcSchoolGrade(params.school, isAcademy).score : 0;
-  const univScore = params.university ? calcUniversityGrade(params.university).score : 0;
-  const medScore = params.medical ? calcMedicalGrade(params.medical).score : 0;
+  // V-06: null인 인프라는 가중치 계산에서 제외 (API 실패 ≠ 인프라 부재)
+  const items: { score: number; weight: number; key: string }[] = [];
 
-  const weightedSum =
-    busScore * weights.bus +
-    schoolScore * weights.school +
-    univScore * weights.univ +
-    medScore * weights.med;
+  if (params.bus) items.push({ score: calcBusGrade(params.bus).score, weight: weights.bus, key: "bus" });
+  if (params.school) items.push({ score: calcSchoolGrade(params.school, isAcademy).score, weight: weights.school, key: "school" });
+  if (params.university) items.push({ score: calcUniversityGrade(params.university).score, weight: weights.univ, key: "univ" });
+  if (params.medical) items.push({ score: calcMedicalGrade(params.medical).score, weight: weights.med, key: "med" });
 
-  const totalWeight = weights.bus + weights.school + weights.univ + weights.med;
+  // 모든 인프라가 null이면 score: 0 반환
+  if (items.length === 0) {
+    return {
+      score: 0,
+      breakdown: { bus: null, school: null, university: null, medical: null },
+    };
+  }
+
+  const totalWeight = items.reduce((sum, i) => sum + i.weight, 0);
+  const weightedSum = items.reduce((sum, i) => sum + i.score * i.weight, 0);
   const normalizedScore = totalWeight > 0 ? weightedSum / totalWeight : 0;
 
   return {
     score: Math.round((normalizedScore * MAX_BONUS) / 100),
-    breakdown: { bus: busScore, school: schoolScore, university: univScore, medical: medScore },
+    breakdown: {
+      bus: params.bus ? (items.find(i => i.key === "bus")?.score ?? null) : null,
+      school: params.school ? (items.find(i => i.key === "school")?.score ?? null) : null,
+      university: params.university ? (items.find(i => i.key === "univ")?.score ?? null) : null,
+      medical: params.medical ? (items.find(i => i.key === "med")?.score ?? null) : null,
+    },
   };
 }

@@ -91,7 +91,7 @@ function calcChangeScore(changeIndex: string | null): number {
     LH: 85, // 확장기 — 신규 진입 활발, 시장 성장 중
     HL: 55, // 안정/성숙기 — 기존 사업체 안정적 유지
     HH: 30, // 포화 — 기존 업체 견고하나 신규 기회 제한
-    LL: 25, // 불안정 — 사업체 회전 빠르고 수요 기반 불확실
+    LL: 30, // 다이나믹 — 회전 빠르지만 신규 기회도 존재, HH와 동급 (V-11)
   };
 
   return CHANGE_SCORES[changeIndex] ?? 50;

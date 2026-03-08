@@ -10,6 +10,7 @@ import type { AnalysisRequest } from "./schema";
 import type { AnalysisResult } from "./lib/analysis-orchestrator";
 import { analyzeSurvival } from "./lib/scoring";
 import { calcInfraBonus, type InfraBonusResult } from "./lib/scoring/infra-bonus";
+import type { SurvivalAnalysis } from "./lib/scoring/survival";
 
 /**
  * 4대 지표 가중 합산으로 totalScore 계산
@@ -24,34 +25,19 @@ import { calcInfraBonus, type InfraBonusResult } from "./lib/scoring/infra-bonus
 function calcTotalScore(
   result: AnalysisResult,
   industryName: string,
-): { total: number; infraBonus: InfraBonusResult } {
+): { total: number; infraBonus: InfraBonusResult; survivalResult: SurvivalAnalysis | null } {
   const competition = result.competition.competitionScore.score;
   const vitality = result.vitality?.vitalityScore.score ?? null;
   const population = result.populationAnalysis?.score.score ?? null;
 
-  // 생존율: vitality.details에서 closeRate/openRate 추출 (서울 골목상권 전용)
+  // 서울 판단: vitality(골목상권 API) 데이터 존재 = 서울 체계
+  // 하남·과천 등 경기 접경 지역은 골목상권 데이터 없음 → 자동으로 비서울 체계 (V-04)
   const survivalResult = result.vitality
     ? analyzeSurvival(result.vitality.details.closeRate, result.vitality.details.openRate)
     : null;
   const survival = survivalResult?.survivalScore.score ?? null;
 
-  // 서울: 4대 지표 합산
-  let baseScore: number;
-  if (vitality !== null && population !== null && survival !== null) {
-    baseScore = Math.round(
-      vitality * 0.35 + competition * 0.25 + population * 0.20 + survival * 0.20,
-    );
-  } else if (population !== null && survival !== null) {
-    // 비서울: population 있고 survival도 있는 경우 (사실상 발생 안 하지만 방어적 처리)
-    baseScore = Math.round(competition * 0.40 + population * 0.35 + survival * 0.25);
-  } else if (population !== null) {
-    // 비서울: population은 있지만 survival 없음
-    baseScore = Math.round(competition * 0.55 + population * 0.45);
-  } else {
-    // fallback: competition만
-    baseScore = competition;
-  }
-
+  // infraBonus를 먼저 계산 (비서울 체계에서 baseScore에 편입, V-01)
   const infraBonus = calcInfraBonus({
     bus: result.bus ?? null,
     school: result.school ?? null,
@@ -60,9 +46,36 @@ function calcTotalScore(
     industryName,
   });
 
+  let baseScore: number;
+  if (vitality !== null && population !== null && survival !== null) {
+    // 서울: 4대 지표 (infraBonus는 별도 보너스로 가산)
+    baseScore = Math.round(
+      vitality * 0.35 + competition * 0.25 + population * 0.20 + survival * 0.20,
+    );
+  } else if (population !== null && survival !== null) {
+    // 비서울: population 있고 survival도 있는 경우 (방어적 처리)
+    baseScore = Math.round(competition * 0.40 + population * 0.35 + survival * 0.25);
+  } else if (population !== null) {
+    // V-01: 비서울 3지표 — infra 접근성을 정규화하여 편입
+    // competition 40% + population 35% + infraAccess 25%
+    // infraAccess: MAX_BONUS(15점) 기준 0~100 정규화
+    const infraAccess = Math.round((infraBonus.score / 15) * 100);
+    baseScore = Math.round(
+      competition * 0.40 + population * 0.35 + infraAccess * 0.25
+    );
+  } else {
+    // fallback: competition만
+    baseScore = competition;
+  }
+
+  // 비서울(infraAccess 편입)에서는 infraBonus 이중 반영 방지
+  const isNonSeoulInfraIntegrated = vitality === null && survival === null && population !== null;
   return {
-    total: Math.min(100, baseScore + infraBonus.score),
+    total: isNonSeoulInfraIntegrated
+      ? Math.min(100, baseScore)
+      : Math.min(100, baseScore + infraBonus.score),
     infraBonus,
+    survivalResult, // V-10: 이중 호출 제거를 위해 반환
   };
 }
 
@@ -107,7 +120,7 @@ export async function startAnalysis(input: AnalysisRequest) {
       dongName: parsed.data.dongName,
     });
 
-    const { total: totalScore, infraBonus } = calcTotalScore(aggregated, parsed.data.industryName);
+    const { total: totalScore, infraBonus, survivalResult } = calcTotalScore(aggregated, parsed.data.industryName);
 
     await prisma.analysisRequest.update({
       where: { id: analysis.id },
@@ -119,13 +132,8 @@ export async function startAnalysis(input: AnalysisRequest) {
           competition: aggregated.competition.competitionScore,
           vitality: aggregated.vitality?.vitalityScore ?? null,
           population: aggregated.populationAnalysis?.score ?? null,
-          // survival은 vitality.details에서 추출 (서울 전용, 비서울은 null)
-          survival: aggregated.vitality
-            ? analyzeSurvival(
-                aggregated.vitality.details.closeRate,
-                aggregated.vitality.details.openRate,
-              )?.survivalScore ?? null
-            : null,
+          // V-10: survivalResult 재사용 (calcTotalScore에서 이미 계산된 값)
+          survival: survivalResult?.survivalScore ?? null,
           infraBonus,
         })),
         reportData: JSON.parse(JSON.stringify(aggregated)),
