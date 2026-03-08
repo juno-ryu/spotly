@@ -35,6 +35,11 @@ const envSchema = z.object({
   SEOUL_OPEN_API_KEY: z.string().optional(),
   /** 통계청 KOSIS API 키 (선택) */
   KOSIS_API_KEY: z.string().optional(),
+
+  /** Supabase 프로젝트 URL */
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
+  /** Supabase anon public 키 */
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
 });
 
 export const env = envSchema.parse({
@@ -49,6 +54,8 @@ export const env = envSchema.parse({
   ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
   SEOUL_OPEN_API_KEY: process.env.SEOUL_OPEN_API_KEY,
   KOSIS_API_KEY: process.env.KOSIS_API_KEY,
+  NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
 });
 
 /** 외부 API 키 존재 여부 헬퍼 */

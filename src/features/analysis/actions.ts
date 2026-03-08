@@ -5,6 +5,7 @@ import { prisma } from "@/server/db/prisma";
 import { analysisRequestSchema } from "./schema";
 import { runAnalysis } from "./lib/analysis-orchestrator";
 import * as kakaoGeocoding from "@/server/data-sources/kakao/client";
+import { createSupabaseServer } from "@/server/supabase/server";
 import { INDUSTRY_CODES } from "./constants/industry-codes";
 import type { AnalysisRequest } from "./schema";
 import type { AnalysisResult } from "./lib/analysis-orchestrator";
@@ -91,6 +92,10 @@ export async function startAnalysis(input: AnalysisRequest) {
   const parsed = analysisRequestSchema.safeParse(input);
   if (!parsed.success) throw new Error("입력값이 올바르지 않습니다");
 
+  // 현재 로그인 유저 조회 (비로그인이면 null)
+  const supabase = await createSupabaseServer();
+  const { data: { user } } = await supabase.auth.getUser();
+
   const analysis = await prisma.analysisRequest.create({
     data: {
       address: parsed.data.address,
@@ -100,6 +105,7 @@ export async function startAnalysis(input: AnalysisRequest) {
       industryName: parsed.data.industryName,
       radius: parsed.data.radius,
       status: "PROCESSING",
+      userId: user?.id ?? null,
     },
   });
 

@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { prisma } from "@/server/db/prisma";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/back-button";
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import { getScoreLevel, SCORE_LEVEL_LABEL } from "@/constants/enums/score-level";
 import { formatRadius } from "@/lib/format";
+import { createSupabaseServer } from "@/server/supabase/server";
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING: "대기중",
@@ -30,7 +32,14 @@ const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "
 };
 
 export default async function HistoryPage() {
+  const supabase = await createSupabaseServer();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // 비로그인 → 홈으로
+  if (!user) redirect("/");
+
   const analyses = await prisma.analysisRequest.findMany({
+    where: { userId: user.id },
     orderBy: { createdAt: "desc" },
     take: 50,
   });

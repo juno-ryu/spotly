@@ -34,9 +34,13 @@ model AnalysisRequest {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
+  /// Supabase Auth 사용자 ID (비로그인 시 null)
+  userId        String?
+
   @@index([latitude, longitude])
   @@index([industryCode])
   @@index([createdAt(sort: Desc)])
+  @@index([userId])
 }
 
 /// 전국 초중고 학교 위치 정보 (정적 데이터, CSV seed)
