@@ -216,17 +216,18 @@ export function buildTransitHeader(data: InsightData): HeaderInfo | null {
     return { emoji: "🚌", text: "버스 접근성이 좋아요, 유동인구 수요를 기대할 수 있어요", sub: `반경 내 정류장 ${bus.stopCount}개` };
   }
 
-  // 지하철/버스 등급이 낮아도 데이터가 있으면 교통 현황 표시
-  if (subway || bus) {
+  // 지하철/버스 등급이 낮아도 실제 데이터가 있으면 교통 현황 표시
+  const hasSubwayData = subway && (subway.nearestStation || subway.stationsInRadius.length > 0);
+  const hasBusData = bus && bus.stopCount > 0;
+
+  if (hasSubwayData || hasBusData) {
     const nearest = bus?.nearestStop;
     const subwayNearest = subway?.nearestStation;
     const sub = subwayNearest
       ? `${subwayNearest.stationName}(${subwayNearest.lineName}) ${subwayNearest.distanceMeters}m`
       : nearest
         ? `${nearest.name} ${nearest.distanceMeters}m · ${nearest.routeCount}개 노선`
-        : bus
-          ? `반경 내 버스 정류장 ${bus.stopCount}개`
-          : "지하철역 정보";
+        : `반경 내 버스 정류장 ${bus!.stopCount}개`;
     return { emoji: "🚌", text: "교통 접근성 현황", sub };
   }
 
@@ -262,7 +263,7 @@ export function buildSchoolHeader(data: InsightData): HeaderInfo | null {
 
   const text = isAcademy
     ? "근처에 학교들을 찾았어요, 학원 수요를 기대할 수 있어요"
-    : "반경 내 학교 현황";
+    : "근처에 학교들을 찾았어요, 학생 수요를 기대할 수 있어요";
 
   const parts: string[] = [];
   if (school.elementaryCount > 0) parts.push(`초${school.elementaryCount}`);
