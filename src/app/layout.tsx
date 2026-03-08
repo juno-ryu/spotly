@@ -12,6 +12,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: SITE_CONFIG.name,
   description: SITE_CONFIG.description,
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
