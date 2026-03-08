@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-03-08T07:14:52.110Z",
+  "lastUpdated": "2026-03-08T07:26:17.495Z",
   "activeFeatures": [
     "scripts",
     "school",
@@ -12,7 +12,8 @@
     "callback",
     "auth",
     "history",
-    "(main)"
+    "(main)",
+    "onboarding"
   ],
   "primaryFeature": "scripts",
   "features": {
@@ -90,9 +91,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-08T07:07:06.886Z",
-        "lastUpdated": "2026-03-08T07:14:52.110Z"
+        "lastUpdated": "2026-03-08T07:24:16.320Z"
       },
-      "lastFile": "/Users/juno/work/my/src/middleware.ts"
+      "lastFile": "/Users/juno/work/my/src/lib/env.ts"
     },
     "supabase": {
       "phase": "do",
@@ -116,7 +117,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-08T07:08:15.004Z",
-        "lastUpdated": "2026-03-08T07:08:15.004Z"
+        "lastUpdated": "2026-03-08T07:26:17.495Z"
       },
       "lastFile": "/Users/juno/work/my/src/app/auth/callback/route.ts"
     },
@@ -129,9 +130,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-08T07:08:22.719Z",
-        "lastUpdated": "2026-03-08T07:08:49.492Z"
+        "lastUpdated": "2026-03-08T07:26:11.039Z"
       },
-      "lastFile": "/Users/juno/work/my/src/features/auth/components/user-menu.tsx"
+      "lastFile": "/Users/juno/work/my/src/features/auth/actions.ts"
     },
     "history": {
       "phase": "do",
@@ -155,9 +156,22 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-08T07:10:01.736Z",
-        "lastUpdated": "2026-03-08T07:10:01.736Z"
+        "lastUpdated": "2026-03-08T07:23:58.316Z"
       },
       "lastFile": "/Users/juno/work/my/src/app/(main)/layout.tsx"
+    },
+    "onboarding": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-08T07:23:03.361Z",
+        "lastUpdated": "2026-03-08T07:23:39.153Z"
+      },
+      "lastFile": "/Users/juno/work/my/src/features/onboarding/components/welcome-page-client.tsx"
     }
   },
   "pipeline": {
@@ -168,7 +182,7 @@
   "session": {
     "startedAt": "2026-02-25T07:13:05.276Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-03-08T07:14:52.110Z"
+    "lastActivity": "2026-03-08T07:26:17.495Z"
   },
   "history": [
     {
@@ -354,6 +368,78 @@
     {
       "timestamp": "2026-03-08T07:14:52.110Z",
       "feature": "my",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T07:22:52.306Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T07:23:03.361Z",
+      "feature": "onboarding",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T07:23:12.346Z",
+      "feature": "onboarding",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T07:23:17.475Z",
+      "feature": "onboarding",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T07:23:23.788Z",
+      "feature": "onboarding",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T07:23:31.482Z",
+      "feature": "(main)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T07:23:39.153Z",
+      "feature": "onboarding",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T07:23:51.247Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T07:23:58.316Z",
+      "feature": "(main)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T07:24:16.320Z",
+      "feature": "my",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T07:26:11.039Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T07:26:17.495Z",
+      "feature": "callback",
       "phase": "do",
       "action": "updated"
     }

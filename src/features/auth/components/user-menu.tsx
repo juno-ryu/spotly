@@ -1,32 +1,57 @@
-import { createSupabaseServer } from "@/server/supabase/server";
+"use client";
+
+import { useRouter } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { signOut } from "../actions";
+import { History, LogOut } from "lucide-react";
 
-/** 로그인 상태 표시 + 로그아웃 (Server Component) */
-export async function UserMenu() {
-  const supabase = await createSupabaseServer();
-  const { data: { user } } = await supabase.auth.getUser();
+interface UserMenuProps {
+  email: string;
+  avatarUrl?: string;
+  name?: string;
+}
 
-  if (!user) return null;
-
-  const email = user.email ?? "";
-  const avatarUrl = user.user_metadata?.avatar_url as string | undefined;
-  const name = user.user_metadata?.full_name as string | undefined;
+export function UserMenu({ email, avatarUrl, name }: UserMenuProps) {
+  const router = useRouter();
+  const initial = (name?.[0] ?? email[0] ?? "?").toUpperCase();
 
   return (
-    <div className="flex items-center gap-3">
-      {avatarUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={avatarUrl} alt={name ?? email} className="w-7 h-7 rounded-full" />
-      ) : (
-        <div className="w-7 h-7 rounded-full bg-violet-100 flex items-center justify-center text-xs font-medium text-violet-700">
-          {email[0]?.toUpperCase()}
-        </div>
-      )}
-      <form action={signOut}>
-        <button type="submit" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-          로그아웃
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">
+          <Avatar>
+            <AvatarImage src={avatarUrl} alt={name ?? email} />
+            <AvatarFallback className="bg-violet-100 text-violet-700 font-semibold">
+              {initial}
+            </AvatarFallback>
+          </Avatar>
         </button>
-      </form>
-    </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <div className="px-3 py-2">
+          <p className="text-xs text-muted-foreground truncate">{email}</p>
+        </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => router.push("/history")}>
+          <History className="mr-2 h-4 w-4" />
+          분석 내역
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={() => signOut()}
+          className="text-destructive focus:text-destructive"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          로그아웃
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

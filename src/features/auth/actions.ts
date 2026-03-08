@@ -7,7 +7,9 @@ import { createSupabaseServer } from "@/server/supabase/server";
 /** Google OAuth 로그인 시작 */
 export async function signInWithGoogle() {
   const headersList = await headers();
-  const origin = headersList.get("origin") ?? "http://localhost:3000";
+  const host = headersList.get("host") ?? "localhost:3000";
+  const protocol = host.startsWith("localhost") ? "http" : "https";
+  const origin = `${protocol}://${host}`;
 
   const supabase = await createSupabaseServer();
   const { data, error } = await supabase.auth.signInWithOAuth({

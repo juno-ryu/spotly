@@ -1,19 +1,13 @@
-"use client";
+import { redirect } from "next/navigation";
+import { createSupabaseServer } from "@/server/supabase/server";
+import { WelcomePageClient } from "@/features/onboarding/components/welcome-page-client";
 
-import { useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { WelcomeScreen } from "@/features/onboarding/components/welcome-screen";
-import { useWizardStore } from "@/features/analysis/stores/wizard-store";
+/** 웰컴 페이지 — 로그인 상태면 /industry로 바로 이동 */
+export default async function HomePage() {
+  const supabase = await createSupabaseServer();
+  const { data: { user } } = await supabase.auth.getUser();
 
-/** Step 1: 환영 화면 */
-export default function HomePage() {
-  const router = useRouter();
-  const reset = useWizardStore((s) => s.reset);
+  if (user) redirect("/industry");
 
-  const handleNext = useCallback(() => {
-    reset();
-    router.push("/industry");
-  }, [reset, router]);
-
-  return <WelcomeScreen onNext={handleNext} />;
+  return <WelcomePageClient isLoggedIn={false} />;
 }
