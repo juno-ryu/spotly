@@ -48,25 +48,32 @@ export function medicalRules(data: InsightData): InsightItem[] {
 
   const { grade } = calcMedicalGrade(medical);
   const isPharmacy = industry.includes("약국");
-  const { emoji, text } = isPharmacy
-    ? MEDICAL_GRADE_TEXT_PHARMACY[grade]
-    : MEDICAL_GRADE_TEXT_GENERAL[grade];
 
   const { count, hospitals, searchRadius } = medical;
-  const hospitalNames =
-    count <= 2
-      ? hospitals.map((h) => h.name).join(", ")
-      : `${hospitals.slice(0, 2).map((h) => h.name).join(", ")} 외 ${count - 2}곳`;
 
-  const sub = count >= 5 ? `반경 ${searchRadius}m · 병의원 ${count}곳` : hospitalNames;
+  // 팩트 수치: 병원명 + 거리 나열 또는 반경 Xm · N곳
+  const factText =
+    count >= 5
+      ? `반경 ${searchRadius}m · ${count}곳`
+      : count <= 2
+        ? hospitals.map((h) => `${h.name} ${h.distanceMeters}m`).join(", ")
+        : `${hospitals.slice(0, 2).map((h) => `${h.name} ${h.distanceMeters}m`).join(", ")} 외 ${count - 2}곳`;
+
+  const emoji = isPharmacy
+    ? MEDICAL_GRADE_TEXT_PHARMACY[grade].emoji
+    : MEDICAL_GRADE_TEXT_GENERAL[grade].emoji;
+
+  // 약국·편의점만 병의원 밀집이 매출에 직접 영향 → scoring, 나머지는 참고 팩트만
+  const isRelevant = isPharmacy || industry.includes("편의점");
+  const category = isRelevant ? "scoring" : "fact";
 
   return [
     {
       type: "text",
       emoji,
-      text,
-      sub,
-      category: "scoring",
+      text: factText,
+      sub: undefined,
+      category,
     },
   ];
 }

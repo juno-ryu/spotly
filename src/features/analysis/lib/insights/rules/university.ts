@@ -50,6 +50,16 @@ export function universityRules(data: InsightData): InsightItem[] {
 
   if (!university || !university.hasUniversity) return [];
 
+  // 부동산·의료·학원은 대학 인근 여부가 매출에 거의 영향 없음 → 섹션 숨김
+  const isIrrelevant =
+    industry.includes("부동산") ||
+    industry.includes("병원") ||
+    industry.includes("의원") ||
+    industry.includes("치과") ||
+    industry.includes("한의") ||
+    industry.includes("학원");
+  if (isIrrelevant) return [];
+
   const { grade } = calcUniversityGrade(university);
 
   /** 대학가 수혜 업종 — 방학 리스크가 매출에 직접 영향을 주는 업종 */
@@ -64,22 +74,29 @@ export function universityRules(data: InsightData): InsightItem[] {
     industry.includes("의류") ||
     industry.includes("편의점");
 
-  const { emoji, text } = isBeneficiary
-    ? UNIV_GRADE_TEXT_BENEFICIARY[grade]
-    : UNIV_GRADE_TEXT_GENERAL[grade];
-
   const { count, universities } = university;
+  const nearest = universities[0];
+  const distanceM = Math.round(nearest.distanceMeters);
+
+  // 팩트 수치: 대학명 등 N곳 · 가장 가까운 곳 Xm
   const nameList =
     count <= 3
       ? universities.map((u) => u.name).join(", ")
       : `${universities.slice(0, 3).map((u) => u.name).join(", ")} 외 ${count - 3}곳`;
 
+  const factText = count === 1 ? `${nearest.name} ${distanceM}m` : `${nameList} 등 ${count}곳`;
+  const factSub = count > 1 ? `가장 가까운 곳 ${distanceM}m` : undefined;
+
+  const emoji = isBeneficiary
+    ? UNIV_GRADE_TEXT_BENEFICIARY[grade].emoji
+    : UNIV_GRADE_TEXT_GENERAL[grade].emoji;
+
   const items: InsightItem[] = [
     {
       type: "text",
       emoji,
-      text,
-      sub: `${nameList} 등 ${count}곳`,
+      text: factText,
+      sub: factSub,
       category: "scoring",
     },
   ];
@@ -90,8 +107,8 @@ export function universityRules(data: InsightData): InsightItem[] {
     items.push({
       type: "text",
       emoji: "⚠️",
-      text: "방학 기간엔 매출이 줄 수 있어요",
-      sub: "여름(7~8월)·겨울(1~2월) 방학 시 매출 30~50% 감소 가능",
+      text: "방학(7~8월·1~2월) 매출 30~50% 감소 가능",
+      sub: "대학생 비율 높은 업종은 방학 기간 수요 급감",
       category: "fact",
     });
   }

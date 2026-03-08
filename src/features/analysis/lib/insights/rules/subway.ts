@@ -28,39 +28,37 @@ export function calcSubwayGrade(subway: SubwayAnalysis): { score: number; grade:
   return { score, ...scoreToGrade(score) };
 }
 
-/** 지하철 등급별 해석 텍스트 */
-export const SUBWAY_GRADE_TEXT: Record<Grade, { emoji: string; text: string }> = {
-  A: { emoji: "🚇", text: "지하철 접근성이 매우 뛰어나요" },
-  B: { emoji: "🚇", text: "지하철로 편하게 접근할 수 있어요" },
-  C: { emoji: "🚉", text: "지하철 이용이 가능한 거리예요" },
-  D: { emoji: "🚶", text: "지하철역이 다소 먼 편이에요" },
-  F: { emoji: "🚶", text: "지하철 접근이 어려운 입지예요" },
-};
 
 /** 역세권 관련 인사이트 규칙 */
 export function subwayRules(data: InsightData): InsightItem[] {
   const subway = data.subway;
   if (!subway) return [];
 
-  const { score, grade } = calcSubwayGrade(subway);
-  const { emoji, text } = SUBWAY_GRADE_TEXT[grade];
+  const { grade } = calcSubwayGrade(subway);
   const items: InsightItem[] = [];
 
-  // 등급 기반 스코어링 인사이트 (역 없음 = F등급이므로 항상 출력)
   const nearest = subway.nearestStation;
-  const sub = nearest
-    ? `${nearest.stationName}(${nearest.lineName}) ${nearest.distanceMeters}m · 일평균 ${(nearest.dailyAvgTotal / 10000).toFixed(1)}만명`
-    : subway.stationsInRadius[0]
-      ? `${subway.stationsInRadius[0].name} ${subway.stationsInRadius[0].distance}m`
-      : "반경 내 지하철역 없음";
+  const stationCount = subway.stationsInRadius.length;
 
-  items.push({
-    type: "text",
-    emoji,
-    text,
-    sub,
-    category: "scoring",
-  });
+  // 팩트 수치: 역명(호선) 거리 · 일평균 이용객
+  const emoji = grade === "A" || grade === "B" ? "🚇" : "🗺️";
+  if (nearest) {
+    items.push({
+      type: "text",
+      emoji,
+      text: `${nearest.stationName}(${nearest.lineName}) ${nearest.distanceMeters}m · 일평균 ${(nearest.dailyAvgTotal / 10000).toFixed(1)}만명`,
+      sub: stationCount > 1 ? `반경 내 지하철역 ${stationCount}개` : undefined,
+      category: "scoring",
+    });
+  } else {
+    items.push({
+      type: "text",
+      emoji,
+      text: `반경 내 지하철역 ${stationCount}개`,
+      sub: undefined,
+      category: "scoring",
+    });
+  }
 
   return items;
 }

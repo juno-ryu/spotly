@@ -29,17 +29,17 @@ export const populationRules: InsightRule = (data) => {
   const { floatingPopulation, closeRate } = d;
   const industry = data.industryName;
 
-  // 1. 매출 규모 — salesScore → 등급
+  // 1. 매출 규모 — 수치를 text로, 맥락을 sub로 (헤더가 팩트 표시하지 않는 경우)
   if (d.storeCount > 0 && d.salesPerStore > 0) {
     const { grade } = scoreToGrade(vitality.salesScore);
     const monthlyPerStore = Math.round(d.salesPerStore / 3 / 10000);
-    const { emoji, text } = SALES_GRADE_TEXT[grade];
+    const { emoji } = SALES_GRADE_TEXT[grade];
 
     insights.push({
       type: "text",
       emoji,
-      text,
-      sub: `점포당 월 평균 ${monthlyPerStore.toLocaleString()}만원 · 피크: ${d.peakTimeSlot} · 주 소비층: ${d.mainAgeGroup}`,
+      text: `점포당 월 평균 ${monthlyPerStore.toLocaleString()}만원`,
+      sub: `피크: ${d.peakTimeSlot} · 주 소비층: ${d.mainAgeGroup}`,
       category: "scoring",
     });
 
@@ -54,63 +54,48 @@ export const populationRules: InsightRule = (data) => {
       insights.push({
         type: "text",
         emoji: "ℹ️",
-        text: "매출 수치가 실제보다 낮을 수 있어요",
-        sub: "서울 골목상권 통계는 카드 결제 매출 기반입니다. 현금 거래 비율이 높은 업종(한식·분식 등)은 실제 매출이 표시된 수치보다 높을 수 있어요",
+        text: "카드 결제 매출 기반 통계",
+        sub: "현금 거래 비율이 높은 업종(한식·분식 등)은 실제 매출이 더 높을 수 있어요",
         category: "fact",
       });
     }
   }
 
-  // 2. 유동인구 규모 — footTrafficScore → 등급
+  // 2. 유동인구 규모 — 수치를 text로, 맥락을 sub로
   if (floatingPopulation) {
     const { grade } = scoreToGrade(vitality.footTrafficScore);
     const total = floatingPopulation.totalFloating;
-    const { emoji, text } = FOOT_TRAFFIC_GRADE_TEXT[grade];
+    const { emoji } = FOOT_TRAFFIC_GRADE_TEXT[grade];
 
     insights.push({
       type: "text",
       emoji,
-      text,
-      sub: `분기 ${(total / 10_000).toFixed(0)}만명 · 피크: ${floatingPopulation.peakDay} ${floatingPopulation.peakTimeSlot} · 주 연령대: ${floatingPopulation.mainAgeGroup}`,
+      text: `분기 유동인구 ${(total / 10_000).toFixed(0)}만명`,
+      sub: `피크: ${floatingPopulation.peakDay} ${floatingPopulation.peakTimeSlot} · 주 연령대: ${floatingPopulation.mainAgeGroup}`,
       category: "scoring",
     });
   } else if (d.subway && vitality.footTrafficScore > 0) {
     // 골목상권 유동인구 데이터 없음 — 지하철 승하차 기반 대체 점수 사용 중
     // 사용자가 점수의 근거를 투명하게 알 수 있도록 팩트 메시지 표시
     const { grade } = scoreToGrade(vitality.footTrafficScore);
-    const { emoji, text } = FOOT_TRAFFIC_GRADE_TEXT[grade];
+    const { emoji } = FOOT_TRAFFIC_GRADE_TEXT[grade];
 
     insights.push({
       type: "text",
       emoji,
-      text,
-      sub: `${d.subway.stationName}역 일평균 승하차 ${(d.subway.dailyAvgTotal / 10_000).toFixed(1)}만명 기반 · 골목상권 유동인구 데이터 없음`,
+      text: `${d.subway.stationName}역 일평균 ${(d.subway.dailyAvgTotal / 10_000).toFixed(1)}만명 이용`,
+      sub: `지하철 승하차 기반 추정 (골목상권 유동인구 데이터 미수집)`,
       category: "scoring",
-    });
-    insights.push({
-      type: "text",
-      emoji: "ℹ️",
-      text: "유동인구 데이터를 지하철 승하차로 대체했어요",
-      sub: "서울 외 지역이거나 상권코드 미매칭으로 골목상권 데이터가 없습니다. 지하철 승하차 수를 유동인구 대리 지표로 사용했어요",
-      category: "fact",
     });
   }
 
   // 3. 폐업률 (스코어링 미반영, 참고 정보)
-  if (closeRate > 5) {
+  if (closeRate > 0) {
     insights.push({
       type: "text",
-      emoji: "⚠️",
-      text: "폐업률이 다소 높은 편이에요",
-      sub: `분기 폐업률 ${closeRate.toFixed(1)}%`,
-      category: "fact",
-    });
-  } else if (closeRate > 0) {
-    insights.push({
-      type: "text",
-      emoji: "📊",
-      text: "폐업률이 안정적인 수준이에요",
-      sub: `분기 폐업률 ${closeRate.toFixed(1)}%`,
+      emoji: closeRate > 5 ? "⚠️" : "📊",
+      text: `분기 폐업률 ${closeRate.toFixed(1)}%`,
+      sub: closeRate > 5 ? "일반 상권 평균(3~5%) 대비 높은 수준" : "일반 상권 평균 범위(3~5%) 이내",
       category: "fact",
     });
   }
@@ -132,8 +117,8 @@ export const populationRules: InsightRule = (data) => {
       insights.push({
         type: "text",
         emoji: "ℹ️",
-        text: "상권변화지표 해석 주의",
-        sub: `HH(${d.changeIndexName}) 상권은 일반적으로 정체를 의미하지만, ${industry} 업종은 오랜 영업 가게가 많은 "안정 상권"으로 볼 수도 있어요. 현장 방문으로 직접 확인하세요`,
+        text: `상권변화지표 ${d.changeIndexName} (정체 상권)`,
+        sub: `${industry} 업종은 오래된 점포가 많은 안정 상권일 수 있어요. 현장 방문으로 직접 확인하세요`,
         category: "fact",
       });
     }

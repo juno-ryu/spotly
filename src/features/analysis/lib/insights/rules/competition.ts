@@ -10,14 +10,6 @@ export const DENSITY_GRADE_TEXT: Record<Grade, { emoji: string; text: string }> 
   F: { emoji: "🔴", text: "매장이 매우 밀집해 과포화 상태예요" },
 };
 
-/** 경쟁 등급별 프랜차이즈 해석 */
-const FRANCHISE_GRADE_TEXT: Record<Grade, string> = {
-  A: "적당한 프랜차이즈 비율로 상권 활력이 좋아요",
-  B: "프랜차이즈와 개인 매장이 적절히 공존해요",
-  C: "프랜차이즈 비율이 보통 수준이에요",
-  D: "프랜차이즈 비중이 높아 개인 매장 경쟁이 치열해요",
-  F: "프랜차이즈 포화 상권으로 개인 창업 시 주의가 필요해요",
-};
 
 /** 경쟁 분석 룰 — 등급(A/B/C/D/F) 기반 인사이트 */
 export const competitionRules: InsightRule = (data) => {
@@ -41,47 +33,46 @@ export const competitionRules: InsightRule = (data) => {
     });
   }
 
-  // 1. 밀집도 — 경쟁 등급 기반
+  // 1. 밀집도 — 직접/인접 경쟁 세부 분류 (헤더 sub와 중복 방지)
   if (competition.densityPerMeter > 0) {
-    const { emoji, text } = DENSITY_GRADE_TEXT[grade];
+    const { emoji } = DENSITY_GRADE_TEXT[grade];
+    const total = competition.directCompetitorCount + competition.indirectCompetitorCount;
     insights.push({
       type: "text",
       emoji,
-      text,
-      sub: `약 ${competition.densityPerMeter}m마다 1개 매장`,
+      text: `직접 경쟁 ${competition.directCompetitorCount}개 · 인접 업종 ${competition.indirectCompetitorCount}개`,
+      sub: `총 ${total}개 · 약 ${Math.round(competition.densityPerMeter)}m마다 1개 (반경 샘플 기준)`,
       category: "scoring",
     });
   }
 
-  // 2. 프랜차이즈 현황 — 경쟁 등급 기반
+  // 2. 프랜차이즈 현황 — 팩트 수치 (개수 + 비율 + 브랜드명)
   if (competition.franchiseCount > 0) {
+    const total = competition.directCompetitorCount + competition.indirectCompetitorCount;
+    const ratio = total > 0 ? Math.round((competition.franchiseCount / total) * 100) : 0;
     const brands = competition.franchiseBrandNames;
-    const brandSub =
+    const brandText =
       brands.length > 0
-        ? brands.slice(0, 5).join(", ") +
-          (brands.length > 5 ? ` 외 ${brands.length - 5}개` : "")
+        ? brands.slice(0, 5).join(", ") + (brands.length > 5 ? ` 외 ${brands.length - 5}개` : "")
         : undefined;
 
     insights.push({
       type: "text",
       emoji: "🏷️",
-      text: FRANCHISE_GRADE_TEXT[grade],
-      sub: brandSub,
+      text: `프랜차이즈 ${competition.franchiseCount}개 (${ratio}%)`,
+      sub: brandText,
       category: "scoring",
     });
   } else {
-    // 프랜차이즈 0건: 경쟁 등급에 따라 해석이 다름
-    // 좋은 등급(A/B)이면 실제로 경쟁이 적은 것, 나쁜 등급(D/F)이면 상권 비활성화 가능성
+    // 프랜차이즈 0건: 경쟁자가 모두 독립 점포
     const isLowCompetition = grade === "A" || grade === "B";
     insights.push({
       type: "text",
-      emoji: isLowCompetition ? "✅" : "⚠️",
+      emoji: isLowCompetition ? "✅" : "📊",
       text: isLowCompetition
-        ? "주변에 프랜차이즈가 매우 적어요"
-        : "프랜차이즈가 진출하지 않은 상권이에요",
-      sub: isLowCompetition
-        ? undefined
-        : "상권 활성도가 낮을 수 있어 신중한 검토가 필요해요",
+        ? "프랜차이즈 없음 (독립 점포 상권)"
+        : "프랜차이즈 없음 (소규모 독립 점포 밀집)",
+      sub: undefined,
       category: "scoring",
     });
   }

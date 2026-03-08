@@ -37,14 +37,6 @@ export function calcBusGrade(bus: BusAnalysis): { score: number; grade: Grade } 
   return { score, ...scoreToGrade(score) };
 }
 
-/** 버스 등급별 해석 텍스트 */
-export const BUS_GRADE_TEXT: Record<Grade, { emoji: string; text: string }> = {
-  A: { emoji: "🚌", text: "버스 교통이 매우 편리해요" },
-  B: { emoji: "🚌", text: "버스 이용이 수월한 입지예요" },
-  C: { emoji: "🚏", text: "버스 접근성이 보통이에요" },
-  D: { emoji: "🚏", text: "버스 이용이 다소 불편할 수 있어요" },
-  F: { emoji: "🚏", text: "버스 접근이 어려운 입지예요" },
-};
 
 /** 버스 접근성 관련 인사이트 규칙 */
 /** "해운대구2" → "2번", "115-1" → "115-1번" */
@@ -57,13 +49,15 @@ export function busRules(data: InsightData): InsightItem[] {
   const bus = data.bus;
   if (!bus) return [];
 
-  const { score, grade } = calcBusGrade(bus);
-  const { emoji, text } = BUS_GRADE_TEXT[grade];
+  // 배달 업종은 교통 접근성이 매출에 무관 → 섹션 숨김
+  const isDeliveryOnly = data.industryName.includes("배달");
+  if (isDeliveryOnly) return [];
+
+  const { grade } = calcBusGrade(bus);
   const items: InsightItem[] = [];
 
-  // 등급 기반 스코어링 인사이트
+  // 팩트 수치: 정류장명 거리 · 노선 수 (노선번호)
   const nearest = bus.nearestStop;
-  let sub: string;
   if (nearest) {
     const formatted = nearest.routes.map(formatRouteNo);
     const routeLabel =
@@ -71,18 +65,23 @@ export function busRules(data: InsightData): InsightItem[] {
         ? formatted.slice(0, 5).join(", ") +
           (nearest.routeCount > 5 ? ` 외 ${nearest.routeCount - 5}개` : "")
         : null;
-    sub = `${nearest.name} ${nearest.distanceMeters}m · ${nearest.routeCount}개 노선${routeLabel ? ` (${routeLabel})` : ""}`;
+    const emoji = grade === "A" || grade === "B" ? "🚌" : "🚏";
+    items.push({
+      type: "text",
+      emoji,
+      text: `${nearest.name} ${nearest.distanceMeters}m · ${nearest.routeCount}개 노선`,
+      sub: routeLabel ? `(${routeLabel})` : undefined,
+      category: "scoring",
+    });
   } else {
-    sub = `반경 내 정류장 ${bus.stopCount}개`;
+    items.push({
+      type: "text",
+      emoji: "🚏",
+      text: `반경 내 정류장 ${bus.stopCount}개`,
+      sub: undefined,
+      category: "scoring",
+    });
   }
-
-  items.push({
-    type: "text",
-    emoji,
-    text,
-    sub,
-    category: "scoring",
-  });
 
   return items;
 }

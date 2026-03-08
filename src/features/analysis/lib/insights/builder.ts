@@ -1,18 +1,32 @@
 import type { InsightData, InsightItem, InsightRule } from "./types";
-import { competitionRules, DENSITY_GRADE_TEXT } from "./rules/competition";
+import { scoreToGrade, type Grade } from "../scoring/types";
+import { competitionRules } from "./rules/competition";
 import { populationRules } from "./rules/population";
-import { subwayRules, calcSubwayGrade, SUBWAY_GRADE_TEXT } from "./rules/subway";
-import { busRules, calcBusGrade, BUS_GRADE_TEXT } from "./rules/bus";
-import { schoolRules, calcSchoolGrade, SCHOOL_GRADE_TEXT_ACADEMY, SCHOOL_GRADE_TEXT_GENERAL } from "./rules/school";
-import { universityRules, calcUniversityGrade, UNIV_GRADE_TEXT_BENEFICIARY, UNIV_GRADE_TEXT_GENERAL } from "./rules/university";
-import { medicalRules, calcMedicalGrade, MEDICAL_GRADE_TEXT_PHARMACY, MEDICAL_GRADE_TEXT_GENERAL } from "./rules/medical";
+import { subwayRules, calcSubwayGrade } from "./rules/subway";
+import { busRules, calcBusGrade } from "./rules/bus";
+import { schoolRules, calcSchoolGrade } from "./rules/school";
+import { universityRules, calcUniversityGrade } from "./rules/university";
+import { medicalRules, calcMedicalGrade } from "./rules/medical";
 
 /** 등록된 룰 목록 — 새 룰 추가 시 여기에 push */
 const ALL_RULES: InsightRule[] = [competitionRules, populationRules, subwayRules, busRules, schoolRules, universityRules, medicalRules];
 
 /** 모든 룰을 실행하여 인사이트 목록 생성 */
+/** 업종에 따라 인사이트 섹션 순서를 재구성한다. 관련성 높은 섹션을 앞에 배치. */
+function getRulesForIndustry(industryName: string): InsightRule[] {
+  if (industryName.includes("학원")) {
+    return [schoolRules, competitionRules, populationRules, subwayRules, busRules, universityRules, medicalRules];
+  }
+  if (industryName.includes("약국")) {
+    return [medicalRules, populationRules, competitionRules, subwayRules, busRules, schoolRules, universityRules];
+  }
+  // 카페·음식·의류·편의점 등 기본 순서
+  return ALL_RULES;
+}
+
 export function buildInsights(data: InsightData): InsightItem[] {
-  return [...ALL_RULES.flatMap((rule) => rule(data)), ...combinedRiskInsights(data)];
+  const rules = getRulesForIndustry(data.industryName);
+  return [...rules.flatMap((rule) => rule(data)), ...combinedRiskInsights(data)];
 }
 
 /**
@@ -40,9 +54,9 @@ export function combinedRiskInsights(data: InsightData): InsightItem[] {
     if (hasLowFootTraffic && hasLowSales && hasHighCloseRate) {
       items.push({
         type: "text",
-        emoji: "🚨",
-        text: "유령 상권 위험 신호",
-        sub: `유동인구 낮음 + 점포당 매출 매우 낮음 + 분기 폐업률 ${d.closeRate.toFixed(1)}% — 상권이 사실상 침체 상태입니다. 신규 입점을 신중히 검토하세요`,
+        emoji: "⚠️",
+        text: "유동인구·매출·폐업률 복합 이상 신호",
+        sub: `유동인구 낮음 + 점포당 매출 낮음 + 분기 폐업률 ${d.closeRate.toFixed(1)}% — 입점 전 현장 확인을 권장해요`,
         category: "fact",
       });
     }
@@ -57,9 +71,9 @@ export function combinedRiskInsights(data: InsightData): InsightItem[] {
     if (isOverCrowded && isFranchiseDominated) {
       items.push({
         type: "text",
-        emoji: "🚨",
-        text: "레드오션 경고",
-        sub: `대형 브랜드(프랜차이즈 ${(competition.franchiseRatio * 100).toFixed(0)}%)가 과밀한 지역 — 개인 매장은 가격 경쟁에서 불리합니다`,
+        emoji: "⚠️",
+        text: "프랜차이즈 과밀 상권이에요",
+        sub: `프랜차이즈 비율 ${(competition.franchiseRatio * 100).toFixed(0)}% — 브랜드 인지도·자본력 경쟁에서 불리할 수 있어요`,
         category: "fact",
       });
     }
@@ -78,8 +92,8 @@ export function combinedRiskInsights(data: InsightData): InsightItem[] {
       items.push({
         type: "text",
         emoji: "⚠️",
-        text: "거품 상권 경고",
-        sub: `개업률 ${d.openRate.toFixed(1)}% + 폐업률 ${d.closeRate.toFixed(1)}% — 창업 러시 후 대량 폐업이 반복되는 불안정 상권입니다`,
+        text: "개업·폐업이 반복되는 불안정 상권이에요",
+        sub: `개업률 ${d.openRate.toFixed(1)}% · 폐업률 ${d.closeRate.toFixed(1)}% — 장기 생존율을 신중히 검토하세요`,
         category: "fact",
       });
     }
@@ -97,8 +111,8 @@ export function combinedRiskInsights(data: InsightData): InsightItem[] {
       items.push({
         type: "text",
         emoji: "⚠️",
-        text: "수요 부족 경고",
-        sub: `배후인구 ${totalPop.toLocaleString()}명 + 유동인구 ${(floatingTotal / 10_000).toFixed(1)}만명 — 고객 기반이 매우 부족한 지역입니다`,
+        text: "배후인구·유동인구 모두 적은 편이에요",
+        sub: `배후인구 ${totalPop.toLocaleString()}명 · 유동인구 ${(floatingTotal / 10_000).toFixed(1)}만명 — 고객 기반을 현장에서 직접 확인하세요`,
         category: "fact",
       });
     }
@@ -106,16 +120,18 @@ export function combinedRiskInsights(data: InsightData): InsightItem[] {
 
   // 5. 교통 사각지대: 역세권 아님 + 버스 노선 3개 미만
   // 대중교통으로 접근하기 매우 어려운 입지 — 유동인구 확보에 불리
+  // 배달 업종은 교통 접근성이 매출에 무관하므로 제외
+  const isDeliveryOnly = data.industryName.includes("배달");
   const isNotSubwayArea = subway ? !subway.isStationArea : false;
   const busRouteCount = bus?.nearestStop?.routeCount ?? 0;
   const hasLowBusRoute = busRouteCount > 0 && busRouteCount < 3;
 
-  if (isNotSubwayArea && hasLowBusRoute) {
+  if (!isDeliveryOnly && isNotSubwayArea && hasLowBusRoute) {
     items.push({
       type: "text",
       emoji: "⚠️",
-      text: "교통 사각지대 경고",
-      sub: `역세권 아님 + 버스 노선 ${busRouteCount}개 — 대중교통 접근성이 매우 낮습니다. 도보 유동인구 확보에 불리한 입지입니다`,
+      text: "대중교통 접근성이 낮은 편이에요",
+      sub: `역세권 아님 · 버스 노선 ${busRouteCount}개 — 도보 유동인구 확보에 불리한 입지예요`,
       category: "fact",
     });
   }
@@ -165,33 +181,39 @@ type HeaderInfo = { emoji: string; text: string; sub: string };
 export function buildTransitHeader(data: InsightData): HeaderInfo | null {
   const { subway, bus } = data;
 
-  // 역세권이면 지하철 우선 — 등급 기반 텍스트 사용
-  if (subway) {
-    const { grade } = calcSubwayGrade(subway);
-    const { emoji, text } = SUBWAY_GRADE_TEXT[grade];
-    const s = subway.nearestStation;
+  const subwayGood = subway ? ["A", "B"].includes(calcSubwayGrade(subway).grade) : false;
+  const busGood = bus ? ["A", "B"].includes(calcBusGrade(bus).grade) : false;
+
+  // 지하철 + 버스 모두 양호 — 교통망 풍부 강조
+  if (subwayGood && busGood) {
+    const s = subway!.nearestStation;
     const sub = s
-      ? `${s.stationName}(${s.lineName}) ${s.distanceMeters}m · 일평균 ${(s.dailyAvgTotal / 10000).toFixed(1)}만명`
-      : subway.stationsInRadius[0]
-        ? `${subway.stationsInRadius[0].name} ${subway.stationsInRadius[0].distance}m`
-        : "반경 내 지하철역 없음";
-    // A/B 등급만 헤더로 노출 (C 이하는 버스로 대체)
-    if (grade === "A" || grade === "B") {
-      return { emoji, text, sub };
+      ? `${s.stationName}(${s.lineName}) ${s.distanceMeters}m · 버스 ${bus!.stopCount}개 정류장`
+      : `지하철·버스 정류장 ${bus!.stopCount}개`;
+    return { emoji: "🚇", text: "지하철·버스 노선이 풍부해요, 유동인구 수요를 기대할 수 있어요", sub };
+  }
+
+  // 지하철만 양호
+  if (subwayGood && subway) {
+    const s = subway.nearestStation;
+    if (s) {
+      const sub = `${s.stationName}(${s.lineName}) ${s.distanceMeters}m · 일평균 ${(s.dailyAvgTotal / 10000).toFixed(1)}만명`;
+      return { emoji: "🚇", text: "지하철 접근성이 뛰어나요, 유동인구 수요를 기대할 수 있어요", sub };
+    }
+    const first = subway.stationsInRadius[0];
+    if (first) {
+      return { emoji: "🚇", text: "역세권 안에 위치해요, 유동인구 수요를 기대할 수 있어요", sub: `${first.name} ${first.distance}m` };
     }
   }
 
-  // 버스로 폴백 — 등급 기반 텍스트 사용
-  if (bus) {
-    const { grade } = calcBusGrade(bus);
-    const { emoji, text } = BUS_GRADE_TEXT[grade];
+  // 버스만 양호
+  if (busGood && bus) {
     const nearest = bus.nearestStop;
-    const sub = nearest
-      ? `${nearest.name} ${nearest.distanceMeters}m · ${nearest.routeCount}개 노선`
-      : `반경 내 정류장 ${bus.stopCount}개`;
-    if (grade === "A" || grade === "B") {
-      return { emoji, text, sub };
+    if (nearest) {
+      const sub = `${nearest.name} ${nearest.distanceMeters}m · ${nearest.routeCount}개 노선`;
+      return { emoji: "🚌", text: "버스 노선이 풍부해요, 유동인구 수요를 기대할 수 있어요", sub };
     }
+    return { emoji: "🚌", text: "버스 접근성이 좋아요, 유동인구 수요를 기대할 수 있어요", sub: `반경 내 정류장 ${bus.stopCount}개` };
   }
 
   return null;
@@ -206,27 +228,15 @@ export function buildUniversityHeader(data: InsightData): HeaderInfo | null {
   // D/F 등급은 헤더로 노출하지 않음
   if (grade === "D" || grade === "F") return null;
 
-  const isBeneficiary =
-    data.industryName.includes("카페") ||
-    data.industryName.includes("커피") ||
-    data.industryName.includes("음식") ||
-    data.industryName.includes("한식") ||
-    data.industryName.includes("분식") ||
-    data.industryName.includes("중식") ||
-    data.industryName.includes("일식") ||
-    data.industryName.includes("의류") ||
-    data.industryName.includes("편의점");
-
-  const { emoji, text } = isBeneficiary
-    ? UNIV_GRADE_TEXT_BENEFICIARY[grade]
-    : UNIV_GRADE_TEXT_GENERAL[grade];
-
   const nearest = university.universities[0];
-  return {
-    emoji,
-    text,
-    sub: `${nearest.name} 등 ${university.count}곳 (가장 가까운 곳 ${Math.round(nearest.distanceMeters)}m)`,
-  };
+  const distanceM = Math.round(nearest.distanceMeters);
+  const text = grade === "A" || grade === "B" ? "대학가 인근이에요, 젊은 고객 수요를 기대할 수 있어요" : "대학교가 근처에 있어요";
+  const sub =
+    university.count === 1
+      ? `${nearest.name} ${distanceM}m`
+      : `${nearest.name} 등 ${university.count}곳 · 가장 가까운 곳 ${distanceM}m`;
+
+  return { emoji: "🎓", text, sub };
 }
 
 /** 학교 접근성 헤더 */
@@ -239,20 +249,17 @@ export function buildSchoolHeader(data: InsightData): HeaderInfo | null {
   // C 이하 등급은 헤더로 노출하지 않음 (마이너스 시그널)
   if (grade === "D" || grade === "F") return null;
 
-  const { emoji, text } = isAcademy
-    ? SCHOOL_GRADE_TEXT_ACADEMY[grade]
-    : SCHOOL_GRADE_TEXT_GENERAL[grade];
+  const text = isAcademy
+    ? "근처에 학교들을 찾았어요, 학원 수요를 기대할 수 있어요"
+    : "근처에 학교들을 찾았어요, 학생 수요를 기대할 수 있어요";
 
   const parts: string[] = [];
-  if (school.elementaryCount > 0) parts.push(`초등학교 ${school.elementaryCount}곳`);
-  if (school.middleCount > 0) parts.push(`중학교 ${school.middleCount}곳`);
-  if (school.highCount > 0) parts.push(`고등학교 ${school.highCount}곳`);
+  if (school.elementaryCount > 0) parts.push(`초${school.elementaryCount}`);
+  if (school.middleCount > 0) parts.push(`중${school.middleCount}`);
+  if (school.highCount > 0) parts.push(`고${school.highCount}`);
+  const sub = parts.join(" · ");
 
-  return {
-    emoji,
-    text,
-    sub: parts.join(" · "),
-  };
+  return { emoji: "🏫", text, sub };
 }
 
 /** 의료시설 접근성 헤더 */
@@ -265,15 +272,17 @@ export function buildMedicalHeader(data: InsightData): HeaderInfo | null {
   if (grade === "D" || grade === "F") return null;
 
   const isPharmacy = data.industryName.includes("약국");
-  const { emoji, text } = isPharmacy
-    ? MEDICAL_GRADE_TEXT_PHARMACY[grade]
-    : MEDICAL_GRADE_TEXT_GENERAL[grade];
+  const text = isPharmacy ? "의료시설이 밀집해요, 처방전 수요를 기대할 수 있어요" : "의료시설이 가까이 있어요";
 
-  return {
-    emoji,
-    text,
-    sub: `반경 ${medical.searchRadius}m · 병의원 ${medical.count}곳`,
-  };
+  const { count, hospitals, searchRadius } = medical;
+  const sub =
+    count >= 5
+      ? `반경 ${searchRadius}m · ${count}곳`
+      : count <= 2
+        ? hospitals.map((h) => h.name).join(", ")
+        : `${hospitals.slice(0, 2).map((h) => h.name).join(", ")} 외 ${count - 2}곳`;
+
+  return { emoji: "🏥", text, sub };
 }
 
 /** 배후 인구 헤더 */
@@ -281,23 +290,18 @@ export function buildPopulationHeader(data: InsightData): HeaderInfo | null {
   const { population } = data;
   if (!population) return null;
 
-  const grade = population.score.grade;
-  let text: string;
-  if (grade === "A" || grade === "B") {
-    text = "배후 거주인구가 탄탄한 편이에요";
-  } else if (grade === "C") {
-    text = "배후 거주인구가 보통 수준이에요";
-  } else {
-    text = "배후 거주인구가 다소 적은 편이에요";
-  }
+  const totalPop = population.details.totalPopulation;
+  const text =
+    totalPop >= 50000
+      ? "배후 수요가 충분한 상권이에요"
+      : totalPop >= 20000
+        ? "배후 인구가 보통 수준인 상권이에요"
+        : "배후 인구가 적어요, 유동인구 의존 업종은 불리할 수 있어요";
 
   const level = population.details.isDongLevel ? "행정동" : "시군구";
+  const sub = `${totalPop.toLocaleString()}명 (${level} 기준)`;
 
-  return {
-    emoji: "👥",
-    text,
-    sub: `${level} 기준 ${population.details.totalPopulation.toLocaleString()}명`,
-  };
+  return { emoji: "👥", text, sub };
 }
 
 /** 경쟁강도 헤더 */
@@ -305,13 +309,18 @@ export function buildCompetitionHeader(data: InsightData): HeaderInfo | null {
   const { competition } = data;
   if (!competition?.competitionScore) return null;
 
-  const grade = competition.competitionScore.grade;
-  const gradeEntry = (DENSITY_GRADE_TEXT as Record<string, { emoji: string; text: string }>)[grade] ?? DENSITY_GRADE_TEXT.C;
-  const { emoji, text } = gradeEntry;
+  const grade = (competition.competitionScore?.grade ?? "C") as Grade;
+  const text =
+    grade === "A" || grade === "B"
+      ? "경쟁이 적어요, 시장 선점 기회를 노려볼 수 있어요"
+      : grade === "C"
+        ? "경쟁 강도가 평균 수준이에요"
+        : "경쟁이 치열한 편이에요, 차별화 전략이 필요해요";
 
-  const sub = `약 ${Math.round(competition.densityPerMeter)}m마다 1개 매장`;
+  const total = competition.directCompetitorCount + competition.indirectCompetitorCount;
+  const sub = `동종업체 ${total}개 · 약 ${Math.round(competition.densityPerMeter)}m마다 1개`;
 
-  return { emoji, text, sub };
+  return { emoji: "🏪", text, sub };
 }
 
 /** 상권 활력도 헤더 */
@@ -319,28 +328,23 @@ export function buildVitalityHeader(data: InsightData): HeaderInfo | null {
   const { vitality } = data;
   if (!vitality) return null;
 
-  const grade = vitality.vitalityScore.grade;
-  let text: string;
-  if (grade === "A" || grade === "B") {
-    text = "근처에 활성 상권이 있어요";
-  } else if (grade === "C") {
-    text = "보통 수준의 상권이에요";
-  } else {
-    text = "상권 활력이 다소 낮은 편이에요";
-  }
+  // 활력도 등급 기반 맥락 해석
+  const { grade } = scoreToGrade(vitality.salesScore);
+  const text =
+    grade === "A" || grade === "B"
+      ? "활성화된 상권을 찾았어요"
+      : grade === "C"
+        ? "평균 수준의 상권이에요"
+        : "상권 침체 신호가 있어요, 임대료와 함께 신중히 검토해보세요";
 
-  let sub: string;
   const fp = vitality.details.floatingPopulation;
   if (fp) {
     const totalMan = (fp.totalFloating / 10000).toFixed(1);
-    sub = `분기 유동인구 ${totalMan}만명 · 피크 ${fp.peakDay} ${fp.peakTimeSlot}`;
-  } else {
-    sub = "서울 골목상권 데이터 기반";
+    const sub = `분기 유동인구 ${totalMan}만명 · 피크 ${fp.peakDay} ${fp.peakTimeSlot}`;
+    return { emoji: "📊", text, sub };
   }
 
-  return {
-    emoji: "📊",
-    text,
-    sub,
-  };
+  const monthlyPerStore = Math.round(vitality.details.salesPerStore / 3 / 10000);
+  const sub = `점포당 월평균 ${monthlyPerStore}만원 · 총 ${vitality.details.storeCount}개 점포`;
+  return { emoji: "📊", text, sub };
 }
