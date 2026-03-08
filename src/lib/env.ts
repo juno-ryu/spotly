@@ -36,10 +36,10 @@ const envSchema = z.object({
   /** 통계청 KOSIS API 키 (선택) */
   KOSIS_API_KEY: z.string().optional(),
 
-  /** Supabase 프로젝트 URL */
-  NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
+  /** Supabase 프로젝트 URL (없으면 인증 비활성) */
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional(),
   /** Supabase anon public 키 */
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
 });
 
 export const env = envSchema.parse({
