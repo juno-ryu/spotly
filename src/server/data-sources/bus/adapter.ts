@@ -85,10 +85,10 @@ export async function fetchBusAnalysis(params: {
   // 반경 내 전체 정류장의 고유 노선 수 합산.
   // - 비서울: routeId 기반 Set 중복 제거 (같은 노선이 여러 정류장 경유)
   // - 서울: routeId 미제공 → 노선명 기반 Set 중복 제거
-  const hasRouteIds = stations.some((s) => s.routeIds.length > 0);
+  const hasRouteIds = stations.some((s) => (s.routeIds ?? []).length > 0);
   const uniqueRouteCount = hasRouteIds
-    ? new Set(stations.flatMap((s) => s.routeIds)).size
-    : new Set(stations.flatMap((s) => s.routes)).size;
+    ? new Set(stations.flatMap((s) => s.routeIds ?? [])).size
+    : new Set(stations.flatMap((s) => s.routes ?? [])).size;
 
   console.log(
     `[버스] 반경 ${params.radius}m 내 정류소 ${stations.length}건 — 대표: ${primaryStop.name}(${primaryStop.distanceMeters}m), ${primaryStop.routeCount}개 노선 / 고유 노선 합계: ${uniqueRouteCount}개`,

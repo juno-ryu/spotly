@@ -67,11 +67,12 @@ function getVitalityFact(reportData: Record<string, unknown> | undefined): strin
 
 function getPopulationFact(reportData: Record<string, unknown> | undefined): string | null {
   const population = reportData?.populationAnalysis as
-    | { details?: { totalPopulation?: number } }
+    | { details?: { totalPopulation?: number }; isDongLevel?: boolean }
     | undefined;
   const totalPop = population?.details?.totalPopulation;
-  if (totalPop != null && totalPop > 0) return `배후인구 ${totalPop.toLocaleString()}명 · KOSIS`;
-  return null;
+  if (totalPop == null || totalPop <= 0) return null;
+  const level = population?.isDongLevel ? "읍면동 기준" : "시군구 기준";
+  return `배후인구 ${totalPop.toLocaleString()}명 · KOSIS (${level})`;
 }
 
 function getSurvivalFact(reportData: Record<string, unknown> | undefined): string | null {

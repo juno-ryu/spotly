@@ -21,10 +21,9 @@ export async function fetchPopulationData(params: {
     return null;
   }
 
-  // 읍면동 수준 데이터가 아닌 시군구 fallback은 신뢰도 부족으로 거부
+  // 읍면동 수준 데이터가 아닌 경우 시군구 fallback 허용 (데이터 없는 것보다 나음)
   if (!data.isDongLevel) {
-    console.warn(`[KOSIS 인구] 읍면동 데이터 없음, 시군구 fallback 거부: ${params.adminDongCode ?? params.regionCode}`);
-    return null;
+    console.warn(`[KOSIS 인구] 읍면동 데이터 없음, 시군구 fallback 사용: ${params.adminDongCode ?? params.regionCode}`);
   }
 
   console.log(
@@ -33,6 +32,6 @@ export async function fetchPopulationData(params: {
 
   return {
     totalPopulation: data.totalPopulation,
-    isDongLevel: data.isDongLevel,
+    isDongLevel: data.isDongLevel ?? false,
   };
 }
