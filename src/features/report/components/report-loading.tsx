@@ -89,7 +89,7 @@ export function ReportLoading() {
   const isAiActive = activeIndex >= DATA_STEPS.length;
 
   return (
-    <div className="flex flex-col justify-center min-h-[60vh] px-6">
+    <div className="flex flex-col items-center justify-center min-h-[60vh] px-6">
       <div className="w-full max-w-sm space-y-3">
         {/* 제목 */}
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-5">

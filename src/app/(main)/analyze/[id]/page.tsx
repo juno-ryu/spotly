@@ -1,20 +1,17 @@
+import { Suspense } from "react";
 import { prisma } from "@/server/db/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BackButton } from "@/components/back-button";
 import { AnalysisResult } from "@/features/analysis/components/analysis-result";
+import { AnalysisResultSkeleton } from "@/features/analysis/components/analysis-result-skeleton";
+import { executeAnalysis } from "@/features/analysis/actions";
 
-export default async function AnalysisResultPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+/** 분석 실행 + 결과 표시 — Suspense로 감싸면 분석 완료까지 스켈레톤 표시 */
+async function AnalysisLoader({ id }: { id: string }) {
+  await executeAnalysis(id);
 
-const analysis = await prisma.analysisRequest.findUnique({
-    where: { id },
-  });
-
+  const analysis = await prisma.analysisRequest.findUnique({ where: { id } });
   if (!analysis) notFound();
 
   if (analysis.status === "FAILED") {
@@ -32,10 +29,29 @@ const analysis = await prisma.analysisRequest.findUnique({
     );
   }
 
+  return <AnalysisResult data={analysis} />;
+}
+
+export default async function AnalysisResultPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  // 존재 여부 먼저 확인
+  const exists = await prisma.analysisRequest.findUnique({
+    where: { id },
+    select: { id: true },
+  });
+  if (!exists) notFound();
+
   return (
     <>
       <BackButton />
-      <AnalysisResult data={analysis} />
+      <Suspense fallback={<AnalysisResultSkeleton />}>
+        <AnalysisLoader id={id} />
+      </Suspense>
     </>
   );
 }

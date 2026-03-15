@@ -517,7 +517,10 @@ export async function fetchSeoulNearbyBusStations(params: {
     // 각 정류소 경유 노선 병렬 조회
     const results = await Promise.all(
       stations.map(async (stn) => {
-        const routeNames = await getSeoulRouteByStation(stn.arsId).catch(() => [] as string[]);
+        // arsId가 없는 정류소는 노선 조회 불가 — 빈 배열 처리
+        const routeNames = stn.arsId
+          ? await getSeoulRouteByStation(stn.arsId).catch(() => [] as string[])
+          : [];
         const distance = haversineMeters(lat, lng, stn.gpsY, stn.gpsX);
 
         return {

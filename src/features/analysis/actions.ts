@@ -150,7 +150,7 @@ function extractSearchKeywords(industryCode: string, industryName: string): stri
   return [keyword];
 }
 
-/** 분석 시작 — 완료까지 기다린 후 결과 페이지로 redirect */
+/** 분석 시작 — DB 레코드만 즉시 생성 후 결과 페이지로 redirect (분석 실행은 결과 페이지에서 수행) */
 export async function startAnalysis(input: AnalysisRequest) {
   const parsed = analysisRequestSchema.safeParse(input);
   if (!parsed.success) throw new Error("입력값이 올바르지 않습니다");
@@ -183,35 +183,83 @@ export async function startAnalysis(input: AnalysisRequest) {
       radius: parsed.data.radius,
       status: "PROCESSING",
       userId: user?.id ?? null,
+      // 분석 실행에 필요한 전처리 데이터를 reportData에 임시 저장
+      reportData: JSON.parse(JSON.stringify({
+        _pendingInput: {
+          latitude: parsed.data.latitude,
+          longitude: parsed.data.longitude,
+          industryCode: parsed.data.industryCode,
+          industryName: parsed.data.industryName,
+          industryKeyword: parsed.data.industryKeyword,
+          radius: parsed.data.radius,
+          districtCode: parsed.data.districtCode,
+          adminDongCode: parsed.data.adminDongCode,
+          dongName: parsed.data.dongName,
+        },
+      })),
     },
   });
+
+  redirect(`/analyze/${analysis.id}`);
+}
+
+/** 분석 실행 — 결과 페이지 서버 컴포넌트에서 호출, COMPLETED이면 skip */
+export async function executeAnalysis(id: string) {
+  const analysis = await prisma.analysisRequest.findUnique({ where: { id } });
+  if (!analysis) return;
+
+  // 이미 완료/실패 상태면 재실행하지 않음
+  if (analysis.status === "COMPLETED" || analysis.status === "FAILED") return;
+
+  // reportData에 임시 저장된 pendingInput 추출
+  const reportData = analysis.reportData as Record<string, unknown> | null;
+  const pending = (reportData?._pendingInput ?? null) as {
+    latitude: number;
+    longitude: number;
+    industryCode: string;
+    industryName: string;
+    industryKeyword?: string;
+    radius: number;
+    districtCode?: string;
+    adminDongCode?: string;
+    dongName?: string;
+  } | null;
+
+  if (!pending) {
+    // pendingInput이 없으면 FAILED 처리
+    await prisma.analysisRequest.update({
+      where: { id },
+      data: { status: "FAILED" },
+    });
+    return;
+  }
 
   try {
     // districtCode가 있어도 adminDongCode가 없으면 서버 coordToRegion으로 보완
     // (카카오 JS SDK가 지하철역/상업지구 좌표에서 H 타입 미반환하는 버그 우회)
     const region =
-      parsed.data.districtCode && parsed.data.adminDongCode
-        ? { districtCode: parsed.data.districtCode, code: parsed.data.districtCode + "00000", adminDongCode: parsed.data.adminDongCode }
-        : await kakaoGeocoding.coordToRegion(parsed.data.latitude, parsed.data.longitude);
+      pending.districtCode && pending.adminDongCode
+        ? { districtCode: pending.districtCode, code: pending.districtCode + "00000", adminDongCode: pending.adminDongCode }
+        : await kakaoGeocoding.coordToRegion(pending.latitude, pending.longitude);
 
     const aggregated = await runAnalysis({
-      latitude: parsed.data.latitude,
-      longitude: parsed.data.longitude,
+      latitude: pending.latitude,
+      longitude: pending.longitude,
       regionCode: region.districtCode,
-      industryKeywords: extractSearchKeywords(parsed.data.industryCode, parsed.data.industryName),
-      industryCode: parsed.data.industryCode,
-      industryName: parsed.data.industryName,
-      industryKeyword: parsed.data.industryKeyword,
-      radius: parsed.data.radius,
+      industryKeywords: extractSearchKeywords(pending.industryCode, pending.industryName),
+      industryCode: pending.industryCode,
+      industryName: pending.industryName,
+      industryKeyword: pending.industryKeyword,
+      radius: pending.radius,
       // 서버 coordToRegion 결과 우선, 없으면 클라이언트 전달값 사용
-      adminDongCode: region.adminDongCode ?? parsed.data.adminDongCode,
-      dongName: parsed.data.dongName,
+      adminDongCode: region.adminDongCode ?? pending.adminDongCode,
+      dongName: pending.dongName,
     });
 
-    const { total: totalScore, infraBonus, survivalResult, infraAccessScore } = calcTotalScore(aggregated, parsed.data.industryName, region.districtCode);
+    const { total: totalScore, infraBonus, survivalResult, infraAccessScore } = calcTotalScore(aggregated, pending.industryName, region.districtCode);
 
     await prisma.analysisRequest.update({
-      where: { id: analysis.id },
+      where: { id },
       data: {
         status: "COMPLETED",
         regionCode: region.code,
@@ -230,12 +278,10 @@ export async function startAnalysis(input: AnalysisRequest) {
       },
     });
   } catch (error) {
-    console.error(`분석 실패 [${analysis.id}]:`, error);
+    console.error(`분석 실패 [${id}]:`, error);
     await prisma.analysisRequest.update({
-      where: { id: analysis.id },
+      where: { id },
       data: { status: "FAILED" },
     });
   }
-
-  redirect(`/analyze/${analysis.id}`);
 }
