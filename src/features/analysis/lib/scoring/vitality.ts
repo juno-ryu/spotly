@@ -88,10 +88,10 @@ function calcChangeScore(changeIndex: string | null): number {
   if (!changeIndex) return 50; // 데이터 없으면 중립
 
   const CHANGE_SCORES: Record<string, number> = {
-    LH: 85, // 확장기 — 신규 진입 활발, 시장 성장 중
-    HL: 55, // 안정/성숙기 — 기존 사업체 안정적 유지
-    HH: 30, // 포화 — 기존 업체 견고하나 신규 기회 제한
-    LL: 30, // 다이나믹 — 회전 빠르지만 신규 기회도 존재, HH와 동급 (V-11)
+    LH: 85, // 신규 경쟁력 있는 역동 상권 — 진입 유리
+    HL: 55, // 기존 강자 위주 안정 상권 — 진입 어렵지만 안정
+    HH: 40, // 포화/정체 상권 — 진입 어렵지만 안착 시 안정 (박사님 승인 2026-03-15, 기존 30)
+    LL: 20, // 고회전 불안정 상권 — 진입 쉬우나 생존 위험 (박사님 승인 2026-03-15, 기존 30)
   };
 
   return CHANGE_SCORES[changeIndex] ?? 50;
@@ -136,13 +136,15 @@ function calcSubwayFootTrafficScore(
     0,
     Math.min(1, (logVal - logMin) / (logMax - logMin)),
   );
-  // 거리 감쇠: 구간별 계단식 (100m 이내 1.4배 ~ 500m 초과 0.85배)
+  // 박사님 승인 2026-03-15: 증폭→감쇠 방식으로 변경
+  // 역 바로 앞(200m 이하)은 보정 없음(1.0), 멀수록 점수 감소
+  // 근거: 지하철 유동인구는 거리에 비례해 감소, 인위적 증폭은 왜곡
   const distanceFactor =
-    distanceMeters <= 100 ? 1.4 :
-    distanceMeters <= 200 ? 1.3 :
-    distanceMeters <= 300 ? 1.15 :
-    distanceMeters <= 500 ? 1.0 :
-    0.85;
+    distanceMeters <= 200 ? 1.00 :
+    distanceMeters <= 400 ? 0.85 :
+    distanceMeters <= 600 ? 0.65 :
+    distanceMeters <= 800 ? 0.45 :
+    0.25;
   return Math.round(Math.min(100, baseScore * distanceFactor * 100));
 }
 

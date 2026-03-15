@@ -138,7 +138,7 @@ export async function getCrdntPrxmtSttnList(params: {
   longitude: number;
   numOfRows?: number;
 }): Promise<ProxmtSttnItem[]> {
-  const { latitude, longitude, numOfRows = 5 } = params;
+  const { latitude, longitude, numOfRows = 15 } = params;
   const serviceKey = process.env.DATA_GO_KR_API_KEY!;
 
   const url = new URL(`${BASE_URL}/getCrdntPrxmtSttnList`);
@@ -183,7 +183,7 @@ export async function getSttnThrghRouteList(params: {
   cityCode?: number;
   numOfRows?: number;
 }): Promise<ThrghRouteItem[]> {
-  const { nodeId, cityCode = 11, numOfRows = 50 } = params;
+  const { nodeId, cityCode = 11, numOfRows = 100 } = params;
   const serviceKey = process.env.DATA_GO_KR_API_KEY!;
 
   const url = new URL(`${BASE_URL}/getSttnThrghRouteList`);
@@ -230,8 +230,10 @@ export interface BusStationWithRoutes {
   longitude: number;
   /** 분석 좌표로부터의 거리(m) — Haversine */
   distanceMeters: number;
-  /** 경유 노선 목록 */
+  /** 경유 노선 목록 (노선명) */
   routes: string[];
+  /** 경유 노선 ID 목록 (중복 제거용) */
+  routeIds: string[];
   /** 경유 노선 수 */
   routeCount: number;
 }
@@ -300,6 +302,7 @@ export async function fetchNearbyBusStations(params: {
           .map((r) => String(r.routenm ?? r.routeno ?? ""))
           .filter(Boolean)
           .sort();
+        const routeIds = routes.map((r) => r.routeid).filter(Boolean);
         const distance = haversineMeters(lat, lng, stn.gpslati, stn.gpslong);
 
         return {
@@ -309,6 +312,7 @@ export async function fetchNearbyBusStations(params: {
           longitude: stn.gpslong,
           distanceMeters: distance,
           routes: routeNames,
+          routeIds,
           routeCount: routeNames.length,
         };
       }),
@@ -523,6 +527,8 @@ export async function fetchSeoulNearbyBusStations(params: {
           longitude: stn.gpsX,
           distanceMeters: distance,
           routes: routeNames,
+          // 서울 버스 API는 routeId를 반환하지 않음 — 노선명 기반으로 중복 제거
+          routeIds: [] as string[],
           routeCount: routeNames.length,
         };
       }),

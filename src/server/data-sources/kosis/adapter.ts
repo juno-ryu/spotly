@@ -21,12 +21,18 @@ export async function fetchPopulationData(params: {
     return null;
   }
 
+  // 읍면동 수준 데이터가 아닌 시군구 fallback은 신뢰도 부족으로 거부
+  if (!data.isDongLevel) {
+    console.warn(`[KOSIS 인구] 읍면동 데이터 없음, 시군구 fallback 거부: ${params.adminDongCode ?? params.regionCode}`);
+    return null;
+  }
+
   console.log(
     `[KOSIS 인구] 조회 성공: ${params.adminDongCode ?? params.regionCode} — 인구 ${data.totalPopulation.toLocaleString()}명`,
   );
 
   return {
     totalPopulation: data.totalPopulation,
-    isDongLevel: data.isDongLevel ?? false,
+    isDongLevel: data.isDongLevel,
   };
 }

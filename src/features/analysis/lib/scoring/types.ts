@@ -22,7 +22,8 @@ export interface IndicatorScore {
 
 /** 등급 산출 기준표 (competition.ts와 동일 구간) */
 const GRADE_TABLE: { min: number; grade: Grade; label: string }[] = [
-  { min: 80, grade: "A", label: "우수" },
+  // 박사님 승인 2026-03-16: A 하한 80→75 (B편중 50% 완화, 5대 지표 완성 시 재캘리브레이션 예정)
+  { min: 75, grade: "A", label: "우수" },
   { min: 60, grade: "B", label: "양호" },
   { min: 40, grade: "C", label: "보통" },
   { min: 20, grade: "D", label: "미흡" },

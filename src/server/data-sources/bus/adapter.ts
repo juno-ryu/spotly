@@ -52,7 +52,7 @@ export async function fetchBusAnalysis(params: {
     : await fetchNearbyBusStations({
         latitude: params.latitude,
         longitude: params.longitude,
-        numOfRows: 5,
+        // numOfRows 미지정 → client.ts 기본값(15) 사용
       });
 
   // 서울 API는 radius 내 결과만 반환하므로 추가 필터 불필요.
@@ -82,8 +82,16 @@ export async function fetchBusAnalysis(params: {
         )
       : stations[0];
 
+  // 반경 내 전체 정류장의 고유 노선 수 합산.
+  // - 비서울: routeId 기반 Set 중복 제거 (같은 노선이 여러 정류장 경유)
+  // - 서울: routeId 미제공 → 노선명 기반 Set 중복 제거
+  const hasRouteIds = stations.some((s) => s.routeIds.length > 0);
+  const uniqueRouteCount = hasRouteIds
+    ? new Set(stations.flatMap((s) => s.routeIds)).size
+    : new Set(stations.flatMap((s) => s.routes)).size;
+
   console.log(
-    `[버스] 반경 ${params.radius}m 내 정류소 ${stations.length}건 — 대표: ${primaryStop.name}(${primaryStop.distanceMeters}m), ${primaryStop.routeCount}개 노선`,
+    `[버스] 반경 ${params.radius}m 내 정류소 ${stations.length}건 — 대표: ${primaryStop.name}(${primaryStop.distanceMeters}m), ${primaryStop.routeCount}개 노선 / 고유 노선 합계: ${uniqueRouteCount}개`,
   );
 
   return {
@@ -96,6 +104,6 @@ export async function fetchBusAnalysis(params: {
       latitude: s.latitude,
       longitude: s.longitude,
     })),
-    totalRouteCount: primaryStop.routeCount,
+    totalRouteCount: uniqueRouteCount,
   };
 }

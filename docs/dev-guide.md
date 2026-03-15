@@ -131,16 +131,25 @@ src/features/analysis/lib/scoring/
 > ⚠️ 이 파일들은 반드시 `scoring-engine-validator` (박사님) 검토 후 수정.
 > 어떤 이유로도 박사님 승인 없이 수치/가중치 변경 금지.
 
-### 총점 가중치 (박사님 승인 2026-03-15)
+### 총점 가중치 (박사님 승인 2026-03-15~16)
 
-| 지역 | 공식 |
-|------|------|
-| 서울 | `vitality×0.35 + competition×0.25 + population×0.20 + survival×0.20 + infraBonus(최대 15점 가산)` |
-| 비서울 (survival 있음) | `competition×0.40 + population×0.35 + survival×0.25 + infraBonus` |
-| 비서울 (survival 없음) | `competition×0.45 + population×0.40 + infraAccess×0.15 + infraBonus` |
+총점 계산은 `src/features/analysis/actions.ts`의 `calcTotalScore`에서 수행.
 
-> 비서울 infraAccess = (infraBonus.score / 15) × 100 — 0~100점으로 정규화 후 3번째 지표로 편입
-> 총점 계산은 `src/features/analysis/actions.ts`의 `startAnalysis`에서 수행
+| 케이스 | 공식 |
+|--------|------|
+| 서울 4지표 (V+P+S 모두 있음) | `vitality×0.35 + competition×0.25 + population×0.20 + survival×0.20 + infraBonus` |
+| 서울 3지표 (S 없음) | `vitality×0.40 + competition×0.30 + population×0.30 + infraBonus` |
+| 서울 3지표 (P 없음) | `vitality×0.40 + competition×0.30 + survival×0.30 + infraBonus` |
+| 서울 2지표 (P·S 모두 없음) | `vitality×0.55 + competition×0.45 + infraBonus` |
+| 서울+vitality=null+P 있음 | `competition×0.55 + population×0.45` |
+| 서울+vitality=null+P 없음 | `competition` (단독) |
+| 비서울+P 있음+S 있음 | `competition×0.40 + population×0.35 + survival×0.25 + infraBonus` |
+| 비서울+P 있음+S 없음 | `competition×0.45 + population×0.40 + infraAccess×0.15` |
+| 비서울+P 없음 | `competition×0.75 + infraAccess×0.25` |
+
+> 비서울 infraAccess = (infraBonus.score / 15) × 100 — 0~100점으로 정규화 후 지표로 편입 (이 경우 infraBonus 별도 가산 없음)
+> 서울+vitality=null 케이스: 골목상권 미반환 구역(일부 서울 외곽). infraBonus 미적용.
+> 소득 지표는 미구현 (설계 보류)
 
 ### 등급 체계
 

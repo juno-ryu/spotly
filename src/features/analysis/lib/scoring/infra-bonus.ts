@@ -2,6 +2,8 @@
 // 박사님(scoring-engine-validator) 조건부 승인 — 2026-03-08
 
 import { calcBusGrade } from "../insights/rules/bus";
+import { calcSubwayGrade } from "../insights/rules/subway";
+import type { SubwayAnalysis } from "@/server/data-sources/subway/adapter";
 import { calcMedicalGrade } from "../insights/rules/medical";
 import { calcSchoolGrade } from "../insights/rules/school";
 import { calcUniversityGrade } from "../insights/rules/university";
@@ -51,6 +53,7 @@ export interface InfraBonusResult {
     school: number | null;
     university: number | null;
     medical: number | null;
+    transit: number | null; // max(subway, bus) — 비서울 infraAccess용
   };
 }
 
@@ -60,23 +63,37 @@ export function calcInfraBonus(params: {
   university: UniversityAnalysis | null;
   medical: MedicalAnalysis | null;
   industryName: string;
+  /** subway: 비서울에서 transit 점수에 활용. 서울은 vitality에서 이미 반영하므로 null 전달 */
+  subway: SubwayAnalysis | null;
 }): InfraBonusResult {
   const weights = getIndustryWeights(params.industryName);
   const isAcademy = params.industryName.includes("학원");
 
+  // transit 점수: max(subway, bus) — 둘 다 null이면 null (인프라 부재로 처리)
+  // 박사님 승인 2026-03-15: transit을 독립 항목으로 infraBonus에 편입
+  const subwayScore = params.subway ? calcSubwayGrade(params.subway).score : null;
+  const busScore = params.bus ? calcBusGrade(params.bus).score : null;
+  const transitScore =
+    subwayScore !== null && busScore !== null
+      ? Math.max(subwayScore, busScore)
+      : subwayScore ?? busScore ?? null;
+
   // V-06: null인 인프라는 가중치 계산에서 제외 (API 실패 ≠ 인프라 부재)
+  // bus는 transit으로 통합 — bus 단독 가중치는 transit 가중치로 전환
   const items: { score: number; weight: number; key: string }[] = [];
 
-  if (params.bus) items.push({ score: calcBusGrade(params.bus).score, weight: weights.bus, key: "bus" });
-  if (params.school) items.push({ score: calcSchoolGrade(params.school, isAcademy).score, weight: weights.school, key: "school" });
-  if (params.university) items.push({ score: calcUniversityGrade(params.university).score, weight: weights.univ, key: "univ" });
-  if (params.medical) items.push({ score: calcMedicalGrade(params.medical).score, weight: weights.med, key: "med" });
+  if (transitScore !== null) items.push({ score: transitScore, weight: weights.bus, key: "transit" });
+  // 박사님 승인 2026-03-15: count=0이면 해당 인프라 "없음" → null과 동일하게 가중치 제외
+  // API 실패(null)와 "반경 내 시설 없음"(count=0)을 동일 취급하여 역설적 점수 왜곡 방지
+  if (params.school && params.school.totalCount > 0) items.push({ score: calcSchoolGrade(params.school, isAcademy).score, weight: weights.school, key: "school" });
+  if (params.university && params.university.count > 0) items.push({ score: calcUniversityGrade(params.university).score, weight: weights.univ, key: "univ" });
+  if (params.medical && params.medical.count > 0) items.push({ score: calcMedicalGrade(params.medical).score, weight: weights.med, key: "med" });
 
   // 모든 인프라가 null이면 score: 0 반환
   if (items.length === 0) {
     return {
       score: 0,
-      breakdown: { bus: null, school: null, university: null, medical: null },
+      breakdown: { bus: null, school: null, university: null, medical: null, transit: null },
     };
   }
 
@@ -87,10 +104,11 @@ export function calcInfraBonus(params: {
   return {
     score: Math.round((normalizedScore * MAX_BONUS) / 100),
     breakdown: {
-      bus: params.bus ? (items.find(i => i.key === "bus")?.score ?? null) : null,
-      school: params.school ? (items.find(i => i.key === "school")?.score ?? null) : null,
-      university: params.university ? (items.find(i => i.key === "univ")?.score ?? null) : null,
-      medical: params.medical ? (items.find(i => i.key === "med")?.score ?? null) : null,
+      bus: params.bus ? busScore : null,
+      school: (params.school && params.school.totalCount > 0) ? (items.find(i => i.key === "school")?.score ?? null) : null,
+      university: (params.university && params.university.count > 0) ? (items.find(i => i.key === "univ")?.score ?? null) : null,
+      medical: (params.medical && params.medical.count > 0) ? (items.find(i => i.key === "med")?.score ?? null) : null,
+      transit: transitScore,
     },
   };
 }

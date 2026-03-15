@@ -46,6 +46,16 @@ export function schoolRules(data: InsightData): InsightItem[] {
   if (!school || school.totalCount === 0) return [];
 
   const isAcademy = industry.includes("학원");
+  // 학교 인근 가족·학부모 수요와 연관성이 높은 업종
+  const isFamilyOriented =
+    industry.includes("음식") ||
+    industry.includes("한식") ||
+    industry.includes("분식") ||
+    industry.includes("중식") ||
+    industry.includes("일식") ||
+    industry.includes("카페") ||
+    industry.includes("커피") ||
+    industry.includes("편의점");
   const items: InsightItem[] = [];
 
   // 가장 가까운 학교 목록 (거리순, 최대 3곳)
@@ -90,6 +100,15 @@ export function schoolRules(data: InsightData): InsightItem[] {
       type: "text",
       emoji: grade === "A" ? "✅" : grade === "B" || grade === "C" ? "🟡" : "⚠️",
       text: comment,
+      sub: undefined,
+      category: "scoring",
+    });
+  } else if (isFamilyOriented) {
+    // 음식점·카페·편의점: 학교 인근 가족·학부모 단위 방문 수요 맥락 추가
+    items.push({
+      type: "text",
+      emoji: "👨‍👩‍👧",
+      text: "학교 인근은 학부모·가족 단위 방문 수요가 높아요",
       sub: undefined,
       category: "scoring",
     });

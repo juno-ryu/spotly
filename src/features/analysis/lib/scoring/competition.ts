@@ -151,7 +151,7 @@ function calculateCompetitionScore(
   densityPerMeter: number,
   densityBaseline: number,
   franchiseRatio: number,
-  /** 업종 카테고리 — 의료/부동산은 프랜차이즈 U커브 적용 제외 */
+  /** 업종 카테고리 — 비프랜차이즈 업종은 U커브 적용 제외 */
   industryCategory?: string,
 ): CompetitionScore {
   // V-02: 경쟁 0개 → 중립 50점 (블루오션도 위험도 아닌 불확실 상태)
@@ -165,12 +165,15 @@ function calculateCompetitionScore(
   const ratio = densityPerMeter / densityBaseline;
   const densityScore = Math.round(100 / (1 + Math.exp(-4 * (ratio - 1))));
 
-  // M-10: 의료/부동산 업종은 프랜차이즈 U커브 적용 제외
-  // - 병의원·약국: 메디컬 클러스터는 "경쟁"이 아닌 "집객 시너지"이며, 프랜차이즈 구조가 아님
-  // - 부동산중개: 프랜차이즈 체계 자체가 일반 소매업과 다름 — U커브 왜곡 발생
-  // 대신 50점(중립)을 고정값으로 사용해 densityScore에 대한 가중치 왜곡을 방지한다.
-  const isNonFranchiseIndustry =
-    industryCategory === "의료" || industryCategory === "부동산";
+  // 비프랜차이즈 업종: 프랜차이즈 U커브 대신 50점(중립) 고정 (박사님 승인 2026-03-15)
+  // - 의료/부동산: 기존 (M-10)
+  // - 교육/서비스/건강/오락: 신규 추가 — 프랜차이즈 구조가 일반 소매업과 달라 U커브 왜곡 발생
+  const NON_FRANCHISE_CATEGORIES = new Set([
+    "의료", "부동산", "교육", "서비스", "건강", "오락",
+  ]);
+  const isNonFranchiseIndustry = industryCategory
+    ? NON_FRANCHISE_CATEGORIES.has(industryCategory)
+    : false;
   const franchiseScore = isNonFranchiseIndustry
     ? 50
     : calculateFranchiseUCurve(franchiseRatio);

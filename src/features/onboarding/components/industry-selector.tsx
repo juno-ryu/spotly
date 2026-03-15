@@ -1,8 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, Search, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { ArrowLeft, Search } from "lucide-react";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandSeparator,
+  CommandShortcut,
+} from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import { hapticLight } from "../lib/haptic";
 import { useTypingAnimation } from "../hooks/use-typing-animation";
@@ -66,23 +75,25 @@ export function IndustrySelector({ onNext }: IndustrySelectorProps) {
 
   // 검색 결과에서 선택
   const handleSearchSelect = useCallback(
-    (code: IndustryCode) => {
+    (code: IndustryCode, selectedKeyword?: string) => {
       hapticLight();
 
-      const found = ONBOARDING_INDUSTRIES.find(
-        (i) => i.ksicCode === code.code,
-      );
+      // 매칭된 정확한 키워드 사용 (사용자 타이핑 "이자카" → 매칭 키워드 "이자카야")
+      const keyword = selectedKeyword || code.keywords[0] || code.name;
+
+      const found = ONBOARDING_INDUSTRIES.find((i) => i.ksicCode === code.code);
       if (found) {
+        const withKeyword = { ...found, keyword };
         setSelected(found.name);
-        addRecentIndustry(found);
-        setTimeout(() => onNext(found), 350);
+        addRecentIndustry(withKeyword);
+        setTimeout(() => onNext(withKeyword), 350);
         return;
       }
 
       const custom: OnboardingIndustry = {
-        emoji: "🏪",
+        emoji: code.emoji || "🏪",
         name: code.name,
-        keyword: code.name,
+        keyword,
         ksicCode: code.code,
         seoulCode: "",
       };
@@ -93,14 +104,21 @@ export function IndustrySelector({ onNext }: IndustrySelectorProps) {
     [onNext, addRecentIndustry],
   );
 
-  const searchResults =
-    searchQuery.length > 0
-      ? INDUSTRY_CODES.filter(
-          (c) =>
-            c.name.includes(searchQuery) ||
-            c.keywords.some((k) => k.includes(searchQuery)),
-        ).slice(0, 8)
-      : [];
+  const searchResults = (() => {
+    if (searchQuery.length === 0) return [];
+    // 직접 매칭 (name 또는 keywords에 검색어 포함)
+    const direct = INDUSTRY_CODES.filter(
+      (c) =>
+        c.name.includes(searchQuery) ||
+        c.keywords.some((k) => k.includes(searchQuery)),
+    );
+    // 같은 category에 속하는 다른 업종도 추가 (검색 편의)
+    const matchedCategories = new Set(direct.map((c) => c.category));
+    const sameCategory = INDUSTRY_CODES.filter(
+      (c) => matchedCategories.has(c.category) && !direct.includes(c),
+    );
+    return [...direct, ...sameCategory].slice(0, 12);
+  })();
 
   useEffect(() => {
     return () => {
@@ -108,69 +126,115 @@ export function IndustrySelector({ onNext }: IndustrySelectorProps) {
     };
   }, []);
 
-  // ─── 검색 모드 ───
+  // 카테고리별 그룹핑 (Command용)
+  const groupedCodes = INDUSTRY_CODES.reduce<Record<string, IndustryCode[]>>(
+    (acc, code) => {
+      (acc[code.category] ??= []).push(code);
+      return acc;
+    },
+    {},
+  );
+
+  // ─── 검색 모드 (shadcn Command) ───
   if (searchOpen) {
     return (
-      <div className="flex min-h-dvh flex-col bg-background pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
-        <div className="flex items-center gap-2 px-3 pt-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => {
-              setSearchOpen(false);
-              setSearchQuery("");
-            }}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              ref={inputRef}
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="업종 검색..."
-              autoFocus
-              className="h-10 w-full rounded-lg border bg-muted/50 pl-10 pr-10 text-sm outline-none focus:border-[var(--onboarding-chip-border-selected)]"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-        </div>
+      <div className="fixed inset-0 z-50 flex flex-col bg-background pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+        {/* 뒤로가기 — BackButton과 동일한 위치/크기 (검색 닫기용) */}
+        <button
+          type="button"
+          onClick={() => {
+            setSearchOpen(false);
+            setSearchQuery("");
+          }}
+          className="fixed top-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm"
+          aria-label="뒤로가기"
+        >
+          <ArrowLeft className="h-5 w-5 text-gray-700" />
+        </button>
 
-        <div className="flex-1 overflow-y-auto px-4 pt-4 space-y-1">
-          {searchResults.map((code) => (
-            <button
-              key={code.code}
-              type="button"
-              className={cn(
-                "flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors",
-                "hover:bg-accent active:bg-accent",
-                selected === code.name &&
-                  "bg-[var(--onboarding-chip-selected)]",
-              )}
-              onClick={() => handleSearchSelect(code)}
-            >
-              <span className="text-sm font-medium">{code.name}</span>
-              <span className="text-xs text-muted-foreground">
-                {code.category}
-              </span>
-            </button>
-          ))}
-          {searchQuery && searchResults.length === 0 && (
-            <p className="py-4 text-center text-sm text-muted-foreground">
-              검색 결과가 없습니다
-            </p>
-          )}
-        </div>
+        <Command className="flex-1" shouldFilter={false}>
+          <div className="shrink-0 px-16 pt-6 pb-2">
+            <CommandInput
+              placeholder="업종, 키워드로 검색..."
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+              autoFocus
+            />
+          </div>
+          <CommandList className="max-h-none flex-1 overflow-y-auto">
+            <CommandEmpty>검색 결과가 없습니다</CommandEmpty>
+            {recentIndustries.length > 0 && searchQuery.length === 0 && (
+              <>
+                <CommandGroup heading="최근 검색">
+                  {recentIndustries.map((industry) => (
+                    <CommandItem
+                      key={industry.name}
+                      value={industry.keyword}
+                      onSelect={() => handleItemSelect(industry)}
+                    >
+                      <span>{industry.emoji}</span>
+                      <span>{industry.keyword || industry.name}</span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+                <CommandSeparator />
+              </>
+            )}
+            {(() => {
+              type FlatItem = { keyword: string; code: IndustryCode };
+              const allItems: FlatItem[] = INDUSTRY_CODES.flatMap((code) =>
+                code.keywords.map((kw) => ({ keyword: kw, code })),
+              );
+
+              const filtered =
+                searchQuery.length > 0
+                  ? (() => {
+                      const matched = allItems.filter(
+                        (item) =>
+                          item.keyword.includes(searchQuery) ||
+                          item.code.name.includes(searchQuery),
+                      );
+                      const matchedCategories = new Set(
+                        matched.map((i) => i.code.category),
+                      );
+                      const rest = allItems.filter(
+                        (item) =>
+                          matchedCategories.has(item.code.category) &&
+                          !matched.includes(item),
+                      );
+                      return [...matched, ...rest];
+                    })()
+                  : allItems;
+
+              const grouped: Record<string, FlatItem[]> = {};
+              for (const item of filtered) {
+                (grouped[item.code.category] ??= []).push(item);
+              }
+
+              const entries = Object.entries(grouped);
+              return entries.map(([category, items], i) => (
+                <React.Fragment key={category}>
+                  {i > 0 && <CommandSeparator />}
+                  <CommandGroup heading={`${items[0].code.emoji} ${category}`}>
+                    {items.map((item) => (
+                    <CommandItem
+                      key={`${item.code.code}-${item.keyword}`}
+                      value={`${item.keyword} ${item.code.category}`}
+                      onSelect={() => {
+                        setSearchQuery(item.keyword);
+                        handleSearchSelect(item.code, item.keyword);
+                      }}
+                    >
+                      <span>{item.keyword}</span>
+                      <CommandShortcut>{item.code.name}</CommandShortcut>
+                    </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </React.Fragment>
+              ));
+            })()}
+          </CommandList>
+        </Command>
       </div>
     );
   }
@@ -183,7 +247,10 @@ export function IndustrySelector({ onNext }: IndustrySelectorProps) {
         <h2 className="text-xl font-bold text-left leading-snug">
           {headerText.split("창업").map((part, i, arr) =>
             i < arr.length - 1 ? (
-              <span key={i}>{part}<span style={GRADIENT_STYLE}>창업</span></span>
+              <span key={i}>
+                {part}
+                <span style={GRADIENT_STYLE}>창업</span>
+              </span>
             ) : (
               <span key={i}>{part}</span>
             ),
@@ -214,46 +281,12 @@ export function IndustrySelector({ onNext }: IndustrySelectorProps) {
             </button>
           </div>
 
-          {/* 최근 검색 */}
-          {recentIndustries.length > 0 && (
-            <div
-              className="animate-in fade-in"
-              style={{
-                animationDuration: "200ms",
-                animationDelay: "70ms",
-                animationFillMode: "both",
-              }}
-            >
-              <h3 className="mb-3 text-sm font-medium text-muted-foreground">
-                🕐 최근 검색
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {recentIndustries.map((industry) => (
-                  <button
-                    key={industry.name}
-                    type="button"
-                    onClick={() => handleItemSelect(industry)}
-                    className={cn(
-                      "rounded-full border px-4 py-2 text-sm font-medium transition-all",
-                      "hover:bg-accent active:scale-95 active:bg-accent",
-                      selected === industry.name
-                        ? "border-2 border-[var(--onboarding-chip-border-selected)] bg-[var(--onboarding-chip-selected)]"
-                        : "bg-background",
-                    )}
-                  >
-                    {industry.emoji} {industry.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* 핫한 창업 아이템 추천 */}
           <div
             className="animate-in fade-in"
             style={{
               animationDuration: "200ms",
-              animationDelay: recentIndustries.length > 0 ? "130ms" : "70ms",
+              animationDelay: "70ms",
               animationFillMode: "both",
             }}
           >
@@ -286,7 +319,6 @@ export function IndustrySelector({ onNext }: IndustrySelectorProps) {
           </div>
         </div>
       )}
-
 
       {/* 스크린리더 알림 */}
       <div aria-live="polite" className="sr-only">

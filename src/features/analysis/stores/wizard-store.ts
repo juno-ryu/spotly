@@ -12,6 +12,8 @@ export interface SelectedIndustry {
   code: string;
   name: string;
   emoji: string;
+  /** 카카오 Places 검색에 사용할 키워드 (사용자가 실제 선택/입력한 값) */
+  keyword: string;
 }
 
 /** 온보딩에서 선택한 지역 (좌표 + 줌 레벨) */

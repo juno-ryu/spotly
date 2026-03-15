@@ -17,7 +17,17 @@ export const competitionRules: InsightRule = (data) => {
   if (!competition) return [];
 
   const grade = (competition.competitionScore?.grade ?? "C") as Grade;
+  const industry = data.industryName;
   const insights: InsightItem[] = [];
+
+  // 프랜차이즈 개념이 해당 없는 업종 (학원·병의원·부동산)
+  const isFranchiseIrrelevant =
+    industry.includes("학원") ||
+    industry.includes("병원") ||
+    industry.includes("의원") ||
+    industry.includes("치과") ||
+    industry.includes("한의") ||
+    industry.includes("부동산");
 
   // 0. 동종업체 0개 — places.totalCount 기준 (Kakao 실제 총 수)
   // directCompetitorCount는 샘플(최대 15개) 기반이라 신뢰 불가 → totalCount 사용
@@ -46,35 +56,37 @@ export const competitionRules: InsightRule = (data) => {
     });
   }
 
-  // 2. 프랜차이즈 현황 — 팩트 수치 (개수 + 비율 + 브랜드명)
-  if (competition.franchiseCount > 0) {
-    const total = competition.directCompetitorCount + competition.indirectCompetitorCount;
-    const ratio = total > 0 ? Math.round((competition.franchiseCount / total) * 100) : 0;
-    const brands = competition.franchiseBrandNames;
-    const brandText =
-      brands.length > 0
-        ? brands.slice(0, 5).join(", ") + (brands.length > 5 ? ` 외 ${brands.length - 5}개` : "")
-        : undefined;
+  // 2. 프랜차이즈 현황 — 학원·병의원·부동산은 프랜차이즈 개념이 없으므로 숨김
+  if (!isFranchiseIrrelevant) {
+    if (competition.franchiseCount > 0) {
+      const total = competition.directCompetitorCount + competition.indirectCompetitorCount;
+      const ratio = total > 0 ? Math.round((competition.franchiseCount / total) * 100) : 0;
+      const brands = competition.franchiseBrandNames;
+      const brandText =
+        brands.length > 0
+          ? brands.slice(0, 5).join(", ") + (brands.length > 5 ? ` 외 ${brands.length - 5}개` : "")
+          : undefined;
 
-    insights.push({
-      type: "text",
-      emoji: "🏷️",
-      text: `프랜차이즈 ${competition.franchiseCount}개 (${ratio}%)`,
-      sub: brandText,
-      category: "scoring",
-    });
-  } else {
-    // 프랜차이즈 0건: 경쟁자가 모두 독립 점포
-    const isLowCompetition = grade === "A" || grade === "B";
-    insights.push({
-      type: "text",
-      emoji: isLowCompetition ? "✅" : "📊",
-      text: isLowCompetition
-        ? "프랜차이즈 없음 (독립 점포 상권)"
-        : "프랜차이즈 없음 (소규모 독립 점포 밀집)",
-      sub: undefined,
-      category: "scoring",
-    });
+      insights.push({
+        type: "text",
+        emoji: "🏷️",
+        text: `프랜차이즈 ${competition.franchiseCount}개 (${ratio}%)`,
+        sub: brandText,
+        category: "scoring",
+      });
+    } else {
+      // 프랜차이즈 0건: 경쟁자가 모두 독립 점포
+      const isLowCompetition = grade === "A" || grade === "B";
+      insights.push({
+        type: "text",
+        emoji: isLowCompetition ? "✅" : "📊",
+        text: isLowCompetition
+          ? "프랜차이즈 없음 (독립 점포 상권)"
+          : "프랜차이즈 없음 (소규모 독립 점포 밀집)",
+        sub: undefined,
+        category: "scoring",
+      });
+    }
   }
 
   return insights;

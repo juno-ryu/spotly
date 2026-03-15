@@ -18,6 +18,8 @@ export interface AnalysisResult {
   vitality: VitalityAnalysis | null;
   radius: number;
   industryCode: string;
+  /** 카카오 Places 검색에 사용한 키워드 (사용자 원래 입력값) */
+  industryKeyword?: string;
   centerLatitude: number;
   centerLongitude: number;
   dongName?: string;
@@ -48,6 +50,8 @@ export async function runAnalysis(params: {
   industryKeywords: string[];
   industryCode: string;
   industryName: string;
+  /** 카카오 Places 검색 키워드 (사용자 원래 입력값, 없으면 industryName 사용) */
+  industryKeyword?: string;
   radius: number;
   adminDongCode?: string;
   dongName?: string;
@@ -63,7 +67,7 @@ export async function runAnalysis(params: {
   // 데이터 수집 — 카카오 Places + 서울 골목상권(서울만) + KOSIS 인구(전국) + 지하철(전국) + 버스(전국) + 학교(전국) + 대학교(전국) + 의료(전국)
   const [placesRaw, vitalityData, populationData, subwayData, busData, schoolData, universityData, medicalData] = await Promise.all([
     fetchKakaoPlaces({
-      keyword: params.industryName,
+      keyword: params.industryKeyword || params.industryName,
       latitude: params.latitude,
       longitude: params.longitude,
       radius: params.radius,
@@ -121,6 +125,7 @@ export async function runAnalysis(params: {
       latitude: params.latitude,
       longitude: params.longitude,
       radius: params.radius,
+      regionCode: params.regionCode,
     }).catch((err) => {
       console.warn("[오케스트레이터] 대학교 접근성 분석 실패:", err);
       return null;
@@ -163,6 +168,7 @@ export async function runAnalysis(params: {
     vitality,
     radius: params.radius,
     industryCode: params.industryCode,
+    industryKeyword: params.industryKeyword,
     centerLatitude: params.latitude,
     centerLongitude: params.longitude,
     dongName: params.dongName,

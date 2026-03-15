@@ -26,7 +26,7 @@ export function UserMenu({ email, avatarUrl, name }: UserMenuProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">
-          <Avatar>
+          <Avatar className="h-10 w-10">
             <AvatarImage src={avatarUrl} alt={name ?? email} />
             <AvatarFallback className="bg-violet-100 text-violet-700 font-semibold">
               {initial}

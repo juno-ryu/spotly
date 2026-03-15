@@ -44,10 +44,14 @@ type BannerType = "android" | "ios" | null;
 export function InstallBanner() {
   const [bannerType, setBannerType] = useState<BannerType>(null);
   const [androidPrompt, setAndroidPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  // 쿠키 dismiss 여부를 한번만 체크해서 캐시
+  const [dismissed, setDismissed] = useState(() =>
+    typeof document !== "undefined" ? isDismissed() : true,
+  );
 
   useEffect(() => {
-    // 이미 설치됐거나 1시간 내 닫은 경우 표시 안 함
-    if (isInStandaloneMode() || isDismissed()) return;
+    // 이미 설치됐거나 닫은 경우 표시 안 함
+    if (isInStandaloneMode() || dismissed) return;
 
     if (isIosSafari()) {
       setBannerType("ios");
@@ -69,6 +73,7 @@ export function InstallBanner() {
 
   const handleDismiss = () => {
     setDismissedCookie();
+    setDismissed(true);
     setBannerType(null);
   };
 

@@ -233,35 +233,84 @@ export function AnalysisReportPDF({
         {/* 점수 */}
         {scoreDetail && <ScoreSection scoreDetail={scoreDetail} />}
 
-        {/* 강점 */}
+        {/* 경쟁 분석 */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>강점</Text>
-          {report.strengths.map((s, i) => (
+          <Text style={styles.sectionTitle}>경쟁업체 현황</Text>
+          <Text style={styles.listText}>
+            직접 경쟁 {report.competitorCount.direct}개 / 간접 경쟁 {report.competitorCount.indirect}개 / 프랜차이즈 {report.competitorCount.franchise}개
+          </Text>
+          <Text style={styles.listText}>{report.competitorCount.interpretation}</Text>
+        </View>
+
+        {/* 경쟁강도 등급 */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>경쟁강도 등급</Text>
+          <Text style={styles.listText}>{report.competitionGrade.grade}등급 ({report.competitionGrade.score}점) — {report.competitionGrade.label}</Text>
+          <Text style={styles.listText}>{report.competitionGrade.rationale}</Text>
+        </View>
+
+        {/* 예상 매출 범위 */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>예상 매출 범위</Text>
+          {report.revenueEstimate ? (
+            <>
+              <Text style={styles.listText}>점포당 월 평균: {report.revenueEstimate.monthlyPerStoreMaan.toLocaleString()}만원</Text>
+              <Text style={styles.listText}>매출 피크: {report.revenueEstimate.peakTimeSlot} / 주 소비층: {report.revenueEstimate.mainAgeGroup}</Text>
+              <Text style={styles.listText}>{report.revenueEstimate.interpretation}</Text>
+            </>
+          ) : (
+            <Text style={styles.listText}>{report.revenueEstimateUnavailableReason ?? "데이터 없음"}</Text>
+          )}
+        </View>
+
+        {/* 생존율 분석 */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>생존율 분석</Text>
+          {report.survivalAnalysis ? (
+            <>
+              <Text style={styles.listText}>폐업률 {report.survivalAnalysis.closeRate}% / 개업률 {report.survivalAnalysis.openRate}%</Text>
+              <Text style={styles.listText}>{report.survivalAnalysis.interpretation}</Text>
+            </>
+          ) : (
+            <Text style={styles.listText}>비서울 지역으로 생존율 데이터가 수집되지 않았습니다</Text>
+          )}
+        </View>
+
+        {/* 리스크 경고 */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>리스크 경고</Text>
+          {report.riskWarnings.map((r, i) => (
             <View key={i} style={styles.listItem}>
               <Text style={styles.bullet}>•</Text>
-              <Text style={styles.listText}>{s}</Text>
+              <Text style={styles.listText}>[{r.severity}] {r.title}: {r.detail}</Text>
             </View>
           ))}
         </View>
 
-        {/* 위험 요소 */}
+        {/* 맞춤형 창업 전략 */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>위험 요소</Text>
-          {report.risks.map((r, i) => (
+          <Text style={styles.sectionTitle}>맞춤형 창업 전략</Text>
+          <Text style={styles.listText}>포지셔닝: {report.strategy.positioning}</Text>
+          <Text style={styles.listText}>타겟 고객: {report.strategy.targetCustomer}</Text>
+          {report.strategy.recommendedHours ? (
+            <Text style={styles.listText}>추천 운영 시간: {report.strategy.recommendedHours}</Text>
+          ) : null}
+          {report.strategy.actionItems.map((item, i) => (
             <View key={i} style={styles.listItem}>
               <Text style={styles.bullet}>•</Text>
-              <Text style={styles.listText}>{r}</Text>
+              <Text style={styles.listText}>{item}</Text>
             </View>
           ))}
         </View>
 
-        {/* 제언 */}
+        {/* 입지 활용 전략 */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>제언</Text>
-          {report.recommendations.map((r, i) => (
+          <Text style={styles.sectionTitle}>입지 활용 전략</Text>
+          <Text style={styles.listText}>{report.locationAdvice.currentAssessment}</Text>
+          {report.locationAdvice.suggestions.map((s, i) => (
             <View key={i} style={styles.listItem}>
               <Text style={styles.bullet}>•</Text>
-              <Text style={styles.listText}>{r}</Text>
+              <Text style={styles.listText}>{s.direction} — {s.rationale}</Text>
             </View>
           ))}
         </View>

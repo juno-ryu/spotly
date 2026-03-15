@@ -5,8 +5,15 @@ import { prisma } from "@/server/db/prisma";
 import { hasApiKey } from "@/lib/env";
 import { ANALYSIS_SYSTEM_PROMPT, buildAnalysisPrompt } from "./lib/prompt-builder";
 import { aiReportSchema } from "./schema";
+import { scoreToGrade } from "@/features/analysis/lib/scoring/types";
 import type { CompetitionAnalysis } from "@/features/analysis/lib/scoring/types";
 import type { VitalityAnalysis } from "@/features/analysis/lib/scoring/vitality";
+import type { PopulationAnalysis } from "@/features/analysis/lib/scoring/population";
+import type { SubwayAnalysis } from "@/server/data-sources/subway/adapter";
+import type { BusAnalysis } from "@/server/data-sources/bus/adapter";
+import type { SchoolAnalysis } from "@/server/data-sources/school/adapter";
+import type { UniversityAnalysis } from "@/server/data-sources/university/adapter";
+import type { MedicalAnalysis } from "@/server/data-sources/medical/adapter";
 
 export async function generateReport(analysisId: string) {
   if (!hasApiKey.anthropic) {
@@ -33,27 +40,44 @@ export async function generateReport(analysisId: string) {
     return { success: false as const, error: "분석 데이터가 없습니다" };
   }
 
-  // 신규 데이터 구조에서 경쟁/활력 데이터 추출
   const competition = reportData.competition as CompetitionAnalysis | undefined;
   if (!competition) {
     return { success: false as const, error: "경쟁 분석 데이터가 없습니다" };
   }
 
   const vitality = (reportData.vitality as VitalityAnalysis | undefined) ?? null;
+  const population = (reportData.populationAnalysis as PopulationAnalysis | undefined) ?? null;
+  const subway = (reportData.subway as SubwayAnalysis | undefined) ?? null;
+  const bus = (reportData.bus as BusAnalysis | undefined) ?? null;
+  const school = (reportData.school as SchoolAnalysis | undefined) ?? null;
+  const university = (reportData.university as UniversityAnalysis | undefined) ?? null;
+  const medical = (reportData.medical as MedicalAnalysis | undefined) ?? null;
+
+  // 종합 점수 + 등급 (AI에게 맥락 전달)
+  const totalScore = analysis.totalScore ?? 0;
+  const { grade: scoreGrade } = scoreToGrade(totalScore);
 
   const prompt = buildAnalysisPrompt({
     address: analysis.address,
     industryName: analysis.industryName,
     radius: analysis.radius,
+    totalScore,
+    scoreGrade,
     competition,
     vitality,
+    population,
+    subway,
+    bus,
+    school,
+    university,
+    medical,
   });
 
   try {
     const anthropic = new Anthropic();
     const message = await anthropic.messages.create({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 4096,
+      max_tokens: 8192,
       system: ANALYSIS_SYSTEM_PROMPT,
       messages: [{ role: "user", content: prompt }],
     });

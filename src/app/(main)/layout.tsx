@@ -15,7 +15,7 @@ export default async function MainLayout({
   return (
     <>
       {user && (
-        <div className="fixed top-0 right-0 z-50 p-3 pt-[calc(env(safe-area-inset-top)+8px)]">
+        <div className="fixed top-4 right-4 z-50">
           <UserMenu
             email={user.email ?? ""}
             avatarUrl={avatarUrl}

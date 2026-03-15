@@ -22,6 +22,7 @@ export default function IndustryPage() {
         code: industry.ksicCode,
         name: industry.name,
         emoji: industry.emoji,
+        keyword: industry.keyword,
       });
 
       router.push("/region");

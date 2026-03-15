@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-const MAX_ITEMS = 3;
+const MAX_ITEMS = 5;
 
 /**
  * localStorage 기반 최근 검색 훅

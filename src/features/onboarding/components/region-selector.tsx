@@ -1,8 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, MapPin, Search, X } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { ArrowLeft, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandSeparator,
+} from "@/components/ui/command";
 import { toast } from "sonner";
 import { hapticLight } from "../lib/haptic";
 import { useTypingAnimation } from "../hooks/use-typing-animation";
@@ -11,22 +20,22 @@ import {
   useAddressSearch,
   type SearchResult,
 } from "@/features/map/hooks/use-address-search";
+import type { OnboardingIndustry } from "../constants/industries";
 import {
-  DEFAULT_MAP_ZOOM,
   HOT_STARTUP_AREAS,
   type OnboardingRegion,
 } from "../constants/regions";
-import type { OnboardingIndustry } from "../constants/industries";
+import { GRADIENT_TEXT_STYLE as GRADIENT_STYLE } from "@/constants/site";
+import { Search } from "lucide-react";
 
 const TYPING_SPEED = 33;
-import { GRADIENT_TEXT_STYLE as GRADIENT_STYLE } from "@/constants/site";
+const DEFAULT_MAP_ZOOM = 4;
 
 interface RegionSelectorProps {
   selectedIndustry: OnboardingIndustry;
   onNext: (region: OnboardingRegion) => void;
 }
 
-/** Step 3: 지역 선택 — 검색 + 핫 창업지역 추천 */
 export function RegionSelector({
   selectedIndustry,
   onNext,
@@ -35,7 +44,6 @@ export function RegionSelector({
   const [searchQuery, setSearchQuery] = useState("");
   const [showContent, setShowContent] = useState(false);
   const [geoLoading, setGeoLoading] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
   const { items: recentRegions, add: addRecentRegion } =
     useRecentSearches<OnboardingRegion>("recent-regions");
 
@@ -55,7 +63,7 @@ export function RegionSelector({
     }
   }, [headerDone]);
 
-  // 검색 결과
+  // 카카오 주소 검색
   const { data: searchData, isLoading: isSearching } =
     useAddressSearch(searchQuery);
 
@@ -77,8 +85,8 @@ export function RegionSelector({
     [onNext, addRecentRegion],
   );
 
-  // 핫 지역 선택
-  const handleHotAreaSelect = useCallback(
+  // 핫 지역 / 최근 검색 선택
+  const handleAreaSelect = useCallback(
     (area: OnboardingRegion) => {
       hapticLight();
       addRecentRegion(area);
@@ -127,74 +135,85 @@ export function RegionSelector({
       </span>
     ));
 
-  // ─── 검색 모드 ───
+  // ─── 검색 모드 (Command) ───
   if (searchOpen) {
     return (
-      <div className="flex min-h-dvh flex-col bg-background pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
-        {/* 검색 헤더 */}
-        <div className="flex items-center gap-2 px-3 pt-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => {
-              setSearchOpen(false);
-              setSearchQuery("");
-            }}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              ref={inputRef}
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="주소, 건물명, 역 이름 검색"
-              autoFocus
-              className="h-10 w-full rounded-lg border bg-muted/50 pl-10 pr-10 text-sm outline-none focus:border-[var(--onboarding-chip-border-selected)]"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-        </div>
+      <div className="fixed inset-0 z-50 flex flex-col bg-background pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+        {/* 뒤로가기 — BackButton과 동일 위치/크기 */}
+        <button
+          type="button"
+          onClick={() => {
+            setSearchOpen(false);
+            setSearchQuery("");
+          }}
+          className="fixed top-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm"
+          aria-label="뒤로가기"
+        >
+          <ArrowLeft className="h-5 w-5 text-gray-700" />
+        </button>
 
-        {/* 검색 결과 */}
-        <div className="flex-1 overflow-y-auto px-4 pt-4 space-y-1">
-          {isSearching && (
-            <p className="py-4 text-center text-sm text-muted-foreground">
-              검색 중...
-            </p>
-          )}
-          {searchData?.results?.map((result) => (
-            <button
-              key={`${result.latitude}-${result.longitude}`}
-              type="button"
-              className="flex w-full items-start gap-3 rounded-lg p-3 text-left transition-colors hover:bg-accent active:bg-accent"
-              onClick={() => handleSearchSelect(result)}
-            >
-              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{result.name}</p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {result.address}
-                </p>
-              </div>
-            </button>
-          ))}
-          {searchQuery && searchData?.results?.length === 0 && !isSearching && (
-            <p className="py-4 text-center text-sm text-muted-foreground">
-              검색 결과가 없습니다
-            </p>
-          )}
-        </div>
+        <Command className="flex-1" shouldFilter={false}>
+          <div className="shrink-0 px-16 pt-6 pb-2">
+            <CommandInput
+              placeholder="주소, 건물명, 역 이름 검색..."
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+              autoFocus
+            />
+          </div>
+          <CommandList className="max-h-none flex-1 overflow-y-auto">
+            {/* 최근 검색 — 검색어 비어있을 때 */}
+            {recentRegions.length > 0 && searchQuery.length === 0 && (
+              <>
+                <CommandGroup heading="최근 검색">
+                  {recentRegions.map((region) => (
+                    <CommandItem
+                      key={region.name}
+                      value={region.name}
+                      onSelect={() => handleAreaSelect(region)}
+                    >
+                      <MapPin className="h-4 w-4" />
+                      <span>{region.name}</span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+                <CommandSeparator />
+              </>
+            )}
+
+            {/* 검색 결과 */}
+            {searchQuery.length > 0 && (
+              <>
+                {isSearching && (
+                  <div className="py-4 text-center text-sm text-muted-foreground">
+                    검색 중...
+                  </div>
+                )}
+                {searchData?.results && searchData.results.length > 0 && (
+                  <CommandGroup heading="검색 결과">
+                    {searchData.results.map((result) => (
+                      <CommandItem
+                        key={`${result.latitude}-${result.longitude}`}
+                        value={`${result.name} ${result.address}`}
+                        onSelect={() => handleSearchSelect(result)}
+                      >
+                        <MapPin className="h-4 w-4" />
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">{result.name}</p>
+                          <p className="text-xs text-muted-foreground truncate">{result.address}</p>
+                        </div>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
+                {!isSearching && searchData?.results?.length === 0 && (
+                  <CommandEmpty>검색 결과가 없습니다</CommandEmpty>
+                )}
+              </>
+            )}
+
+          </CommandList>
+        </Command>
       </div>
     );
   }
@@ -207,7 +226,7 @@ export function RegionSelector({
         <h2 className="text-xl font-bold text-left leading-snug">
           <span>{selectedIndustry.emoji}</span>{" "}
           <span style={GRADIENT_STYLE} className="font-black">
-            {selectedIndustry.name}
+            {selectedIndustry.keyword || selectedIndustry.name}
           </span>{" "}
           {displayText && renderText(displayText)}
           {!headerDone && (
@@ -236,40 +255,12 @@ export function RegionSelector({
             </button>
           </div>
 
-          {/* 최근 검색 */}
-          {recentRegions.length > 0 && (
-            <div
-              className="animate-in fade-in"
-              style={{
-                animationDuration: "200ms",
-                animationDelay: "70ms",
-                animationFillMode: "both",
-              }}
-            >
-              <h3 className="mb-3 text-sm font-medium text-muted-foreground">
-                🕐 최근 검색
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {recentRegions.map((region) => (
-                  <button
-                    key={region.name}
-                    type="button"
-                    onClick={() => handleHotAreaSelect(region)}
-                    className="rounded-full border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent active:scale-95 active:bg-accent"
-                  >
-                    {region.emoji} {region.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* 현재 위치 버튼 */}
           <div
             className="animate-in fade-in"
             style={{
               animationDuration: "200ms",
-              animationDelay: recentRegions.length > 0 ? "130ms" : "70ms",
+              animationDelay: "70ms",
               animationFillMode: "both",
             }}
           >
@@ -288,7 +279,7 @@ export function RegionSelector({
             className="animate-in fade-in"
             style={{
               animationDuration: "200ms",
-              animationDelay: recentRegions.length > 0 ? "200ms" : "130ms",
+              animationDelay: "130ms",
               animationFillMode: "both",
             }}
           >
@@ -300,7 +291,7 @@ export function RegionSelector({
                 <button
                   key={area.name}
                   type="button"
-                  onClick={() => handleHotAreaSelect(area)}
+                  onClick={() => handleAreaSelect(area)}
                   className="animate-in fade-in rounded-full border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent active:scale-95 active:bg-accent"
                   style={{
                     animationDuration: "150ms",

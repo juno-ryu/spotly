@@ -2,50 +2,49 @@
 
 import { useState, useRef, memo, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
 import { CompetitorMap } from "./competitor-map";
+import { GradeBadge } from "./grade-badge";
+import { MetricCards } from "./metric-cards";
+import { DataFacts } from "./data-facts";
 import { formatRadius } from "@/lib/format";
 import { GRADIENT_TEXT_STYLE } from "@/constants/site";
-import dayjs from "dayjs";
-import { buildCompetitionInsights, buildPopulationInsights, buildSubwayInsights, buildBusInsights, buildSchoolInsights, buildUniversityInsights, buildMedicalInsights, buildTransitHeader, buildUniversityHeader, buildSchoolHeader, buildMedicalHeader, buildPopulationHeader, buildCompetitionHeader, buildVitalityHeader } from "../lib/insights";
-import { generateReport } from "@/features/report/actions";
-import type { InsightItem, CompetitionAnalysis, InsightData } from "../lib/insights";
 import type { SubwayAnalysis } from "@/server/data-sources/subway/adapter";
 import type { BusAnalysis } from "@/server/data-sources/bus/adapter";
 import type { SchoolAnalysis } from "@/server/data-sources/school/adapter";
 import type { UniversityAnalysis } from "@/server/data-sources/university/adapter";
 import type { MedicalAnalysis } from "@/server/data-sources/medical/adapter";
-import type { VitalityAnalysis } from "../lib/scoring/vitality";
-import type { PopulationAnalysis } from "../lib/scoring/population";
 import type { AnalysisRequest } from "@prisma/client";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import type { ScoreBreakdown } from "@/features/analysis/schema";
+import type { InsightData } from "@/features/analysis/lib/insights/types";
+import {
+  buildCompetitionHeader,
+  buildVitalityHeader,
+  buildPopulationHeader,
+  buildTransitHeader,
+} from "@/features/analysis/lib/insights/builder";
 
-/** 데이터 소스 티커 */
+/** 데이터 소스 티커 — 수집하는 모든 데이터 항목 */
 const DATA_SOURCES = [
   "카카오 Places 경쟁 매장 분석",
   "프랜차이즈 브랜드 매칭 분석",
   "반경 내 경쟁업체 밀집도 계산",
   "업종별 프랜차이즈 비율 분석",
+  "서울 골목상권 매출 데이터 수집",
+  "상권변화지표 (확장/포화/불안정) 분석",
+  "유동인구 시간대·요일·연령 분석",
+  "점포 개업·폐업률 계산",
+  "KOSIS 행정동 배후인구 조회",
+  "지하철 역세권 승하차 데이터 분석",
+  "버스 정류장·노선 수 조회 (TAGO)",
+  "초·중·고등학교 위치 DB 검색",
+  "대학교 반경 탐색 (카카오)",
+  "종합병원·의료원 반경 탐색",
 ];
 
-const animStyles = `
-@keyframes source-led {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.35; }
-}
-@keyframes insight-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}`;
+
 
 const SourceTicker = memo(function SourceTicker({
   sources,
@@ -90,69 +89,142 @@ const SourceTicker = memo(function SourceTicker({
 });
 
 /** 헤더 — 하이라이트 텍스트 */
-function Header({
+/** 지도 마커 범례 (이모지 + 색상) */
+const MAP_LEGENDS = [
+  { emoji: "📍", color: "#7c3aed", label: "내 위치", pin: true },
+  { emoji: "", color: "#7c3aed", label: "동종업체", pin: false },
+  { emoji: "🚇", color: "#2563eb", label: "지하철", pin: true },
+  { emoji: "🚌", color: "#ea580c", label: "버스", pin: true },
+  { emoji: "🏫", color: "#16a34a", label: "학교", pin: true },
+  { emoji: "🎓", color: "#4f46e5", label: "대학교", pin: true },
+  { emoji: "🏥", color: "#dc2626", label: "병의원", pin: true },
+] as const;
+
+/** 마커 범례 — AvatarGroup + AvatarGroupCount(+) 클릭 시 펼침 */
+function MapLegend() {
+  const [expanded, setExpanded] = useState(false);
+
+  if (expanded) {
+    return (
+      <div className="flex flex-wrap gap-x-3 gap-y-1.5 items-center mt-1">
+        {MAP_LEGENDS.map(({ emoji, color, label }) => (
+          <span key={label} className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+            <Avatar size="sm" style={{ border: `2px solid ${emoji ? color : "white"}` }}>
+              <AvatarFallback
+                className="text-[9px]"
+                style={{ background: emoji ? "white" : color }}
+              >
+                {emoji || ""}
+              </AvatarFallback>
+            </Avatar>
+            {label}
+          </span>
+        ))}
+        <button
+          type="button"
+          onClick={() => setExpanded(false)}
+          className="text-[11px] text-muted-foreground hover:text-foreground"
+        >
+          접기
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <AvatarGroup className="mt-1">
+      {MAP_LEGENDS.map(({ emoji, color, label }) => (
+        <Avatar key={label} size="sm" style={{ border: `2px solid ${emoji ? color : "white"}` }}>
+          <AvatarFallback
+            className="text-[9px]"
+            style={{ background: emoji ? "white" : color }}
+          >
+            {emoji || ""}
+          </AvatarFallback>
+        </Avatar>
+      ))}
+      <AvatarGroupCount
+        className="size-6 text-[10px] cursor-pointer hover:bg-muted/80"
+        onClick={() => setExpanded(true)}
+      >
+        +
+      </AvatarGroupCount>
+    </AvatarGroup>
+  );
+}
+
+function HeaderWithGrade({
   address,
   radiusLabel,
   industryName,
   totalCount,
+  totalScore,
+  insightData,
 }: {
   address: string;
   radiusLabel: string;
   industryName: string;
   totalCount: number;
+  totalScore: number | null;
+  insightData: InsightData | null;
 }) {
-  return (
-    <div className="shrink-0 px-4">
-      <p className="text-sm text-foreground/80 break-keep whitespace-pre-line leading-relaxed">
-        📍{" "}
-        <span className="text-base font-bold" style={GRADIENT_TEXT_STYLE}>
-          {address}
-        </span>{" "}
-        부근{"\n"}반경{" "}
-        <span className="text-base font-bold" style={GRADIENT_TEXT_STYLE}>
-          {radiusLabel}
-        </span>{" "}
-        내{" "}
-        <span className="text-base font-bold" style={GRADIENT_TEXT_STYLE}>
-          {industryName}
-        </span>{" "}
-        업장{" "}
-        <span className="text-base font-bold" style={GRADIENT_TEXT_STYLE}>
-          {totalCount}개
-        </span>
-        를 찾았어요 ✨
-      </p>
-      <SourceTicker sources={DATA_SOURCES} />
-    </div>
-  );
-}
+  // 기존 인사이트 빌더로 한 줄 총평 — 가장 눈에 띄는 지표 선택
+  const summary = (() => {
+    if (!insightData) return null;
+    const candidates = [
+      buildCompetitionHeader(insightData),
+      buildVitalityHeader(insightData),
+      buildPopulationHeader(insightData),
+      buildTransitHeader(insightData),
+    ].filter(Boolean);
+    if (candidates.length === 0) return null;
+    // 가장 강한 시그널 (A/F 우선, 그 다음 B/D, 마지막 C)
+    const gradeWeight: Record<string, number> = { A: 3, F: 3, B: 2, D: 2, C: 1 };
+    return candidates.sort((a, b) => {
+      const ga = a!.text.includes("적어") || a!.text.includes("우수") || a!.text.includes("풍부") ? 3
+        : a!.text.includes("치열") || a!.text.includes("부족") || a!.text.includes("낮") ? 3 : 1;
+      const gb = b!.text.includes("적어") || b!.text.includes("우수") || b!.text.includes("풍부") ? 3
+        : b!.text.includes("치열") || b!.text.includes("부족") || b!.text.includes("낮") ? 3 : 1;
+      return gb - ga;
+    })[0];
+  })();
 
-/** 경쟁강도 등급별 설명 */
-const COMPETITION_GRADE: Record<string, string> = {
-  A: "경쟁이 매우 낮아 창업에 유리한 상권이에요",
-  B: "경쟁이 적당한 편으로 좋은 조건이에요",
-  C: "상권 경쟁이 치열할 것으로 예상돼요",
-  D: "경쟁이 높아 신중한 접근이 필요해요",
-  F: "경쟁이 매우 치열해 창업 시 주의가 필요해요",
-};
-
-/** 인사이트 항목 — 순차 페이드인 */
-function Insight({ item, delay }: { item: InsightItem; delay: number }) {
   return (
-    <div
-      className="flex gap-2.5 py-2.5 animate-[insight-in_0.4s_ease-out_both]"
-      style={{ animationDelay: `${delay}ms` }}
-    >
-      <span className="text-sm leading-5 shrink-0">{item.emoji}</span>
-      <div className="min-w-0">
-        <p className="text-[13px] text-foreground leading-5 break-keep">
-          {item.text}
-        </p>
-        {item.sub && (
-          <p className="text-[11px] text-muted-foreground/60 mt-1 leading-4 flex items-center gap-1">
-            <span className="text-muted-foreground/30">›</span> {item.sub}
-          </p>
+    <div className="shrink-0 px-4 space-y-3">
+      {/* 마커 범례 — AvatarGroup (클릭 시 펼침) */}
+      <MapLegend />
+
+      {/* 등급(좌) + 주소/업종/총평(우) */}
+      <div className="flex items-start gap-3">
+        {totalScore != null && (
+          <div className="shrink-0">
+            <GradeBadge totalScore={totalScore} />
+          </div>
         )}
+        <div className="min-w-0 flex-1 flex flex-col justify-between self-stretch">
+          <div>
+            <p className="text-[13px] text-foreground/80 break-keep leading-snug">
+              📍{" "}
+              <span className="font-bold" style={GRADIENT_TEXT_STYLE}>
+                {address}
+              </span>{" "}
+              부근
+            </p>
+            <p className="text-[13px] text-foreground/80">
+              반경{" "}
+              <span className="font-bold" style={GRADIENT_TEXT_STYLE}>{radiusLabel}</span>
+              {" · "}
+              <span className="font-bold" style={GRADIENT_TEXT_STYLE}>{industryName}</span>
+              {" "}
+              <span className="font-bold" style={GRADIENT_TEXT_STYLE}>{totalCount}개</span>
+            </p>
+          </div>
+          {summary && (
+            <p className="text-[12px] text-muted-foreground">
+              {summary.emoji} {summary.text}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -166,246 +238,7 @@ interface AnalysisResultProps {
 
 const SHEET_MIN_HEIGHT = 140;
 
-/** 순환 후기 */
-const TESTIMONIALS = [
-  {
-    text: "보증금 3천만원 날릴 뻔했어요. 리포트 보고 위치 바꿨습니다",
-    author: "성북구 카페 예비창업자",
-    seed: "startup42",
-    bg: "b6e3f4",
-  },
-  {
-    text: "경쟁업체 분석이 너무 정확해요. 컨설팅 50만원 낭비할 뻔했어요",
-    author: "마포구 음식점 준비생",
-    seed: "chef88",
-    bg: "ffd5dc",
-  },
-  {
-    text: "주변 상권이 포화인 걸 미리 알고 동네 바꿨어요. 진짜 살았다",
-    author: "서초구 치킨집 예비창업자",
-    seed: "chicken77",
-    bg: "d1f4d1",
-  },
-  {
-    text: "이 가격에 이런 분석이라니 말이 안 돼요. 강추합니다",
-    author: "송파구 미용실 창업자",
-    seed: "beauty99",
-    bg: "c0aede",
-  },
-] as const;
-
-/** 무료 vs AI 리포트 비교 항목 */
-const COMPARISON_ITEMS: { label: string; free: boolean }[] = [
-  { label: "경쟁업체 수", free: true },
-  { label: "경쟁강도 등급", free: true },
-  { label: "예상 매출 범위", free: false },
-  { label: "생존율 분석", free: false },
-  { label: "리스크 경고", free: false },
-  { label: "맞춤형 창업 전략", free: false },
-  { label: "입지 대안 제안", free: false },
-];
-
-/** AI 리포트 유도 다이얼로그 */
-function ReportUpsellDialog({
-  open,
-  onClose,
-  analysisId,
-  competition,
-  vitality,
-  industryName,
-  radius,
-}: {
-  open: boolean;
-  onClose: () => void;
-  analysisId: string;
-  competition?: CompetitionAnalysis;
-  vitality?: VitalityAnalysis;
-  industryName: string;
-  radius: number;
-}) {
-  const router = useRouter();
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [genError, setGenError] = useState<string | null>(null);
-  const [testimonialIdx, setTestimonialIdx] = useState(0);
-  const [testimonialVisible, setTestimonialVisible] = useState(true);
-
-  // 3.5초마다 후기 순환
-  useEffect(() => {
-    if (!open) return;
-    const id = setInterval(() => {
-      setTestimonialVisible(false);
-      setTimeout(() => {
-        setTestimonialIdx((i) => (i + 1) % TESTIMONIALS.length);
-        setTestimonialVisible(true);
-      }, 250);
-    }, 3500);
-    return () => clearInterval(id);
-  }, [open]);
-
-  async function handleGenerate() {
-    setIsGenerating(true);
-    setGenError(null);
-    try {
-      const result = await generateReport(analysisId);
-      if (result.success) {
-        onClose();
-        router.push(`/report/${analysisId}`);
-      } else {
-        setGenError(result.error);
-      }
-    } catch {
-      setGenError("리포트 생성 중 오류가 발생했습니다");
-    } finally {
-      setIsGenerating(false);
-    }
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={(v) => !v && !isGenerating && onClose()}>
-      <DialogContent className="max-w-sm p-0 overflow-hidden rounded-2xl gap-0 max-h-[90dvh] flex flex-col">
-        <div className="overflow-y-auto flex-1">
-          {/* ── 상단 타이틀 ── */}
-          <div className="px-6 pt-8 pb-5 text-center">
-            <DialogHeader>
-              <DialogTitle className="text-[22px] font-black leading-[1.4] break-keep">
-                <span style={GRADIENT_TEXT_STYLE}>AI 리포트로</span>
-                <br />
-                <span style={GRADIENT_TEXT_STYLE}>정확한 창업 결정을 내리세요</span>
-              </DialogTitle>
-            </DialogHeader>
-          </div>
-
-          {/* ── 전략 4: 소셜 프루프 — 순환 후기 ── */}
-          <div className="px-5 pb-4">
-            <div className="rounded-xl border border-border bg-background p-4 space-y-3">
-              {/* 후기 (페이드 전환) */}
-              <div
-                className="flex items-start gap-3 transition-opacity duration-250"
-                style={{ opacity: testimonialVisible ? 1 : 0 }}
-              >
-                <Avatar className="h-9 w-9 shrink-0">
-                  <AvatarImage
-                    src={`https://api.dicebear.com/9.x/notionists/svg?seed=${TESTIMONIALS[testimonialIdx].seed}&backgroundColor=${TESTIMONIALS[testimonialIdx].bg}`}
-                    alt="리뷰어 아바타"
-                  />
-                  <AvatarFallback className="text-xs">
-                    {TESTIMONIALS[testimonialIdx].author.slice(0, 2)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="min-w-0">
-                  <p className="text-[12px] text-foreground break-keep leading-5">
-                    "{TESTIMONIALS[testimonialIdx].text}"
-                  </p>
-                  <p className="text-[10px] text-muted-foreground mt-1">
-                    — {TESTIMONIALS[testimonialIdx].author}
-                  </p>
-                </div>
-              </div>
-              {/* 인디케이터 + 통계 */}
-              <div className="flex items-center justify-between pt-2 border-t border-border">
-                <div className="flex items-center gap-1">
-                  {TESTIMONIALS.map((_, i) => (
-                    <div
-                      key={i}
-                      className={cn(
-                        "h-1 rounded-full transition-all duration-300",
-                        i === testimonialIdx
-                          ? "w-4 bg-violet-500"
-                          : "w-1 bg-muted-foreground/30",
-                      )}
-                    />
-                  ))}
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-foreground">1,247건</span>
-                  <span className="text-[11px] text-amber-500">⭐ 4.7</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ── 전략 5: 비교 테이블 — 무료 vs AI 리포트 ── */}
-          <div className="px-5 pb-4">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>무료</TableHead>
-                  <TableHead className="text-violet-600 dark:text-violet-400">AI 리포트</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {COMPARISON_ITEMS.map((item) => (
-                  <TableRow key={item.label}>
-                    <TableCell className={!item.free ? "text-muted-foreground/40" : ""}>
-                      {item.free ? "✅" : "🔒"} {item.label}
-                    </TableCell>
-                    <TableCell className="bg-violet-50 dark:bg-violet-950/20">
-                      ✅ {item.label}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* ── 전략 3: 가격 앵커링 ── */}
-          <div className="px-5 pb-6">
-            <div className="rounded-xl bg-muted/50 dark:bg-muted/30 p-4 space-y-1 text-center">
-              <p className="text-[12px] text-muted-foreground">
-                상권 컨설팅{" "}
-                <span className="line-through">50만원</span>
-                {" → "}
-                <span className="line-through text-muted-foreground/60">₩3,900</span>
-                {" "}
-                <span className="font-bold text-foreground">얼리버드 ₩1,900</span>
-              </p>
-              <p className="text-[11px] text-muted-foreground break-keep">
-                ☕ 아메리카노 한 잔 가격으로 수천만원 투자 리스크를 줄이세요
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* ── 하단 고정 CTA ── */}
-        <div className="shrink-0 px-5 pb-6 pt-4 border-t bg-background">
-          {genError && (
-            <p className="text-xs text-destructive text-center mb-2">{genError}</p>
-          )}
-          <div className="relative mt-5">
-            {/* 얼리버드 할인 툴팁 */}
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full animate-bounce pointer-events-none">
-              <div className="flex items-center gap-1.5 bg-amber-400 text-amber-950 text-[11px] font-bold px-2.5 py-1 rounded-full shadow-md whitespace-nowrap">
-                <span className="line-through opacity-60">₩3,900</span>
-                <span>→ 얼리버드 ₩1,900</span>
-                <span>🎉</span>
-              </div>
-              <div className="mx-auto w-2 h-2 bg-amber-400 rotate-45 -mt-1" />
-            </div>
-            <button
-              type="button"
-              onClick={handleGenerate}
-              disabled={isGenerating}
-              className="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-60 text-white font-bold text-sm active:scale-95 transition-transform"
-            >
-              {isGenerating ? (
-                <>
-                  <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                  리포트 생성 중...
-                </>
-              ) : (
-                <><span className="line-through opacity-60 font-normal">₩3,900</span> 지금 바로 받기 · ₩1,900</>
-
-              )}
-            </button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
 export function AnalysisResult({ data }: AnalysisResultProps) {
-  const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const sheetRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<HTMLDivElement>(null);
   // fit-content 상태에서 측정한 초기 콘텐츠 높이 (스냅 복귀 시 사용)
@@ -514,9 +347,6 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
   const places = report?.places as
     | { totalCount: number; fetchedCount: number }
     | undefined;
-  const competition = report?.competition as CompetitionAnalysis | undefined;
-  const vitality = report?.vitality as VitalityAnalysis | undefined;
-  const populationAnalysis = report?.populationAnalysis as PopulationAnalysis | undefined;
   const subway = (report?.subway ?? null) as SubwayAnalysis | null;
   const bus = (report?.bus ?? null) as BusAnalysis | null;
   const school = (report?.school ?? null) as SchoolAnalysis | null;
@@ -525,49 +355,24 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
   const centerLat = report?.centerLatitude as number | undefined;
   const centerLng = report?.centerLongitude as number | undefined;
 
-  const competitionGrade = competition?.competitionScore?.grade ?? "-";
+  const scoreDetail = data.scoreDetail as ScoreBreakdown | undefined;
+  // 활력도 데이터 존재 여부로 서울 여부 판단
+  const isSeoul = !!scoreDetail?.vitality;
 
-  // 핵심 지표 20점 미만 여부 확인 (M-02: 총점 A등급이라도 개별 지표 F 경고)
-  const lowScoreWarnings: string[] = [];
-  if (competition?.competitionScore?.score !== undefined && competition.competitionScore.score < 20) {
-    lowScoreWarnings.push("경쟁강도");
-  }
-  if (vitality?.vitalityScore?.score !== undefined && vitality.vitalityScore.score < 20) {
-    lowScoreWarnings.push("상권 활력도");
-  }
-  if (populationAnalysis?.score?.score !== undefined && populationAnalysis.score.score < 20) {
-    lowScoreWarnings.push("배후 인구");
-  }
-
+  // 인사이트 빌더용 데이터 (총평 생성에 사용)
   const insightData: InsightData = {
-    competition: competition ?? null,
-    vitality: vitality ?? null,
+    competition: (report?.competition ?? null) as InsightData["competition"],
+    vitality: (report?.vitality ?? null) as InsightData["vitality"],
     places: places ?? null,
     industryName: data.industryName,
     radius: data.radius,
-    subway: subway,
-    bus: bus,
-    school: school,
-    university: university,
-    medical: medical,
-    population: populationAnalysis ?? null,
+    subway,
+    bus,
+    school,
+    university,
+    medical,
+    population: (report?.populationAnalysis ?? null) as InsightData["population"],
   };
-  const competitionInsights = buildCompetitionInsights(insightData);
-  const vitalityInsights = buildPopulationInsights(insightData);
-  const subwayInsights = buildSubwayInsights(insightData);
-  const busInsights = buildBusInsights(insightData);
-  const schoolInsights = buildSchoolInsights(insightData);
-  const universityInsights = buildUniversityInsights(insightData);
-  const medicalInsights = buildMedicalInsights(insightData);
-
-  // 각 섹션 헤더 (의견형 타이틀 + 팩트 디스크립션)
-  const competitionHeader = buildCompetitionHeader(insightData);
-  const vitalityHeader = buildVitalityHeader(insightData);
-  const transitHeader = buildTransitHeader(insightData);
-  const universityHeader = buildUniversityHeader(insightData);
-  const schoolHeader = buildSchoolHeader(insightData);
-  const medicalHeader = buildMedicalHeader(insightData);
-  const populationHeader = buildPopulationHeader(insightData);
 
   return (
     <div className="fixed inset-0 pointer-events-none">
@@ -578,7 +383,7 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
             centerLat={centerLat}
             centerLng={centerLng}
             radius={data.radius}
-            keyword={data.industryName}
+            keyword={(report?.industryKeyword as string) || data.industryName}
             subway={subway}
             bus={bus}
             school={school}
@@ -601,234 +406,68 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
         className="fixed bottom-0 left-0 right-0 z-40 bg-background shadow-[0_-4px_20px_rgba(0,0,0,0.1)] border-t flex flex-col overflow-hidden rounded-t-2xl pointer-events-auto"
         style={{ maxHeight: "85dvh" }}
       >
-        <style dangerouslySetInnerHTML={{ __html: animStyles }} />
+        <style dangerouslySetInnerHTML={{ __html: `
+@keyframes source-led {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}` }} />
         {/* 드래그 핸들 */}
         <div
           ref={handleRef}
-          className="flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing touch-none shrink-0"
+          className="flex justify-center pt-3 pb-3 cursor-grab active:cursor-grabbing touch-none shrink-0"
         >
           <div className="h-1 w-10 rounded-full bg-muted-foreground/30" />
         </div>
 
-        {/* 헤더 */}
-        <Header
+        {/* 헤더 + 등급 (flex-row) */}
+        <HeaderWithGrade
           address={data.address}
           radiusLabel={radiusLabel}
           industryName={data.industryName}
           totalCount={places?.totalCount ?? 0}
+          totalScore={data.totalScore}
+          insightData={insightData}
         />
 
-        {/* ── 콘텐츠 ── */}
-        <div className="flex-1 overflow-y-auto px-4 pb-10 mt-3">
-          {/* M-02: 핵심 지표 20점 미만 경고 배너 */}
-          {lowScoreWarnings.length > 0 && (
-            <div className="mb-3 flex items-start gap-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 px-3 py-2.5">
-              <span className="text-base shrink-0 mt-0.5">⚠️</span>
-              <div className="min-w-0">
-                <p className="text-[12px] font-semibold text-amber-800 dark:text-amber-300 leading-5">
-                  {lowScoreWarnings.join(", ")} 지표가 매우 낮습니다
-                </p>
-                <p className="text-[11px] text-amber-700/80 dark:text-amber-400/80 mt-0.5 leading-4 break-keep">
-                  총점만으로 판단하지 마세요. 해당 지표를 반드시 확인하세요.
-                </p>
-              </div>
-            </div>
-          )}
-          <Accordion type="multiple" defaultValue={["competition", "vitality", "transit", "school", "university", "medical", "population"]}>
-            {/* 경쟁강도 */}
-            {competitionHeader && (
-              <AccordionItem value="competition">
-                <AccordionTrigger>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold">{competitionHeader.emoji} {competitionHeader.text}</p>
-                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">{competitionHeader.sub}</p>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  {competitionInsights.length > 0 && (
-                    <div className="space-y-0.5">
-                      {competitionInsights.map((item, i) => (
-                        <Insight key={i} item={item} delay={i * 150} />
-                      ))}
-                    </div>
-                  )}
-                </AccordionContent>
-              </AccordionItem>
-            )}
-
-            {/* 비서울 지역은 상권 활력도 섹션 자체를 숨김 */}
-            {/* 상권 활력도 — 데이터 있을 때만 */}
-            {vitalityHeader && vitalityInsights.length > 0 && (
-              <AccordionItem value="vitality">
-                <AccordionTrigger>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold">{vitalityHeader.emoji} {vitalityHeader.text}</p>
-                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">{vitalityHeader.sub}</p>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-0.5">
-                    {vitalityInsights.map((item, i) => (
-                      <Insight key={i} item={item} delay={i * 150} />
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            )}
-            {/* 교통입지 — subway + bus 통합 */}
-            {transitHeader && (
-              <AccordionItem value="transit">
-                <AccordionTrigger>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold">{transitHeader.emoji} {transitHeader.text}</p>
-                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">{transitHeader.sub}</p>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-0.5">
-                    {subwayInsights.map((item, i) => (
-                      <Insight key={i} item={item} delay={i * 150} />
-                    ))}
-                    {busInsights.map((item, i) => (
-                      <Insight key={i} item={item} delay={(subwayInsights.length + i) * 150} />
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            )}
-            {/* 학교 접근성 — 데이터 있을 때만 */}
-            {schoolHeader && (
-              <AccordionItem value="school">
-                <AccordionTrigger>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold">{schoolHeader.emoji} {schoolHeader.text}</p>
-                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">{schoolHeader.sub}</p>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-0.5">
-                    {schoolInsights.map((item, i) => (
-                      <Insight key={i} item={item} delay={i * 150} />
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            )}
-            {/* 대학교 접근성 — 데이터 있을 때만 */}
-            {universityHeader && (
-              <AccordionItem value="university">
-                <AccordionTrigger>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold">{universityHeader.emoji} {universityHeader.text}</p>
-                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">{universityHeader.sub}</p>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-0.5">
-                    {universityInsights.map((item, i) => (
-                      <Insight key={i} item={item} delay={i * 150} />
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            )}
-            {/* 의료시설 접근성 — medicalHeader 있을 때만 */}
-            {medicalHeader && (
-              <AccordionItem value="medical">
-                <AccordionTrigger>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold">{medicalHeader.emoji} {medicalHeader.text}</p>
-                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">{medicalHeader.sub}</p>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-0.5">
-                    {medicalInsights.map((item, i) => (
-                      <Insight key={i} item={item} delay={i * 150} />
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            )}
-            {/* 배후 인구 — 데이터 있을 때만 */}
-            {populationHeader && (
-              <AccordionItem value="population">
-                <AccordionTrigger>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold">{populationHeader.emoji} {populationHeader.text}</p>
-                    <p className="text-[12px] text-muted-foreground font-normal mt-0.5">{populationHeader.sub}</p>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-0.5">
-                    <Insight
-                      item={{
-                        type: "text",
-                        category: "fact",
-                        emoji: "👥",
-                        text: `${populationAnalysis!.details.isDongLevel ? "행정동" : "시군구"} 기준 거주 인구 ${populationAnalysis!.details.totalPopulation.toLocaleString()}명`,
-                      }}
-                      delay={0}
-                    />
-                    <Insight
-                      item={{
-                        type: "text",
-                        category: "scoring",
-                        emoji: "📊",
-                        text: "배후 인구 규모 분석",
-                        // C-03: 읍면동 전체 기준임을 명시, M-09: 기준 연도 표시
-                        sub: populationAnalysis!.details.isDongLevel
-                          ? "행정동 전체 기준 (KOSIS 2024) · 반경 내 실제 거주인구와 다를 수 있음"
-                          : "시군구 전체 기준 (KOSIS 2024) · 반경 내 실제 거주인구와 다를 수 있음",
-                      }}
-                      delay={300}
-                    />
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            )}
-          </Accordion>
-
+        {/* ── 미리보기 콘텐츠: 지표 카드 + 팩트 ── */}
+        <div className="flex-1 overflow-y-auto px-4 pb-4 mt-4 space-y-5">
+          <MetricCards
+            scoreDetail={scoreDetail}
+            reportData={report}
+            isSeoul={isSeoul}
+          />
+          <DataFacts
+            subway={subway}
+            bus={bus}
+            school={school}
+            university={university}
+            medical={medical}
+            ticker={<SourceTicker sources={DATA_SOURCES} />}
+          />
         </div>
 
-        {/* ── 하단 고정 CTA ── */}
-        <div className="shrink-0 px-4 pb-3 pt-2 border-t bg-background">
+        {/* ── 후기 슬라이드 + CTA ── */}
+        <div className="shrink-0 px-4 pb-3 pt-3 border-t bg-background space-y-2.5">
+
           {data.aiReportJson ? (
-            <>
-              <p className="text-center text-[11px] text-muted-foreground mb-2 break-keep">
-                {dayjs(data.createdAt).format("YYYY년 M월 D일")}에 같은 조건으로 리포트를 받았어요
-              </p>
-              <Link
-                href={`/report/${data.id}`}
-                className="flex items-center justify-center gap-1.5 w-full h-12 rounded-xl bg-violet-600 text-white font-bold text-sm transition-transform hover:bg-violet-700 active:scale-95"
-              >
-                이전에 받은 리포트 보기
-                <span className="text-base leading-none">→</span>
-              </Link>
-            </>
+            <Link
+              href={`/report/${data.id}`}
+              className="flex items-center justify-center gap-1.5 w-full h-12 rounded-xl bg-violet-600 text-white font-bold text-sm transition-transform hover:bg-violet-700 active:scale-95"
+            >
+              이전에 받은 리포트 보기
+              <span className="text-base leading-none">→</span>
+            </Link>
           ) : (
-            <>
-              <button
-                type="button"
-                onClick={() => setReportDialogOpen(true)}
-                className="relative flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-violet-600 text-white font-bold text-sm transition-transform hover:bg-violet-700 active:scale-95"
-              >
-                🔒 AI 맞춤 리포트 잠금 해제
-              </button>
-            </>
+            <Link
+              href={`/analyze/${data.id}/purchase`}
+              className="flex items-center justify-center gap-1.5 w-full h-12 rounded-xl bg-violet-600 text-white font-bold text-sm transition-transform hover:bg-violet-700 active:scale-95"
+            >
+              AI 전문가 분석 받기
+              <span className="text-base leading-none">→</span>
+            </Link>
           )}
         </div>
       </div>
-
-      <ReportUpsellDialog
-        open={reportDialogOpen}
-        onClose={() => setReportDialogOpen(false)}
-        analysisId={data.id}
-        competition={competition}
-        vitality={vitality}
-        industryName={data.industryName}
-        radius={data.radius}
-      />
     </div>
   );
 }

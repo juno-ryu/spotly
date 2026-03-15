@@ -5,6 +5,8 @@ export const analysisRequestSchema = z.object({
   address: z.string().trim().min(1, "주소를 입력해주세요"),
   industryCode: z.string().min(1, "업종을 선택해주세요"),
   industryName: z.string(),
+  /** 카카오 Places 검색 키워드 (사용자가 실제 선택/입력한 값, 없으면 industryName 사용) */
+  industryKeyword: z.string().optional(),
   radius: z
     .number()
     .min(100, "반경은 최소 100m입니다")
@@ -37,6 +39,8 @@ export const scoreBreakdownSchema = z.object({
   population: indicatorScoreSchema.nullable(),
   /** 생존율 (0~100, 서울 골목상권 기반 — 비서울은 null) */
   survival: indicatorScoreSchema.nullable(),
+  /** 인프라 접근성 (0~100 정규화, 비서울 전용 — 서울은 null) */
+  infraAccess: indicatorScoreSchema.nullable().optional(),
 });
 export type ScoreBreakdown = z.infer<typeof scoreBreakdownSchema>;
 

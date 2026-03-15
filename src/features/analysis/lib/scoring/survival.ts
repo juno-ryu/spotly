@@ -25,7 +25,10 @@ export interface SurvivalAnalysis {
  * - 폐업률 5% 기준 중간점(50점), 낮을수록 높은 점수
  */
 function calcCloseScore(closeRate: number): number {
-  return 100 / (1 + Math.exp(8 * (closeRate / 100 - 0.05)));
+  // 박사님 승인 2026-03-15: 선형 역정규화로 교체
+  // 0%=100점, 5%=67점, 10%=33점, 15%=0점
+  // 기존 시그모이드 대비 저폐업률 지역 점수 상향 + 해석 직관성 향상
+  return Math.round((1 - normalize(closeRate, 0, 15)) * 100);
 }
 
 /**
@@ -49,6 +52,9 @@ export function analyzeSurvival(
 ): SurvivalAnalysis | null {
   // 비서울: 골목상권 데이터 없음
   if (closeRate === null || openRate === null) return null;
+
+  // 박사님 승인 2026-03-15: 0/0은 골목상권 데이터 부재로 판단, null 처리
+  if (closeRate === 0 && openRate === 0) return null;
 
   const closeScore = calcCloseScore(closeRate);
   // 박사님 승인 공식: closeScore × 0.6 + netChangeScore × 0.4

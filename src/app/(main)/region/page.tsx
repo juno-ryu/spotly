@@ -40,7 +40,7 @@ export default function RegionPage() {
   const industryProp: OnboardingIndustry = {
     emoji: selectedIndustry.emoji,
     name: selectedIndustry.name,
-    keyword: "",
+    keyword: selectedIndustry.keyword || selectedIndustry.name,
     ksicCode: selectedIndustry.code,
     seoulCode: "",
   };

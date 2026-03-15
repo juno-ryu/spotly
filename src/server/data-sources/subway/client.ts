@@ -518,8 +518,10 @@ export async function getDaejeonSubwayTraffic(
   const endDate = `${year}${month}${String(days).padStart(2, "0")}`;
 
   // 역번호 조회
+  // map 값과 입력 역명 양쪽 모두 "역" 제거 후 비교
+  // (DAEJEON_STATION_MAP 일부 값이 "대전역" 형태로 저장되어 있어 불일치 방지)
   const stationNo = Object.entries(DAEJEON_STATION_MAP).find(
-    ([, name]) => name === stationName.replace(/역$/, ""),
+    ([, name]) => name.replace(/역$/, "") === stationName.replace(/역$/, ""),
   )?.[0];
   if (!stationNo) {
     console.warn(`[대전 지하철] 역번호 매핑 없음: ${stationName}`);

@@ -33,8 +33,8 @@ export const MEDICAL_GRADE_TEXT_PHARMACY: Record<Grade, { emoji: string; text: s
 
 /** 일반 업종 — 등급별 해석 텍스트 */
 export const MEDICAL_GRADE_TEXT_GENERAL: Record<Grade, { emoji: string; text: string }> = {
-  A: { emoji: "🏥", text: "의료 밀집 지역으로 방문객 유동인구가 많아요" },
-  B: { emoji: "🏥", text: "병원 인근이라 방문객 수요를 기대할 수 있어요" },
+  A: { emoji: "🏥", text: "의료시설이 밀집한 지역이에요 — 병원 방문객 유동인구가 많아요" },
+  B: { emoji: "🏥", text: "병원 인근이에요 — 방문객 유동인구가 안정적으로 형성돼요" },
   C: { emoji: "🏥", text: "의료시설이 있어 일부 방문객 수요가 있어요" },
   D: { emoji: "🏥", text: "의료시설이 적어 방문객 효과는 제한적이에요" },
   F: { emoji: "🏥", text: "반경 내 의료시설이 거의 없어요" },

@@ -79,31 +79,61 @@ async function kosisRequest(params: {
   }
   const qs = parts.join("&");
 
-  // 10초 타임아웃 (fallback 포함 최대 4회 직렬 호출 대비)
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10_000);
+  // ECONNRESET, ETIMEDOUT, AbortError 등 일시적 네트워크 오류 여부 판단
+  const isRetryable = (err: unknown): boolean => {
+    if (!(err instanceof Error)) return false;
+    const msg = err.message.toLowerCase();
+    // KOSIS API 에러(err 필드 응답)는 재시도 불필요 — 데이터 부재이므로
+    if (msg.startsWith("kosis api 에러")) return false;
+    return (
+      err.name === "AbortError" ||
+      msg.includes("econnreset") ||
+      msg.includes("etimedout") ||
+      msg.includes("network") ||
+      msg.includes("fetch failed")
+    );
+  };
+
+  const MAX_ATTEMPTS = 3; // 최초 1회 + 재시도 2회
+  const RETRY_DELAY_MS = 500;
 
   console.log(`[API 요청] KOSIS — tblId:${params.tblId} 지역:${params.objL1} 항목:${params.itmId}`);
-  try {
-    const res = await fetch(`${KOSIS_BASE_URL}?${qs}`, {
-      signal: controller.signal,
-    });
-    if (!res.ok) throw new Error(`KOSIS API 오류: ${res.status}`);
 
-    const data: unknown = await res.json();
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    // 10초 타임아웃 (fallback 포함 최대 4회 직렬 호출 대비)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10_000);
 
-    // KOSIS는 에러 시 { err: "...", errMsg: "..." } 형태 반환
-    if (data && typeof data === "object" && "err" in data) {
-      const errData = data as { err: string; errMsg: string };
-      throw new Error(`KOSIS API 에러: [${errData.err}] ${errData.errMsg}`);
+    try {
+      const res = await fetch(`${KOSIS_BASE_URL}?${qs}`, {
+        signal: controller.signal,
+      });
+      if (!res.ok) throw new Error(`KOSIS API 오류: ${res.status}`);
+
+      const data: unknown = await res.json();
+
+      // KOSIS는 에러 시 { err: "...", errMsg: "..." } 형태 반환 — 재시도 없이 throw
+      if (data && typeof data === "object" && "err" in data) {
+        const errData = data as { err: string; errMsg: string };
+        throw new Error(`KOSIS API 에러: [${errData.err}] ${errData.errMsg}`);
+      }
+
+      const items = z.array(kosisItemSchema).parse(data);
+      console.log(`[API 응답] KOSIS — ${items.length}건 (${params.tblId})`);
+      return items;
+    } catch (err) {
+      lastError = err;
+      if (!isRetryable(err) || attempt === MAX_ATTEMPTS) throw err;
+      console.warn(`[API 재시도] KOSIS — ${attempt}/${MAX_ATTEMPTS - 1}회 (${(err as Error).message})`);
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    } finally {
+      clearTimeout(timeoutId);
     }
-
-    const items = z.array(kosisItemSchema).parse(data);
-    console.log(`[API 응답] KOSIS — ${items.length}건 (${params.tblId})`);
-    return items;
-  } finally {
-    clearTimeout(timeoutId);
   }
+
+  // 루프 종료 후 도달하지 않지만 타입 만족을 위해
+  throw lastError;
 }
 
 // ─── API 함수 ───
