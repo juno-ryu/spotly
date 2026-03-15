@@ -1,6 +1,6 @@
 "use client";
 
-import { signInWithGoogle } from "../actions";
+import { signInWithGoogle, signInWithKakao } from "../actions";
 
 /** 로그인 전용 화면 — 웰컴 플로우 중간에 표시 */
 export function LoginScreen() {
@@ -30,17 +30,18 @@ export function LoginScreen() {
           </button>
         </form>
 
-        {/* 카카오 (미연결) */}
-        <button
-          disabled
-          className="w-full flex items-center justify-center gap-3 rounded-2xl bg-[#FEE500] px-5 py-3.5 text-sm font-semibold text-[#3C1E1E] opacity-40 cursor-not-allowed"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="#3C1E1E">
-            <path d="M12 3C6.477 3 2 6.477 2 10.5c0 2.636 1.584 4.953 4 6.32V21l3.5-2.5c.82.13 1.668.2 2.5.2 5.523 0 10-3.477 10-7.5S17.523 3 12 3z"/>
-          </svg>
-          카카오로 시작하기
-          <span className="text-xs opacity-60">(준비중)</span>
-        </button>
+        {/* 카카오 로그인 */}
+        <form action={signInWithKakao} className="w-full">
+          <button
+            type="submit"
+            className="w-full flex items-center justify-center gap-3 rounded-2xl bg-[#FEE500] px-5 py-3.5 text-sm font-semibold text-[#3C1E1E] shadow-sm hover:bg-[#F5DC00] active:scale-95 transition-all"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="#3C1E1E">
+              <path d="M12 3C6.477 3 2 6.477 2 10.5c0 2.636 1.584 4.953 4 6.32V21l3.5-2.5c.82.13 1.668.2 2.5.2 5.523 0 10-3.477 10-7.5S17.523 3 12 3z"/>
+            </svg>
+            카카오로 시작하기
+          </button>
+        </form>
       </div>
     </div>
   );
