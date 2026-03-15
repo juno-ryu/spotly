@@ -162,9 +162,20 @@ export async function startAnalysis(input: AnalysisRequest) {
   // DB에는 사용자 키워드를 industryName으로 저장 (UI 표시용)
   const displayName = parsed.data.industryKeyword || parsed.data.industryName;
 
+  // 주소가 위경도 형태면 역지오코딩으로 실제 주소 변환
+  let resolvedAddress = parsed.data.address;
+  if (/^\d+\.\d+\s*,\s*\d+\.\d+$/.test(resolvedAddress.trim())) {
+    try {
+      const region = await kakaoGeocoding.coordToRegion(parsed.data.latitude, parsed.data.longitude);
+      resolvedAddress = [region.region1, region.region2, region.region3].filter(Boolean).join(" ");
+    } catch {
+      // 역지오코딩 실패 시 원본 유지
+    }
+  }
+
   const analysis = await prisma.analysisRequest.create({
     data: {
-      address: parsed.data.address,
+      address: resolvedAddress,
       latitude: parsed.data.latitude,
       longitude: parsed.data.longitude,
       industryCode: parsed.data.industryCode,
