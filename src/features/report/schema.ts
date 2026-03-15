@@ -42,7 +42,7 @@ export const aiReportSchema = z.object({
     .nullable(),
 
   /** 비서울 등 매출 데이터 없을 때 사유 */
-  revenueEstimateUnavailableReason: z.string().nullable(),
+  revenueEstimateUnavailableReason: z.string().nullable().optional(),
 
   /** (4) 생존율 분석 — 비서울(데이터 없음)은 null */
   survivalAnalysis: z
