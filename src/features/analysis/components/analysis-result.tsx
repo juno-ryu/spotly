@@ -357,7 +357,7 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
 
   const scoreDetail = data.scoreDetail as ScoreBreakdown | undefined;
   // 활력도 데이터 존재 여부로 서울 여부 판단
-  const isSeoul = !!scoreDetail?.vitality;
+  const isSeoul = !!(report as Record<string, unknown>)?.isSeoul;
 
   // 인사이트 빌더용 데이터 (총평 생성에 사용)
   const insightData: InsightData = {
