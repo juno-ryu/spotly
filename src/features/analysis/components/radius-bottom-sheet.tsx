@@ -42,7 +42,7 @@ export function RadiusBottomSheet({
             }`}
           >
             <div className="font-bold">{option.label}</div>
-            <div className="text-xs text-muted-foreground">{option.description}</div>
+            <div className={`text-[11px] ${radius === option.value ? "text-violet-500" : "text-muted-foreground"}`}>{option.description}</div>
           </button>
         ))}
       </div>

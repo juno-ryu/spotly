@@ -11,7 +11,7 @@ export type RadiusOption = (typeof RadiusOption)[keyof typeof RadiusOption];
 
 /** 반경 옵션 목록 (UI 렌더링용) */
 export const RADIUS_OPTIONS = [
-  { value: RadiusOption.NEAR, label: "200m", description: "" },
-  { value: RadiusOption.MEDIUM, label: "300m", description: "" },
-  { value: RadiusOption.FAR, label: "500m", description: "" },
+  { value: RadiusOption.NEAR, label: "200m", description: "밀착 분석" },
+  { value: RadiusOption.MEDIUM, label: "300m", description: "균형 분석" },
+  { value: RadiusOption.FAR, label: "500m", description: "광역 분석" },
 ] as const;

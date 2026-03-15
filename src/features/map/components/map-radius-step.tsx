@@ -37,7 +37,7 @@ export function MapRadiusStep() {
   const centerLatRef = useRef(initialLat);
   const centerLngRef = useRef(initialLng);
 
-  const [radius, setRadius] = useState(200);
+  const [radius, setRadius] = useState(300);
   const [isPending, startTransition] = useTransition();
 
   // 현재 주소 (geocode 결과 또는 좌표 표시)
@@ -47,7 +47,7 @@ export function MapRadiusStep() {
 
   // 카카오 Places 키워드 검색 (항상 활성 — debounce 1500ms는 훅 내부 처리)
   const { places, totalCount: nearbyTotalCount } = useNearbyPlaces({
-    keyword: selectedIndustry?.name ?? "",
+    keyword: selectedIndustry?.keyword || selectedIndustry?.name || "",
     lat: centerLat,
     lng: centerLng,
     radius,
@@ -84,6 +84,7 @@ export function MapRadiusStep() {
         longitude: centerLngRef.current,
         industryCode: selectedIndustry?.code ?? "",
         industryName: selectedIndustry?.name ?? "",
+        industryKeyword: selectedIndustry?.keyword,
         radius,
         districtCode: geocodeResult?.districtCode || undefined,
         adminDongCode: geocodeResult?.adminDongCode || undefined,
@@ -116,7 +117,7 @@ export function MapRadiusStep() {
       {/* 바텀시트: 주소 + 반경 선택 + 분석하기 */}
       <RadiusBottomSheet
         address={currentAddress ?? "위치를 선택하세요"}
-        industryName={selectedIndustry?.name ?? ""}
+        industryName={selectedIndustry?.keyword || selectedIndustry?.name || ""}
         radius={radius}
         nearbyCount={nearbyTotalCount}
         onRadiusChange={handleRadiusChange}
