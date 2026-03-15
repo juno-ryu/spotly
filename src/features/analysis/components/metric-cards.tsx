@@ -167,29 +167,10 @@ export function MetricCards({ scoreDetail, reportData, isSeoul }: MetricCardsPro
     }
   }
 
-  // 신뢰도 경고 수집
+  // 신뢰도 경고 수집 — 데이터 수집 자체가 실패한 경우만 경고 (업종 특성상 없는 건 정상)
   const warnings: string[] = [];
   if (!reportData?.places) warnings.push("주변 상권 정보를 조회하지 못해 경쟁 분석 신뢰도가 낮습니다");
-  if (isSeoul && !reportData?.vitality) warnings.push("서울 골목상권 데이터를 조회하지 못해 활력도 신뢰도가 낮습니다");
   if (!reportData?.populationAnalysis) warnings.push("KOSIS 인구 데이터를 조회하지 못해 인구 분석 신뢰도가 낮습니다");
-  if (isSeoul && !scoreDetail?.survival) warnings.push("해당 업종/구역의 골목상권 생존율 데이터가 없어 총점에서 제외되었습니다");
-  if (!isSeoul && !scoreDetail.infraAccess) warnings.push("인프라 접근성 데이터를 수집하지 못해 총점에서 제외되었습니다");
-
-  // 사용 지표 수 기반 신뢰도 경고
-  // 총점에 반영된 지표 수: competition은 항상 포함, 나머지는 null 여부로 판단
-  const activeIndicatorCount = [
-    true, // competition은 항상 있음
-    isSeoul && !!scoreDetail.vitality,
-    !!scoreDetail.population,
-    isSeoul && !!scoreDetail.survival,
-    !isSeoul && !!scoreDetail.infraAccess,
-  ].filter(Boolean).length;
-
-  if (activeIndicatorCount === 1) {
-    warnings.push("경쟁 데이터만으로 산출된 참고 수준의 점수입니다");
-  } else if (activeIndicatorCount === 2) {
-    warnings.push("제한된 데이터로 분석되어 점수 신뢰도가 낮습니다");
-  }
 
   return (
     <div className="space-y-1">

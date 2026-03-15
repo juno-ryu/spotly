@@ -327,8 +327,13 @@ const KEYWORD_MAP: Record<string, string[]> = {
   "분식": ["분식", "떡볶이"],
   "빵": ["제과", "베이커리"],
   "베이커리": ["제과", "베이커리"],
-  "술": ["호프", "주점"],
+  "술": ["호프", "주점", "유흥"],
   "맥주": ["호프", "주점"],
+  "이자카야": ["호프", "주점", "유흥"],
+  "주점": ["호프", "주점", "유흥"],
+  "유흥": ["호프", "주점", "유흥"],
+  "포차": ["호프", "주점"],
+  "호프": ["호프", "주점"],
   "고기": ["육류"],
   "삼겹살": ["육류"],
   "패스트푸드": ["패스트푸드"],
@@ -978,17 +983,17 @@ export function aggregateGolmokData(
   floatingPop?: GolmokFloatingPop[],
   residentPop?: GolmokResidentPop[],
 ): GolmokAggregated | null {
-  if (sales.length === 0) return null;
+  // 매출/점포 0건이어도 유동인구/변화지표가 있으면 집계 진행
+  if (sales.length === 0 && (!floatingPop || floatingPop.length === 0) && changeIndexes.length === 0) return null;
 
   const totalSales = sales.reduce((sum, s) => sum + s.THSMON_SELNG_AMT, 0);
   const totalCount = sales.reduce((sum, s) => sum + s.THSMON_SELNG_CO, 0);
   const totalMdwk = sales.reduce((sum, s) => sum + s.MDWK_SELNG_AMT, 0);
 
-  // 대표 매출 데이터 (매출 최대 상권)
-  const rep = sales.reduce(
-    (max, s) => (s.THSMON_SELNG_AMT > max.THSMON_SELNG_AMT ? s : max),
-    sales[0],
-  );
+  // 대표 매출 데이터 (매출 최대 상권) — 매출 0건이면 null
+  const rep = sales.length > 0
+    ? sales.reduce((max, s) => (s.THSMON_SELNG_AMT > max.THSMON_SELNG_AMT ? s : max), sales[0])
+    : null;
 
   const totalStores = stores.reduce((sum, s) => sum + s.STOR_CO, 0);
 
@@ -1035,8 +1040,8 @@ export function aggregateGolmokData(
     estimatedQuarterlySales: totalSales,
     salesCount: totalCount,
     weekdayRatio: totalSales > 0 ? totalMdwk / totalSales : 0.5,
-    peakTimeSlot: findPeakTimeSlot(rep),
-    peakDay: findPeakDay(rep),
+    peakTimeSlot: rep ? findPeakTimeSlot(rep) : "-",
+    peakDay: rep ? findPeakDay(rep) : "-",
     storeCount: totalStores,
     openRate: Math.round(avgOpenRate * 10) / 10,
     closeRate: Math.round(avgCloseRate * 10) / 10,
@@ -1044,8 +1049,8 @@ export function aggregateGolmokData(
     similarStoreCount: totalSimilar,
     changeIndex: domCi?.TRDAR_CHNGE_IX,
     changeIndexName: domCi?.TRDAR_CHNGE_IX_NM,
-    mainAgeGroup: findMainAgeGroup(rep),
-    mainGender: findMainGender(rep),
+    mainAgeGroup: rep ? findMainAgeGroup(rep) : "-",
+    mainGender: rep ? findMainGender(rep) : "-",
     floatingPopulation,
     residentPopulation,
   };

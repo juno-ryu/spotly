@@ -4,7 +4,7 @@ import { prisma } from "@/server/db/prisma";
 import { analysisRequestSchema } from "./schema";
 import { runAnalysis } from "./lib/analysis-orchestrator";
 import * as kakaoGeocoding from "@/server/data-sources/kakao/client";
-import { createSupabaseServer } from "@/server/supabase/server";
+
 import { INDUSTRY_CODES } from "./constants/industry-codes";
 import type { AnalysisRequest } from "./schema";
 import type { AnalysisResult } from "./lib/analysis-orchestrator";
@@ -154,34 +154,17 @@ export async function startAnalysis(input: AnalysisRequest) {
   const parsed = analysisRequestSchema.safeParse(input);
   if (!parsed.success) throw new Error("입력값이 올바르지 않습니다");
 
-  // 현재 로그인 유저 조회 (비로그인이면 null)
-  const supabase = await createSupabaseServer();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  // DB에는 사용자 키워드를 industryName으로 저장 (UI 표시용)
   const displayName = parsed.data.industryKeyword || parsed.data.industryName;
-
-  // 주소가 위경도 형태면 역지오코딩으로 실제 주소 변환
-  let resolvedAddress = parsed.data.address;
-  if (/^\d+\.\d+\s*,\s*\d+\.\d+$/.test(resolvedAddress.trim())) {
-    try {
-      const region = await kakaoGeocoding.coordToRegion(parsed.data.latitude, parsed.data.longitude);
-      resolvedAddress = [region.region1, region.region2, region.region3].filter(Boolean).join(" ");
-    } catch {
-      // 역지오코딩 실패 시 원본 유지
-    }
-  }
 
   const analysis = await prisma.analysisRequest.create({
     data: {
-      address: resolvedAddress,
+      address: parsed.data.address,
       latitude: parsed.data.latitude,
       longitude: parsed.data.longitude,
       industryCode: parsed.data.industryCode,
       industryName: displayName,
       radius: parsed.data.radius,
       status: "PROCESSING",
-      userId: user?.id ?? null,
       // 분석 실행에 필요한 전처리 데이터를 reportData에 임시 저장
       reportData: JSON.parse(JSON.stringify({
         _pendingInput: {
