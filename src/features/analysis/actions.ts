@@ -1,6 +1,5 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { prisma } from "@/server/db/prisma";
 import { analysisRequestSchema } from "./schema";
 import { runAnalysis } from "./lib/analysis-orchestrator";
@@ -150,7 +149,7 @@ function extractSearchKeywords(industryCode: string, industryName: string): stri
   return [keyword];
 }
 
-/** 분석 시작 — DB 레코드만 즉시 생성 후 결과 페이지로 redirect (분석 실행은 결과 페이지에서 수행) */
+/** 분석 시작 — DB 레코드만 즉시 생성 후 ID 반환 (분석 실행은 결과 페이지에서 수행) */
 export async function startAnalysis(input: AnalysisRequest) {
   const parsed = analysisRequestSchema.safeParse(input);
   if (!parsed.success) throw new Error("입력값이 올바르지 않습니다");
@@ -200,7 +199,7 @@ export async function startAnalysis(input: AnalysisRequest) {
     },
   });
 
-  redirect(`/analyze/${analysis.id}`);
+  return analysis.id;
 }
 
 /** 분석 실행 — 결과 페이지 서버 컴포넌트에서 호출, COMPLETED이면 skip */

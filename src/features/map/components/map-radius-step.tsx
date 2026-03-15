@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useRef, useState, useTransition } from "react";
+import { useCallback, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { startAnalysis } from "@/features/analysis/actions";
 import { BackButton } from "@/components/back-button";
 import { useWizardStore } from "@/features/analysis/stores/wizard-store";
@@ -38,7 +39,8 @@ export function MapRadiusStep() {
   const centerLngRef = useRef(initialLng);
 
   const [radius, setRadius] = useState(300);
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   // 현재 주소 (geocode 결과 또는 좌표 표시)
   const currentAddress =
@@ -74,24 +76,24 @@ export function MapRadiusStep() {
   }, []);
 
   // 분석 시작 — Server Action 호출 후 결과 페이지로 redirect
-  const handleAnalyze = useCallback(() => {
-    startTransition(async () => {
-      await startAnalysis({
-        address:
-          geocodeResult?.address ??
-          `${centerLatRef.current.toFixed(4)}, ${centerLngRef.current.toFixed(4)}`,
-        latitude: centerLatRef.current,
-        longitude: centerLngRef.current,
-        industryCode: selectedIndustry?.code ?? "",
-        industryName: selectedIndustry?.name ?? "",
-        industryKeyword: selectedIndustry?.keyword,
-        radius,
-        districtCode: geocodeResult?.districtCode || undefined,
-        adminDongCode: geocodeResult?.adminDongCode || undefined,
-        dongName: geocodeResult?.dongName || undefined,
-      });
+  const handleAnalyze = useCallback(async () => {
+    setIsSubmitting(true);
+    const id = await startAnalysis({
+      address:
+        geocodeResult?.address ??
+        `${centerLatRef.current.toFixed(4)}, ${centerLngRef.current.toFixed(4)}`,
+      latitude: centerLatRef.current,
+      longitude: centerLngRef.current,
+      industryCode: selectedIndustry?.code ?? "",
+      industryName: selectedIndustry?.name ?? "",
+      industryKeyword: selectedIndustry?.keyword,
+      radius,
+      districtCode: geocodeResult?.districtCode || undefined,
+      adminDongCode: geocodeResult?.adminDongCode || undefined,
+      dongName: geocodeResult?.dongName || undefined,
     });
-  }, [geocodeResult, selectedIndustry, radius]);
+    router.push(`/analyze/${id}`);
+  }, [geocodeResult, selectedIndustry, radius, router]);
 
   return (
     <div className="fixed inset-0">
@@ -122,7 +124,7 @@ export function MapRadiusStep() {
         nearbyCount={nearbyTotalCount}
         onRadiusChange={handleRadiusChange}
         onAnalyze={handleAnalyze}
-        isSubmitting={isPending}
+        isSubmitting={isSubmitting}
       />
     </div>
   );
