@@ -1,7 +1,7 @@
 # 창업 분석기 — 개발 레퍼런스
 
 > 새 기능 구현 / API 추가 / 스코어링 변경 전 반드시 읽을 것.
-> 마지막 업데이트: 2026-03-03
+> 마지막 업데이트: 2026-03-15
 
 ---
 
@@ -92,12 +92,12 @@ Claude AI 리포트 (haiku-4-5)
 **병의원 (medical)**
 - Kakao HP8 카테고리 + "종합병원"/"의료원" 키워드 검색 병행
 - 종합병원 + 의료원/대학병원만 포함, 병원·의원 완전 제외
-- 탐색 반경: `Math.max(사용자반경, 2000)` — 사용자 반경이 작아도 최소 2km
+- 탐색 반경: `MEDICAL_SEARCH_RADIUS = 3000` — 사용자 반경 무관, 고정 3km
 
 **대학교 (university)**
 - Kakao keyword "대학교" 검색 + `category_name.includes("대학교")` 이중 필터
 - 오탐 방지: "파스쿠찌 가천대학교" 등 place_name에 "대학교" 포함 카페 → category_name으로 필터
-- 탐색 반경: `Math.max(사용자반경, 1500)` — 사용자 반경이 작아도 최소 1.5km
+- 탐색 반경: `UNIVERSITY_SEARCH_RADIUS = 2000` — 사용자 반경 무관, 고정 2km
 
 **학교 (school)**
 - CSV(전국초중등학교위치표준데이터) → Prisma School 모델 → DB 직접 쿼리
@@ -119,23 +119,28 @@ Claude AI 리포트 (haiku-4-5)
 
 ```
 src/features/analysis/lib/scoring/
-├── index.ts       — 총점 합산
+├── index.ts       — 총점 합산 (calcTotalScore)
 ├── competition.ts — 경쟁 강도
 ├── vitality.ts    — 상권 활력도
 ├── population.ts  — 배후 인구
 ├── survival.ts    — 생존율 (서울 전용)
-└── types.ts       — 공통 타입 (등급, 정규화)
+├── infra-bonus.ts — 인프라 보너스 (업종별 가중치 매트릭스)
+└── types.ts       — 공통 타입 (등급, 정규화, normalize, logNormalize)
 ```
 
 > ⚠️ 이 파일들은 반드시 `scoring-engine-validator` (박사님) 검토 후 수정.
 > 어떤 이유로도 박사님 승인 없이 수치/가중치 변경 금지.
 
-### 4대 지표 가중치 (박사님 검증 완료 2026-02-28)
+### 총점 가중치 (박사님 승인 2026-03-15)
 
 | 지역 | 공식 |
 |------|------|
-| 서울 | `vitality(35%) + competition(25%) + population(20%) + survival(20%)` |
-| 비서울 | `competition(55%) + population(45%)` |
+| 서울 | `vitality×0.35 + competition×0.25 + population×0.20 + survival×0.20 + infraBonus(최대 15점 가산)` |
+| 비서울 (survival 있음) | `competition×0.40 + population×0.35 + survival×0.25 + infraBonus` |
+| 비서울 (survival 없음) | `competition×0.45 + population×0.40 + infraAccess×0.15 + infraBonus` |
+
+> 비서울 infraAccess = (infraBonus.score / 15) × 100 — 0~100점으로 정규화 후 3번째 지표로 편입
+> 총점 계산은 `src/features/analysis/actions.ts`의 `startAnalysis`에서 수행
 
 ### 등급 체계
 
@@ -151,33 +156,54 @@ src/features/analysis/lib/scoring/
 
 - 공식: `densityScore × 0.75 + franchiseScore × 0.25`
 - 밀집도 시그모이드: `100 / (1 + exp(-4 × (ratio - 1)))`
-- ratio = densityBaseline / densityPerMeter
-- densityBaseline: 한식 50m / 미용실·부동산 90m / 편의점 110m / 커피 150m / 치킨 160m / 기본 250m
+- ratio = densityPerMeter / densityBaseline
+- densityBaseline: 43개 업종별 매핑 (`industry-codes.ts`). **한식 120m** (2026-03-15 수정)
+- 소수 표본 보정: totalCount < 5일 때 50점(중립)으로 수렴
 - 프랜차이즈 U커브: 0%→25점 / 20~40%→100점 / 80%+→0점
-- **비프랜차이즈 업종(의료, 부동산)**: franchiseScore=50 고정 (U커브 제외)
+- V-09 보정: totalCount≥10이고 franchiseRatio=0이면 45점
+- **비프랜차이즈 업종 (franchiseScore=50 고정, U커브 제외)**: 의료, 부동산, 교육, 서비스, 건강, 오락
 
 ### 상권 활력도 (Vitality) — 서울만
 
 | 하위 지표 | 가중치 | 계산 |
 |----------|--------|------|
 | 점포당 매출 | 35% | 로그 정규화 (50만~3,000만원) |
-| 상권 변화 | 35% | LH=85 / HL=55 / HH=30 / LL=25 |
-| 유동인구 | 30% | `max(골목상권, 지하철)` — max 200만명 기준 로그 정규화 |
+| 유동인구 | 35% | `max(골목상권, 지하철)` — max 200만명 기준 로그 정규화 |
+| 상권 변화 | 30% | LH=85 / HL=55 / HH=40 / LL=20 |
 
-> 상권변화지표: LH=확장기(좋음) / HL=안정성숙기 / HH=포화 / LL=불안정
-> **과거 오류**: LL=90 (불안정을 활발로 잘못 평가) → LL=25로 수정 완료
+> 상권변화지표: LH=역동(신규 경쟁력) / HL=안정(기존 강자) / HH=포화·정체 / LL=고회전 불안정
+> 유동인구 없을 때: 매출 65% + 상권변화 35%
 
-비서울: `subwayScore × 0.35` → 최대 35점
+#### 지하철 거리감쇠 (2026-03-15 증폭→감쇠 방식으로 변경)
+
+| 거리 | 계수 |
+|------|------|
+| 200m 이내 | 1.0 |
+| 400m 이내 | 0.85 |
+| 600m 이내 | 0.65 |
+| 800m 이내 | 0.45 |
+| 800m 초과 | 0.25 |
 
 ### 배후 인구 (Population)
 
-- 읍면동: 3,000명(0점) ~ 40,000명(100점) 로그 정규화
-- 시군구: 50,000명(0점) ~ 600,000명(100점)
+- 읍면동: 3,000명(0점) ~ 50,000명(100점) 로그 정규화
+- 시군구: 50,000명(0점) ~ 600,000명(100점) — isDongLevel=false 시 fallback
+- 읍면동 상한과 시군구 하한을 50,000명으로 일치시켜 경계값 불연속 해소
 
 ### 생존율 (Survival) — 서울만
 
 - 공식: `closeScore × 0.6 + netChangeScore × 0.4`
-- 폐업률 5% 기준: 낮을수록 높은 점수
+- closeScore (2026-03-15 선형 역정규화로 변경): `(1 - normalize(closeRate, 0, 15)) × 100`
+  - 0%=100점 / 5%=67점 / 10%=33점 / 15%=0점
+- netChangeScore: 순증감률 정규화 (-7.5~7.5%, 균형=50점)
+
+### 인프라 보너스 (infraBonus)
+
+- MAX_BONUS = 15점 (서울: baseScore에 직접 가산 후 min(100) 캡)
+- 4개 항목: transit(버스+지하철 max), school, university, medical
+- 업종별 가중치 매트릭스 (INDUSTRY_WEIGHTS): 16개 업종, 각 합 0.55
+- null 항목 제외 후 totalWeight로 정규화
+- **transit = max(subwayScore, busScore)** — 서울은 subway=null 전달(vitality 이중반영 방지)
 
 ---
 
@@ -254,17 +280,32 @@ lat/lng 조합이 사용자마다 달라 캐시 히트율 미미하고 메모리
 
 | 항목 | 값 | 비고 |
 |------|-----|------|
-| 반경 옵션 | 200m / 300m / 500m | 100m는 통계 신뢰도 부족으로 제외 |
+| 반경 옵션 | 200m / 300m / 500m | 100m는 통계 신뢰도 부족으로 제외. 기본값 **300m** (균형 분석) |
 | 반경 적용 | **전 어댑터 통일** | Kakao Places, 버스, 대학교, 병의원, 학교 전부 사용자 선택 반경 |
 | 지하철 탐색 반경 | 500m 고정 | 역세권 특성상 고정 유지 |
-| 병의원 최소 반경 | `Math.max(radius, 2000)` | 종합병원은 넓게 탐색 필요 |
-| 대학교 최소 반경 | `Math.max(radius, 1500)` | 대학교는 넓게 탐색 필요 |
+| 병의원 최소 반경 | `MEDICAL_SEARCH_RADIUS = 3000` | 종합병원은 넓게 탐색 필요 |
+| 대학교 최소 반경 | `UNIVERSITY_SEARCH_RADIUS = 2000` | 대학교는 넓게 탐색 필요 |
 | 드래그 반경 조절 | 비활성 (주석 처리) | `radius-map.tsx` — 추후 재활성화 가능 |
 | geo-utils.ts snapRadius | 200~500m 클램프 | `geo-utils.ts` |
 
 ---
 
-## 7. 새 기능 구현 시 필수 체크
+## 7. 인증 (Supabase Auth)
+
+| 제공자 | 상태 | 정보 수집 |
+|--------|------|----------|
+| Google | ✅ 활성 | 이메일(필수), 이름, 프로필 사진 |
+| Kakao | ✅ 활성 | 이메일(필수), 닉네임(필수), 프로필 사진(선택) |
+
+- Supabase OAuth → `src/features/auth/actions.ts` (`signInWithGoogle`, `signInWithKakao`)
+- 콜백: `/auth/callback` → Supabase가 처리 후 리다이렉트
+- Kakao Developers 앱 ID: 1382976 (비즈 앱)
+- Kakao REST API Key: `.env`의 `KAKAO_REST_API_KEY` (Maps와 공유)
+- Kakao Client Secret: Supabase 대시보드에만 저장 (코드에 없음)
+
+---
+
+## 8. 새 기능 구현 시 필수 체크
 
 ### 새 데이터소스 추가 순서
 
@@ -298,7 +339,7 @@ lat/lng 조합이 사용자마다 달라 캐시 히트율 미미하고 메모리
 
 ---
 
-## 8. 업종별 데이터 유의미성 (설계 참고)
+## 9. 업종별 데이터 유의미성 (설계 참고)
 
 **H=핵심 / M=보조 / L=약함 / X=오해 유발**
 
@@ -322,7 +363,7 @@ lat/lng 조합이 사용자마다 달라 캐시 히트율 미미하고 메모리
 
 ---
 
-## 9. 알려진 제약사항
+## 10. 알려진 제약사항
 
 | 항목 | 내용 |
 |------|------|
@@ -339,7 +380,7 @@ lat/lng 조합이 사용자마다 달라 캐시 히트율 미미하고 메모리
 
 ---
 
-## 10. 🚨 인사이트 시스템 전격 개편 필요
+## 11. 🚨 인사이트 시스템 전격 개편 필요
 
 > **우선순위: High** — 현재 인사이트가 업종 맥락과 무관하게 출력되어 사용자 신뢰도 훼손 가능성 있음.
 > 담당: `ai-report-specialist` + `senior-frontend-architect`
