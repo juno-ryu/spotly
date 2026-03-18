@@ -11,23 +11,20 @@ function getGtag(): GtagFn | undefined {
   return (window as unknown as { gtag?: GtagFn }).gtag;
 }
 
+/** GA4 이벤트 이름 상수 */
+export const AnalyticsEvent = {
+  /** 분석 요청 — 주소 + 업종 입력 후 분석 시작 시 */
+  ANALYSIS_REQUEST: "analysis_request",
+  /** 리포트 조회 — 결과 페이지 진입 시 */
+  REPORT_VIEW: "report_view",
+} as const;
+
+export type AnalyticsEvent = (typeof AnalyticsEvent)[keyof typeof AnalyticsEvent];
+
 /** 커스텀 이벤트 전송 */
 export function trackEvent(
   eventName: string,
   params?: Record<string, unknown>,
 ) {
   getGtag()?.("event", eventName, params);
-}
-
-/** 분석 요청 이벤트 — 주소 + 업종 입력 후 분석 시작 시 */
-export function trackAnalysis(address: string, businessType: string) {
-  trackEvent("analysis_request", {
-    address,
-    business_type: businessType,
-  });
-}
-
-/** 리포트 조회 이벤트 — 결과 페이지 진입 시 */
-export function trackReportView(analysisId: string) {
-  trackEvent("report_view", { analysis_id: analysisId });
 }

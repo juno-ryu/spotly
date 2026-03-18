@@ -19,6 +19,7 @@ import type { MedicalAnalysis } from "@/server/data-sources/medical/adapter";
 import type { AnalysisRequest } from "@prisma/client";
 import type { ScoreBreakdown } from "@/features/analysis/schema";
 import type { InsightData } from "@/features/analysis/lib/insights/types";
+import { trackEvent, AnalyticsEvent } from "@/lib/analytics";
 import {
   buildCompetitionHeader,
   buildVitalityHeader,
@@ -243,6 +244,11 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
   const handleRef = useRef<HTMLDivElement>(null);
   // fit-content 상태에서 측정한 초기 콘텐츠 높이 (스냅 복귀 시 사용)
   const contentHeightRef = useRef<number>(0);
+
+  // 리포트 조회 — GA4 이벤트 전송 (최초 마운트 시 1회)
+  useEffect(() => {
+    trackEvent(AnalyticsEvent.REPORT_VIEW, { analysis_id: data.id });
+  }, [data.id]);
 
   // 마운트 후 콘텐츠 높이 측정
   useEffect(() => {

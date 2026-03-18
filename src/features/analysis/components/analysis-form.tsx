@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { IndustrySelector } from "./industry-selector";
 import { RadiusSelector } from "./radius-selector";
 import { RadiusOption } from "@/constants/enums/radius-option";
+import { trackEvent, AnalyticsEvent } from "@/lib/analytics";
 
 export function AnalysisForm() {
   const router = useRouter();
@@ -92,6 +93,8 @@ export function AnalysisForm() {
         return;
       }
 
+      // 분석 요청 성공 — GA4 이벤트 전송
+      trackEvent(AnalyticsEvent.ANALYSIS_REQUEST, { address, business_type: industry.name });
       // router.push(`/analyze/${data.id}`);
     } catch {
       toast.error("분석 요청 중 오류가 발생했습니다");
