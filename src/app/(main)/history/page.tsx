@@ -33,16 +33,16 @@ export default async function HistoryPage() {
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-6 pt-16 pb-6">
       <BackButton />
-      <h1 className="text-2xl font-bold pl-14">AI 리포트 이력</h1>
+      <h1 className="text-2xl font-bold">AI 리포트 이력</h1>
 
       {reports.length === 0 ? (
-        <p className="text-muted-foreground px-4">
+        <p className="text-muted-foreground">
           아직 생성된 리포트가 없습니다.
         </p>
       ) : (
-        <ul className="space-y-2 px-4">
+        <ul className="space-y-2">
           {reports.map((r) => (
             <li key={r.id}>
               <Link

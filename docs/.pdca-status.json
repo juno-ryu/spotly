@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-03-18T11:40:27.587Z",
+  "lastUpdated": "2026-03-18T11:57:34.224Z",
   "activeFeatures": [
     "analysis",
     "purchase",
@@ -14,7 +14,9 @@
     "history",
     "pdf",
     "auth",
-    "constants"
+    "constants",
+    "industry",
+    "region"
   ],
   "primaryFeature": "analysis",
   "features": {
@@ -105,9 +107,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-18T02:09:56.549Z",
-        "lastUpdated": "2026-03-18T11:37:00.711Z"
+        "lastUpdated": "2026-03-18T11:48:04.544Z"
       },
-      "lastFile": "/Users/juno/work/my/src/app/robots.ts"
+      "lastFile": "/Users/juno/work/my/next.config.ts"
     },
     "analyze": {
       "phase": "do",
@@ -131,9 +133,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-18T08:05:16.038Z",
-        "lastUpdated": "2026-03-18T08:05:31.232Z"
+        "lastUpdated": "2026-03-18T11:50:37.382Z"
       },
-      "lastFile": "/Users/juno/work/my/src/features/map/components/map-radius-step.tsx"
+      "lastFile": "/Users/juno/work/my/src/app/(main)/map/layout.tsx"
     },
     "history": {
       "phase": "do",
@@ -144,7 +146,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-18T08:13:56.362Z",
-        "lastUpdated": "2026-03-18T08:13:56.362Z"
+        "lastUpdated": "2026-03-18T11:57:34.224Z"
       },
       "lastFile": "/Users/juno/work/my/src/app/(main)/history/page.tsx"
     },
@@ -186,6 +188,32 @@
         "lastUpdated": "2026-03-18T11:31:22.064Z"
       },
       "lastFile": "/Users/juno/work/my/src/constants/site.ts"
+    },
+    "industry": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-18T11:50:28.806Z",
+        "lastUpdated": "2026-03-18T11:50:28.806Z"
+      },
+      "lastFile": "/Users/juno/work/my/src/app/(main)/industry/layout.tsx"
+    },
+    "region": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-18T11:50:34.282Z",
+        "lastUpdated": "2026-03-18T11:50:34.282Z"
+      },
+      "lastFile": "/Users/juno/work/my/src/app/(main)/region/layout.tsx"
     }
   },
   "pipeline": {
@@ -196,7 +224,7 @@
   "session": {
     "startedAt": "2026-03-15T09:29:15.647Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-03-18T11:40:27.587Z"
+    "lastActivity": "2026-03-18T11:57:34.224Z"
   },
   "history": [
     {
@@ -1900,6 +1928,42 @@
     {
       "timestamp": "2026-03-18T11:40:27.587Z",
       "feature": "analysis",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-18T11:48:04.544Z",
+      "feature": "my",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-18T11:50:28.806Z",
+      "feature": "industry",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-18T11:50:34.282Z",
+      "feature": "region",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-18T11:50:37.382Z",
+      "feature": "map",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-18T11:57:21.884Z",
+      "feature": "history",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-18T11:57:34.224Z",
+      "feature": "history",
       "phase": "do",
       "action": "updated"
     }
