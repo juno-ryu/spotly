@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { KakaoAdfit } from "@/components/kakao-adfit";
 
 const DATA_STEPS = [
   "국민연금(NPS) 사업체 데이터",
@@ -114,6 +115,17 @@ export function ReportLoading() {
           status={isAiActive ? "active" : "pending"}
           isAi
         />
+
+        {/* 모든 단계 완료 시 광고 배너 표시 */}
+        {isAiActive && process.env.NEXT_PUBLIC_KAKAO_ADFIT_UNIT_ID && (
+          <div className="pt-6">
+            <KakaoAdfit
+              unitId={process.env.NEXT_PUBLIC_KAKAO_ADFIT_UNIT_ID}
+              width={320}
+              height={100}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
