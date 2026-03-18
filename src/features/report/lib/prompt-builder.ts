@@ -117,6 +117,9 @@ export function buildAnalysisPrompt(params: {
 
   // ── JSON 출력 스키마 ──
   const outputSchema = `{
+  "_reasoning": "여기에 먼저 네 사고 과정을 적어줘. 1) 이 주소의 상권 유형은? 2) 반경 ${radiusLabel}에서 이 데이터가 의미하는 바는? 3) 지표 간 교차 분석 결과는? 4) 알고리즘 점수(${params.scoreGrade}등급 ${params.totalScore}점)에 동의하는지, 다르게 판단한다면 이유는? 5) 이 업종에 이 입지가 적합한 최종 판단",
+  "_confidence": "상/중/하 — 데이터 완성도 기반 분석 신뢰도",
+  "_counterpoint": "내 분석의 가장 큰 약점 또는 반론 1가지",
   "verdict": "추천|조건부 추천|주의|비추천",
   "analysisScope": "반경 ${radiusLabel} 기준 이 분석의 범위와 의미 한 줄",
   "summary": "종합 의견 50자 이내",

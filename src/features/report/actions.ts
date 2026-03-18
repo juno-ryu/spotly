@@ -50,6 +50,11 @@ export async function generateReport(analysisData: Omit<AnalysisData, "places">)
     const text = rawText.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "");
     const parsed = JSON.parse(text);
 
+    // 내부 사고 필드 제거 (DB 저장 불필요)
+    delete parsed._reasoning;
+    delete parsed._confidence;
+    delete parsed._counterpoint;
+
     const reportJson = aiReportSchema.parse(parsed);
 
     // 현재 로그인 사용자 ID 조회
