@@ -21,7 +21,7 @@ interface UserMenuProps {
 
 export function UserMenu({ email, avatarUrl, name }: UserMenuProps) {
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const initial = (name?.[0] ?? email[0] ?? "?").toUpperCase();
 
   return (
@@ -45,9 +45,9 @@ export function UserMenu({ email, avatarUrl, name }: UserMenuProps) {
           <History className="mr-2 h-4 w-4" />
           분석 내역
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-          {theme === "dark" ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
-          {theme === "dark" ? "라이트 모드" : "다크 모드"}
+        <DropdownMenuItem onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}>
+          {resolvedTheme === "dark" ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
+          {resolvedTheme === "dark" ? "라이트 모드" : "다크 모드"}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
