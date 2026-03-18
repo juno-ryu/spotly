@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { Download, Share, X } from "lucide-react";
@@ -102,7 +103,7 @@ export function InstallBanner() {
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-sm rounded-xl border bg-background p-4 shadow-lg">
       <div className="flex items-start gap-3">
-        <img
+        <Image
           src="/icons/icon-192.png"
           alt="창업 분석기"
           width={40}

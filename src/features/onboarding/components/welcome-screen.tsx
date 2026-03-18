@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { hapticLight } from "../lib/haptic";
 import { useTypingAnimation } from "../hooks/use-typing-animation";
+import Image from "next/image";
 import { GRADIENT_TEXT_STYLE as GRADIENT_STYLE } from "@/constants/site";
 import { LoginScreen } from "@/features/auth/components/login-screen";
 
@@ -127,12 +128,13 @@ export function WelcomeScreen({ onNext, isLoggedIn }: WelcomeScreenProps) {
     >
       <div className="text-center space-y-5">
         {/* 로고 */}
-        <img
+        <Image
           src="/icons/icon-192.png"
           alt="스팟리 로고"
           width={80}
           height={80}
           className="mx-auto rounded-2xl"
+          priority
         />
 
         {/* Step 1 텍스트: 그라데이션 + 타이핑 */}

@@ -6,7 +6,9 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
-import { CompetitorMap } from "./competitor-map";
+import dynamic from "next/dynamic";
+
+const CompetitorMap = dynamic(() => import("./competitor-map").then(m => m.CompetitorMap), { ssr: false });
 import { PurchaseOverlay } from "./purchase-overlay";
 import { GradeBadge } from "./grade-badge";
 import { MetricCards } from "./metric-cards";

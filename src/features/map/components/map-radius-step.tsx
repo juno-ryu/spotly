@@ -10,7 +10,9 @@ import { useGeolocation } from "../hooks/use-geolocation";
 import { useReverseGeocode } from "../hooks/use-reverse-geocode";
 import { useNearbyPlaces } from "../hooks/use-nearby-places";
 import { CenterPin } from "./center-pin";
-import { RadiusMap } from "./radius-map";
+import dynamic from "next/dynamic";
+
+const RadiusMap = dynamic(() => import("./radius-map").then(m => m.RadiusMap), { ssr: false });
 
 /** Step 4+5 통합: 지도 드래그로 위치/반경 동시 설정 → 단일 화면 */
 export function MapRadiusStep() {
