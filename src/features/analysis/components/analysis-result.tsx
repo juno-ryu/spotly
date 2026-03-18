@@ -256,7 +256,9 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
     startTransition(async () => {
       try {
         const { generateReport } = await import("@/features/report/actions");
-        const result = await generateReport(data);
+        // places 배열(~14KB)은 AI 프롬프트에 불필요 — 서버 액션 페이로드 최소화
+        const { places, ...reportData } = data;
+        const result = await generateReport(reportData);
         if (result.success && result.id) {
           router.push(`/report/${result.id}`);
         } else {

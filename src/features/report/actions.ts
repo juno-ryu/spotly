@@ -9,8 +9,8 @@ import { scoreToGrade } from "@/features/analysis/lib/scoring/types";
 import { createSupabaseServer } from "@/server/supabase/server";
 import type { AnalysisData } from "@/features/analysis/actions";
 
-/** AI 리포트 생성 + DB 최초 저장. 클라이언트에서 분석 데이터를 직접 받는다. */
-export async function generateReport(analysisData: AnalysisData) {
+/** AI 리포트 생성 + DB 최초 저장. 클라이언트에서 분석 데이터를 직접 받는다. (places 제외) */
+export async function generateReport(analysisData: Omit<AnalysisData, "places">) {
   if (!hasApiKey.anthropic) {
     return {
       success: false as const,
