@@ -1,7 +1,14 @@
 export const dynamic = "force-dynamic";
 
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: "분석 이력",
+  description: "내가 분석한 창업 입지 리포트 이력을 확인하세요.",
+  robots: { index: false },
+};
 import { prisma } from "@/server/db/prisma";
 import { BackButton } from "@/components/back-button";
 import { createSupabaseServer } from "@/server/supabase/server";

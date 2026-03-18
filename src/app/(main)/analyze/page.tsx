@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: "분석 중",
+  robots: { index: false },
+};
 import { BackButton } from "@/components/back-button";
 import { AnalysisResult } from "@/features/analysis/components/analysis-result";
 import { AnalysisResultSkeleton } from "@/features/analysis/components/analysis-result-skeleton";

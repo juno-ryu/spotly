@@ -1,7 +1,9 @@
 export const SITE_CONFIG = {
-  name: "Spotly - AI 상권 분석",
-  description: "AI가 공공데이터를 분석해서 창업 입지를 검증해드려요. 경쟁 강도, 매출, 유동인구, 교통, 인프라를 종합 분석한 맞춤 리포트.",
+  name: "스팟리 - AI 창업 입지 분석",
+  shortName: "스팟리",
+  description: "AI가 공공데이터를 분석해서 창업 입지를 검증해드려요. 경쟁 강도, 유동인구, 교통, 인프라를 종합 분석한 100점 만점 맞춤 리포트.",
   url: "https://spotly-beta.vercel.app",
+  ogImage: "https://spotly-beta.vercel.app/og-image.png",
 } as const;
 
 /** 하이라이트 텍스트 그라데이션 (violet-600 → indigo-500) */

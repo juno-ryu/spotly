@@ -129,7 +129,7 @@ export function WelcomeScreen({ onNext, isLoggedIn }: WelcomeScreenProps) {
         {/* 로고 */}
         <img
           src="/icons/icon-192.png"
-          alt="Spotly"
+          alt="스팟리 로고"
           width={80}
           height={80}
           className="mx-auto rounded-2xl"
