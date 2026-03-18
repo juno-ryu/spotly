@@ -180,8 +180,8 @@ function ScoreSection({ scoreDetail }: { scoreDetail: ScoreBreakdown }) {
 interface AnalysisReportPDFProps {
   address: string;
   industryName: string;
-  radius: number;
-  scoreDetail: ScoreBreakdown | null;
+  radius?: number;
+  scoreDetail?: ScoreBreakdown | null;
   report: AiReport;
   createdAt: string;
 }
@@ -195,7 +195,7 @@ export function AnalysisReportPDF({
   report,
   createdAt,
 }: AnalysisReportPDFProps) {
-  const radiusLabel = formatRadius(radius);
+  const radiusLabel = radius ? formatRadius(radius) : "";
   const dateStr = new Date(createdAt).toLocaleDateString("ko-KR");
 
   return (
@@ -304,6 +304,7 @@ export function AnalysisReportPDF({
         </View>
 
         {/* 입지 활용 전략 */}
+        {report.locationAdvice && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>입지 활용 전략</Text>
           <Text style={styles.listText}>{report.locationAdvice.currentAssessment}</Text>
@@ -314,6 +315,7 @@ export function AnalysisReportPDF({
             </View>
           ))}
         </View>
+        )}
 
         {/* 상세 분석 */}
         <View style={styles.section}>

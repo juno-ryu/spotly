@@ -3,7 +3,6 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { prisma } from "@/server/db/prisma";
 import { AnalysisReportPDF } from "@/features/report/lib/pdf-template";
 import { aiReportSchema } from "@/features/report/schema";
-import type { ScoreBreakdown } from "@/features/analysis/schema";
 
 export async function GET(
   _request: NextRequest,
@@ -11,44 +10,33 @@ export async function GET(
 ) {
   const { id } = await params;
 
-  const analysis = await prisma.analysisRequest.findUnique({
+  const report = await prisma.analysisReport.findUnique({
     where: { id },
   });
 
-  if (!analysis) {
+  if (!report) {
     return NextResponse.json(
-      { error: "분석 결과를 찾을 수 없습니다" },
+      { error: "리포트를 찾을 수 없습니다" },
       { status: 404 },
     );
   }
 
-  if (!analysis.aiReportJson) {
-    return NextResponse.json(
-      { error: "AI 리포트가 아직 생성되지 않았습니다" },
-      { status: 400 },
-    );
-  }
+  const reportJson = aiReportSchema.parse(report.aiReportJson);
 
-  // AI 리포트 데이터 파싱
-  const report = aiReportSchema.parse(analysis.aiReportJson);
-
-  // PDF 렌더링
   try {
     const buffer = await renderToBuffer(
       <AnalysisReportPDF
-        address={analysis.address}
-        industryName={analysis.industryName}
-        radius={analysis.radius}
-        scoreDetail={analysis.scoreDetail as ScoreBreakdown | null}
-        report={report}
-        createdAt={analysis.createdAt.toISOString()}
+        address={report.address}
+        industryName={report.industryName}
+        report={reportJson}
+        createdAt={report.createdAt.toISOString()}
       />,
     );
 
     return new Response(new Uint8Array(buffer), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="analysis-${id}.pdf"`,
+        "Content-Disposition": `attachment; filename="report-${id}.pdf"`,
       },
     });
   } catch (error) {

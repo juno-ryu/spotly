@@ -6,71 +6,34 @@ import { hasApiKey } from "@/lib/env";
 import { ANALYSIS_SYSTEM_PROMPT, buildAnalysisPrompt } from "./lib/prompt-builder";
 import { aiReportSchema } from "./schema";
 import { scoreToGrade } from "@/features/analysis/lib/scoring/types";
-import type { CompetitionAnalysis } from "@/features/analysis/lib/scoring/types";
-import type { VitalityAnalysis } from "@/features/analysis/lib/scoring/vitality";
-import type { PopulationAnalysis } from "@/features/analysis/lib/scoring/population";
-import type { SubwayAnalysis } from "@/server/data-sources/subway/adapter";
-import type { BusAnalysis } from "@/server/data-sources/bus/adapter";
-import type { SchoolAnalysis } from "@/server/data-sources/school/adapter";
-import type { UniversityAnalysis } from "@/server/data-sources/university/adapter";
-import type { MedicalAnalysis } from "@/server/data-sources/medical/adapter";
+import { createSupabaseServer } from "@/server/supabase/server";
+import type { AnalysisData } from "@/features/analysis/actions";
 
-export async function generateReport(analysisId: string) {
+/** AI 리포트 생성 + DB 최초 저장. 클라이언트에서 분석 데이터를 직접 받는다. */
+export async function generateReport(analysisData: AnalysisData) {
   if (!hasApiKey.anthropic) {
     return {
       success: false as const,
-      error: "ANTHROPIC_API_KEY가 설정되지 않았습니다. .env 파일을 확인해주세요.",
+      error: "ANTHROPIC_API_KEY가 설정되지 않았습니다.",
     };
   }
-  const analysis = await prisma.analysisRequest.findUnique({
-    where: { id: analysisId },
-  });
 
-  if (!analysis || analysis.status !== "COMPLETED") {
-    return { success: false as const, error: "분석이 완료되지 않았습니다" };
-  }
-
-  if (analysis.aiReportJson) {
-    return { success: true as const, data: analysis.aiReportJson };
-  }
-
-  const reportData = analysis.reportData as Record<string, unknown> | null;
-
-  if (!reportData) {
-    return { success: false as const, error: "분석 데이터가 없습니다" };
-  }
-
-  const competition = reportData.competition as CompetitionAnalysis | undefined;
-  if (!competition) {
-    return { success: false as const, error: "경쟁 분석 데이터가 없습니다" };
-  }
-
-  const vitality = (reportData.vitality as VitalityAnalysis | undefined) ?? null;
-  const population = (reportData.populationAnalysis as PopulationAnalysis | undefined) ?? null;
-  const subway = (reportData.subway as SubwayAnalysis | undefined) ?? null;
-  const bus = (reportData.bus as BusAnalysis | undefined) ?? null;
-  const school = (reportData.school as SchoolAnalysis | undefined) ?? null;
-  const university = (reportData.university as UniversityAnalysis | undefined) ?? null;
-  const medical = (reportData.medical as MedicalAnalysis | undefined) ?? null;
-
-  // 종합 점수 + 등급 (AI에게 맥락 전달)
-  const totalScore = analysis.totalScore ?? 0;
-  const { grade: scoreGrade } = scoreToGrade(totalScore);
+  const { grade: scoreGrade } = scoreToGrade(analysisData.totalScore);
 
   const prompt = buildAnalysisPrompt({
-    address: analysis.address,
-    industryName: analysis.industryName,
-    radius: analysis.radius,
-    totalScore,
+    address: analysisData.address,
+    industryName: analysisData.industryName,
+    radius: analysisData.radius,
+    totalScore: analysisData.totalScore,
     scoreGrade,
-    competition,
-    vitality,
-    population,
-    subway,
-    bus,
-    school,
-    university,
-    medical,
+    competition: analysisData.competition,
+    vitality: analysisData.vitality,
+    population: analysisData.populationAnalysis,
+    subway: analysisData.subway,
+    bus: analysisData.bus,
+    school: analysisData.school,
+    university: analysisData.university,
+    medical: analysisData.medical,
   });
 
   try {
@@ -84,19 +47,26 @@ export async function generateReport(analysisId: string) {
 
     const rawText =
       message.content[0].type === "text" ? message.content[0].text : "";
-    // Claude가 ```json ... ``` 코드블록으로 감쌀 수 있으므로 제거
     const text = rawText.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "");
     const reportJson = aiReportSchema.parse(JSON.parse(text));
 
-    await prisma.analysisRequest.update({
-      where: { id: analysisId },
+    // 현재 로그인 사용자 ID 조회
+    const supabase = await createSupabaseServer();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // AI 리포트 생성 시 DB 최초 INSERT
+    const record = await prisma.analysisReport.create({
       data: {
-        aiSummary: reportJson.summary,
+        address: analysisData.address,
+        industryName: analysisData.industryName,
+        totalScore: analysisData.totalScore,
+        scoreDetail: analysisData.scoreDetail ? JSON.parse(JSON.stringify(analysisData.scoreDetail)) : undefined,
         aiReportJson: JSON.parse(JSON.stringify(reportJson)),
+        userId: user?.id ?? null,
       },
     });
 
-    return { success: true as const, data: reportJson };
+    return { success: true as const, id: record.id, data: reportJson };
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : String(error);
     console.error("AI 리포트 생성 실패:", errMsg, error);

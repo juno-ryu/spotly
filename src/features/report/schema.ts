@@ -85,7 +85,7 @@ export const aiReportSchema = z.object({
         rationale: z.string(),
       }),
     ),
-  }),
+  }).nullable().optional(),
 
   /** (8) 배후 인구 분석 — 데이터 없으면 null */
   populationInsight: z

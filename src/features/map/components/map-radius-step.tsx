@@ -2,7 +2,6 @@
 
 import { useCallback, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { startAnalysis } from "@/features/analysis/actions";
 import { BackButton } from "@/components/back-button";
 import { useWizardStore } from "@/features/analysis/stores/wizard-store";
 import { RadiusBottomSheet } from "@/features/analysis/components/radius-bottom-sheet";
@@ -75,24 +74,21 @@ export function MapRadiusStep() {
     setRadius(newRadius);
   }, []);
 
-  // 분석 시작 — Server Action 호출 후 결과 페이지로 redirect
-  const handleAnalyze = useCallback(async () => {
+  // 분석 시작 — searchParams로 즉시 라우트 이동 (DB 저장 없음)
+  const handleAnalyze = useCallback(() => {
     setIsSubmitting(true);
-    const id = await startAnalysis({
-      address:
-        geocodeResult?.address ??
-        `${centerLatRef.current.toFixed(4)}, ${centerLngRef.current.toFixed(4)}`,
-      latitude: centerLatRef.current,
-      longitude: centerLngRef.current,
-      industryCode: selectedIndustry?.code ?? "",
-      industryName: selectedIndustry?.name ?? "",
-      industryKeyword: selectedIndustry?.keyword,
-      radius,
-      districtCode: geocodeResult?.districtCode || undefined,
-      adminDongCode: geocodeResult?.adminDongCode || undefined,
-      dongName: geocodeResult?.dongName || undefined,
+    const address =
+      geocodeResult?.address ??
+      `${centerLatRef.current.toFixed(4)}, ${centerLngRef.current.toFixed(4)}`;
+    const params = new URLSearchParams({
+      lat: String(centerLatRef.current),
+      lng: String(centerLngRef.current),
+      address,
+      code: selectedIndustry?.code ?? "",
+      keyword: selectedIndustry?.keyword || selectedIndustry?.name || "",
+      radius: String(radius),
     });
-    router.push(`/analyze/${id}`);
+    router.push(`/analyze?${params.toString()}`);
   }, [geocodeResult, selectedIndustry, radius, router]);
 
   return (

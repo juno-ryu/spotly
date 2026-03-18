@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dayjs from "dayjs";
 import { Download, Share, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -18,16 +19,32 @@ function isIosSafari() {
   return isIos && !isStandalone;
 }
 
-const DISMISS_COOKIE = "pwa-install-dismissed";
-const DISMISS_HOURS = 1;
+const DISMISS_KEY = "pwa-install-dismissed";
+const DISMISS_DAYS = 7;
+
+// 모듈 레벨 플래그 — SPA 라우트 이동 시에도 유지 (리로드 전까지 초기화 안 됨)
+let dismissedInSession = false;
 
 function isDismissed() {
-  return document.cookie.split(";").some((c) => c.trim().startsWith(`${DISMISS_COOKIE}=`));
+  if (dismissedInSession) return true;
+  try {
+    const raw = localStorage.getItem(DISMISS_KEY);
+    if (!raw) return false;
+    if (dayjs().valueOf() < Number(raw)) {
+      dismissedInSession = true;
+      return true;
+    }
+    return false;
+  } catch {
+    return true;
+  }
 }
 
-function setDismissedCookie() {
-  const expires = new Date(Date.now() + DISMISS_HOURS * 60 * 60 * 1000).toUTCString();
-  document.cookie = `${DISMISS_COOKIE}=1; expires=${expires}; path=/`;
+function setDismissed() {
+  dismissedInSession = true;
+  try {
+    localStorage.setItem(DISMISS_KEY, String(dayjs().add(DISMISS_DAYS, "day").valueOf()));
+  } catch {}
 }
 
 // 이미 PWA로 설치돼서 실행 중인지 확인
@@ -44,14 +61,11 @@ type BannerType = "android" | "ios" | null;
 export function InstallBanner() {
   const [bannerType, setBannerType] = useState<BannerType>(null);
   const [androidPrompt, setAndroidPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  // 쿠키 dismiss 여부를 한번만 체크해서 캐시
-  const [dismissed, setDismissed] = useState(() =>
-    typeof document !== "undefined" ? isDismissed() : true,
-  );
 
   useEffect(() => {
-    // 이미 설치됐거나 닫은 경우 표시 안 함
-    if (isInStandaloneMode() || dismissed) return;
+    // useEffect는 클라이언트에서만 실행되므로 document 접근 안전
+    // SSR 상태를 useState 초기값으로 쓰면 서버(dismissed=true)와 클라이언트 hydration 불일치 발생
+    if (isInStandaloneMode() || isDismissed()) return;
 
     if (isIosSafari()) {
       setBannerType("ios");
@@ -72,8 +86,7 @@ export function InstallBanner() {
   }, []);
 
   const handleDismiss = () => {
-    setDismissedCookie();
-    setDismissed(true);
+    setDismissed();
     setBannerType(null);
   };
 
@@ -84,7 +97,7 @@ export function InstallBanner() {
     if (outcome === "accepted") setBannerType(null);
   };
 
-  if (!bannerType) return null;
+  if (!bannerType || dismissedInSession || isDismissed()) return null;
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-sm rounded-xl border bg-background p-4 shadow-lg">

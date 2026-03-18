@@ -395,6 +395,7 @@ export function ReportViewer({
         <Separator />
 
         {/* ── 입지 활용 전략 ── */}
+        {report.locationAdvice && (
         <AccordionItem value="location" className="border-none px-4">
           <AccordionTrigger className="hover:no-underline py-4 items-start">
             <div className="flex items-start gap-2 text-left">
@@ -417,6 +418,7 @@ export function ReportViewer({
             </ul>
           </AccordionContent>
         </AccordionItem>
+        )}
 
         <Separator />
 

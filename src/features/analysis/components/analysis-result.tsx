@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useRef, memo, useEffect } from "react";
-import Link from "next/link";
+import { useState, useRef, memo, useEffect, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
 import { CompetitorMap } from "./competitor-map";
+import { PurchaseOverlay } from "./purchase-overlay";
 import { GradeBadge } from "./grade-badge";
 import { MetricCards } from "./metric-cards";
 import { DataFacts } from "./data-facts";
@@ -16,7 +17,7 @@ import type { BusAnalysis } from "@/server/data-sources/bus/adapter";
 import type { SchoolAnalysis } from "@/server/data-sources/school/adapter";
 import type { UniversityAnalysis } from "@/server/data-sources/university/adapter";
 import type { MedicalAnalysis } from "@/server/data-sources/medical/adapter";
-import type { AnalysisRequest } from "@prisma/client";
+import type { AnalysisData } from "@/features/analysis/actions";
 import type { ScoreBreakdown } from "@/features/analysis/schema";
 import type { InsightData } from "@/features/analysis/lib/insights/types";
 import { trackEvent, AnalyticsEvent } from "@/lib/analytics";
@@ -234,7 +235,7 @@ function HeaderWithGrade({
 /* ── 메인 컴포넌트 ── */
 
 interface AnalysisResultProps {
-  data: AnalysisRequest;
+  data: AnalysisData;
 }
 
 const SHEET_MIN_HEIGHT = 140;
@@ -242,13 +243,26 @@ const SHEET_MIN_HEIGHT = 140;
 export function AnalysisResult({ data }: AnalysisResultProps) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<HTMLDivElement>(null);
-  // fit-content 상태에서 측정한 초기 콘텐츠 높이 (스냅 복귀 시 사용)
   const contentHeightRef = useRef<number>(0);
+  const router = useRouter();
+  const [isGenerating, startTransition] = useTransition();
+  const [showPurchase, setShowPurchase] = useState(false);
 
-  // 리포트 조회 — GA4 이벤트 전송 (최초 마운트 시 1회)
+  // AI 리포트 생성 — 서버 액션 호출 후 리포트 페이지로 이동
+  const handleGenerateReport = () => {
+    startTransition(async () => {
+      const { generateReport } = await import("@/features/report/actions");
+      const result = await generateReport(data);
+      if (result.success && result.id) {
+        router.push(`/report/${result.id}`);
+      }
+    });
+  };
+
+  // 분석 결과 조회 — GA4 이벤트 전송 (최초 마운트 시 1회)
   useEffect(() => {
-    trackEvent(AnalyticsEvent.REPORT_VIEW, { analysis_id: data.id });
-  }, [data.id]);
+    trackEvent(AnalyticsEvent.REPORT_VIEW, { address: data.address });
+  }, [data.address]);
 
   // 마운트 후 콘텐츠 높이 측정
   useEffect(() => {
@@ -348,28 +362,24 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
 
   /* ──────────── 분석 결과 렌더링 ──────────── */
   const radiusLabel = formatRadius(data.radius);
-  const report = data.reportData as Record<string, unknown> | undefined;
 
-  const places = report?.places as
-    | { totalCount: number; fetchedCount: number }
-    | undefined;
-  const subway = (report?.subway ?? null) as SubwayAnalysis | null;
-  const bus = (report?.bus ?? null) as BusAnalysis | null;
-  const school = (report?.school ?? null) as SchoolAnalysis | null;
-  const university = (report?.university ?? null) as UniversityAnalysis | null;
-  const medical = (report?.medical ?? null) as MedicalAnalysis | null;
-  const centerLat = report?.centerLatitude as number | undefined;
-  const centerLng = report?.centerLongitude as number | undefined;
+  const places = data.places as { totalCount: number; fetchedCount: number } | null;
+  const subway = data.subway;
+  const bus = data.bus;
+  const school = data.school;
+  const university = data.university;
+  const medical = data.medical;
+  const centerLat = data.centerLatitude;
+  const centerLng = data.centerLongitude;
 
   const scoreDetail = data.scoreDetail as ScoreBreakdown | undefined;
-  // 활력도 데이터 존재 여부로 서울 여부 판단
-  const isSeoul = !!(report as Record<string, unknown>)?.isSeoul;
+  const isSeoul = data.isSeoul;
 
   // 인사이트 빌더용 데이터 (총평 생성에 사용)
   const insightData: InsightData = {
-    competition: (report?.competition ?? null) as InsightData["competition"],
-    vitality: (report?.vitality ?? null) as InsightData["vitality"],
-    places: places ?? null,
+    competition: data.competition,
+    vitality: data.vitality,
+    places,
     industryName: data.industryName,
     radius: data.radius,
     subway,
@@ -377,10 +387,19 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
     school,
     university,
     medical,
-    population: (report?.populationAnalysis ?? null) as InsightData["population"],
+    population: data.populationAnalysis,
   };
 
   return (
+    <>
+    {/* Purchase 오버레이 + AI 생성 로딩 */}
+    {showPurchase && (
+      <PurchaseOverlay
+        isGenerating={isGenerating}
+        onGenerate={handleGenerateReport}
+        onClose={() => setShowPurchase(false)}
+      />
+    )}
     <div className="fixed inset-0 pointer-events-none">
       {/* ── 배경 지도 ── */}
       {centerLat && centerLng ? (
@@ -389,7 +408,7 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
             centerLat={centerLat}
             centerLng={centerLng}
             radius={data.radius}
-            keyword={(report?.industryKeyword as string) || data.industryName}
+            keyword={data.industryKeyword || data.industryName}
             subway={subway}
             bus={bus}
             school={school}
@@ -439,7 +458,7 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
         <div className="flex-1 overflow-y-auto px-4 pb-4 mt-4 space-y-5">
           <MetricCards
             scoreDetail={scoreDetail}
-            reportData={report}
+            reportData={data as unknown as Record<string, unknown>}
             isSeoul={isSeoul}
           />
           <DataFacts
@@ -452,28 +471,19 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
           />
         </div>
 
-        {/* ── 후기 슬라이드 + CTA ── */}
+        {/* ── CTA: Purchase 오버레이 열기 ── */}
         <div className="shrink-0 px-4 pb-3 pt-3 border-t bg-background space-y-2.5">
-
-          {data.aiReportJson ? (
-            <Link
-              href={`/report/${data.id}`}
-              className="flex items-center justify-center gap-1.5 w-full h-12 rounded-xl bg-violet-600 text-white font-bold text-sm transition-transform hover:bg-violet-700 active:scale-95"
-            >
-              이전에 받은 리포트 보기
-              <span className="text-base leading-none">→</span>
-            </Link>
-          ) : (
-            <Link
-              href={`/analyze/${data.id}/purchase`}
-              className="flex items-center justify-center gap-1.5 w-full h-12 rounded-xl bg-violet-600 text-white font-bold text-sm transition-transform hover:bg-violet-700 active:scale-95"
-            >
-              AI 전문가 분석 받기
-              <span className="text-base leading-none">→</span>
-            </Link>
-          )}
+          <button
+            type="button"
+            onClick={() => setShowPurchase(true)}
+            className="flex items-center justify-center gap-1.5 w-full h-12 rounded-xl bg-violet-600 text-white font-bold text-sm transition-transform hover:bg-violet-700 active:scale-95"
+          >
+            AI 전문가 분석 시작
+            <span className="text-base leading-none">→</span>
+          </button>
         </div>
       </div>
     </div>
+    </>
   );
 }
