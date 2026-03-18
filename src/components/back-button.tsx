@@ -13,12 +13,12 @@ export function BackButton({ className }: { className?: string }) {
       type="button"
       onClick={() => router.back()}
       className={cn(
-        "fixed top-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm",
+        "fixed top-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-background border shadow-sm",
         className,
       )}
       aria-label="뒤로가기"
     >
-      <ArrowLeft className="h-5 w-5 text-gray-700" />
+      <ArrowLeft className="h-5 w-5 text-foreground" />
     </button>
   );
 }

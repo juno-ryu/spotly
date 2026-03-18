@@ -126,6 +126,15 @@ export function WelcomeScreen({ onNext, isLoggedIn }: WelcomeScreenProps) {
       onTouchEnd={handleTouchEnd}
     >
       <div className="text-center space-y-5">
+        {/* 로고 */}
+        <img
+          src="/icons/icon-192.png"
+          alt="Spotly"
+          width={80}
+          height={80}
+          className="mx-auto rounded-2xl"
+        />
+
         {/* Step 1 텍스트: 그라데이션 + 타이핑 */}
         {text1 && (
           <h1 className="text-[28px] sm:text-[34px] font-black leading-[1.4]">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import { KakaoMapProvider } from "@/features/map/components/kakao-map-provider";
 import { InstallBanner } from "@/components/pwa/install-banner";
@@ -14,11 +15,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       <KakaoMapProvider>{children}</KakaoMapProvider>
       <Toaster />
       <InstallBanner />
       <UpdatePrompt />
-    </>
+    </ThemeProvider>
   );
 }

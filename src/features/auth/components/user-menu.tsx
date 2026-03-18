@@ -9,8 +9,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTheme } from "next-themes";
 import { signOut } from "../actions";
-import { History, LogOut } from "lucide-react";
+import { History, LogOut, Moon, Sun } from "lucide-react";
 
 interface UserMenuProps {
   email: string;
@@ -20,6 +21,7 @@ interface UserMenuProps {
 
 export function UserMenu({ email, avatarUrl, name }: UserMenuProps) {
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
   const initial = (name?.[0] ?? email[0] ?? "?").toUpperCase();
 
   return (
@@ -42,6 +44,10 @@ export function UserMenu({ email, avatarUrl, name }: UserMenuProps) {
         <DropdownMenuItem onClick={() => router.push("/history")}>
           <History className="mr-2 h-4 w-4" />
           분석 내역
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+          {theme === "dark" ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
+          {theme === "dark" ? "라이트 모드" : "다크 모드"}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

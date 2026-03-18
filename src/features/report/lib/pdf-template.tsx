@@ -234,6 +234,7 @@ export function AnalysisReportPDF({
         {scoreDetail && <ScoreSection scoreDetail={scoreDetail} />}
 
         {/* 경쟁 분석 */}
+        {report.competitorCount && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>경쟁업체 현황</Text>
           <Text style={styles.listText}>
@@ -241,20 +242,23 @@ export function AnalysisReportPDF({
           </Text>
           <Text style={styles.listText}>{report.competitorCount.interpretation}</Text>
         </View>
+        )}
 
         {/* 경쟁강도 등급 */}
+        {report.competitionGrade && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>경쟁강도 등급</Text>
           <Text style={styles.listText}>{report.competitionGrade.grade}등급 ({report.competitionGrade.score}점) — {report.competitionGrade.label}</Text>
           <Text style={styles.listText}>{report.competitionGrade.rationale}</Text>
         </View>
+        )}
 
         {/* 예상 매출 범위 */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>예상 매출 범위</Text>
           {report.revenueEstimate ? (
             <>
-              <Text style={styles.listText}>점포당 월 평균: {report.revenueEstimate.monthlyPerStoreMaan.toLocaleString()}만원</Text>
+              <Text style={styles.listText}>점포당 월 평균: {(report.revenueEstimate.monthlyPerStoreMaan ?? 0).toLocaleString()}만원</Text>
               <Text style={styles.listText}>매출 피크: {report.revenueEstimate.peakTimeSlot} / 주 소비층: {report.revenueEstimate.mainAgeGroup}</Text>
               <Text style={styles.listText}>{report.revenueEstimate.interpretation}</Text>
             </>
@@ -277,6 +281,7 @@ export function AnalysisReportPDF({
         </View>
 
         {/* 리스크 경고 */}
+        {report.riskWarnings && report.riskWarnings.length > 0 && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>리스크 경고</Text>
           {report.riskWarnings.map((r, i) => (
@@ -286,8 +291,10 @@ export function AnalysisReportPDF({
             </View>
           ))}
         </View>
+        )}
 
         {/* 맞춤형 창업 전략 */}
+        {report.strategy && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>맞춤형 창업 전략</Text>
           <Text style={styles.listText}>포지셔닝: {report.strategy.positioning}</Text>
@@ -302,6 +309,7 @@ export function AnalysisReportPDF({
             </View>
           ))}
         </View>
+        )}
 
         {/* 입지 활용 전략 */}
         {report.locationAdvice && (

@@ -2,6 +2,7 @@
 
 import { useState, useRef, memo, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
@@ -251,10 +252,18 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
   // AI 리포트 생성 — 서버 액션 호출 후 리포트 페이지로 이동
   const handleGenerateReport = () => {
     startTransition(async () => {
-      const { generateReport } = await import("@/features/report/actions");
-      const result = await generateReport(data);
-      if (result.success && result.id) {
-        router.push(`/report/${result.id}`);
+      try {
+        const { generateReport } = await import("@/features/report/actions");
+        const result = await generateReport(data);
+        if (result.success && result.id) {
+          router.push(`/report/${result.id}`);
+        } else {
+          toast.error(result.error ?? "AI 리포트 생성에 실패했어요. 다시 시도해주세요.");
+          setShowPurchase(false);
+        }
+      } catch {
+        toast.error("AI 리포트 생성 중 오류가 발생했어요. 다시 시도해주세요.");
+        setShowPurchase(false);
       }
     });
   };

@@ -57,7 +57,7 @@ export function ReportViewer({
   scoreDetail,
 }: ReportViewerProps) {
   const gradeColor = GRADE_COLOR[scoreGrade] ?? "#6b7280";
-  const competitionColor = GRADE_COLOR[report.competitionGrade.grade] ?? "#6b7280";
+  const competitionColor = GRADE_COLOR[report.competitionGrade?.grade ?? "C"] ?? "#6b7280";
 
   return (
     <div className="space-y-6 px-2">
@@ -169,6 +169,7 @@ export function ReportViewer({
         defaultValue={["competition", "revenue", "survival", "population", "infra", "risk", "strategy", "location", "detail"]}
       >
         {/* ── 경쟁 환경 (스코어링 포함) ── */}
+        {report.competitionGrade && (
         <AccordionItem value="competition" className="border-none px-4">
           <AccordionTrigger className="hover:no-underline py-4 items-start">
             <div className="flex items-start gap-2 text-left">
@@ -180,16 +181,21 @@ export function ReportViewer({
             </div>
           </AccordionTrigger>
           <AccordionContent className="pb-6 space-y-4">
+            {report.competitorCount && (
             <div className="space-y-2 text-sm">
               <p>● 직접 경쟁 <strong>{report.competitorCount.direct}개</strong> · 간접 {report.competitorCount.indirect}개</p>
               {report.competitorCount.franchise > 0 && (
                 <p className="text-muted-foreground pl-4">🏢 프랜차이즈 {report.competitorCount.franchise}개</p>
               )}
             </div>
+            )}
             <p className="text-xs text-muted-foreground leading-relaxed">{report.competitionGrade.rationale}</p>
-            <p className="text-xs text-muted-foreground">{report.competitorCount.interpretation}</p>
+            {report.competitorCount && (
+              <p className="text-xs text-muted-foreground">{report.competitorCount.interpretation}</p>
+            )}
           </AccordionContent>
         </AccordionItem>
+        )}
 
         <Separator />
 
@@ -201,7 +207,7 @@ export function ReportViewer({
                 <div className="flex items-start gap-2 text-left">
                   <span>💰</span>
                   <span className="font-semibold text-sm">
-                    점포당 월 평균 {report.revenueEstimate.monthlyPerStoreMaan.toLocaleString()}만원
+                    점포당 월 평균 {(report.revenueEstimate.monthlyPerStoreMaan ?? 0).toLocaleString()}만원
                   </span>
                   {scoreDetail?.vitality && (
                     <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${GRADE_BADGE_CLASS[scoreDetail.vitality.grade] ?? ""}`}>
@@ -213,7 +219,7 @@ export function ReportViewer({
               <AccordionContent className="pb-6">
                 <div className="space-y-4 text-sm">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-bold">{report.revenueEstimate.monthlyPerStoreMaan.toLocaleString()}</span>
+                    <span className="text-3xl font-bold">{(report.revenueEstimate.monthlyPerStoreMaan ?? 0).toLocaleString()}</span>
                     <span className="text-muted-foreground text-sm">만원 / 월 (점포당)</span>
                   </div>
                   <div className="space-y-1.5 text-muted-foreground text-xs">
@@ -221,7 +227,7 @@ export function ReportViewer({
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">{report.revenueEstimate.interpretation}</p>
                   <p className="text-[10px] text-muted-foreground/60 mt-1">
-                    서울시 골목상권 카드매출 기준 · {report.revenueEstimate.storeCount}개 점포 평균{report.revenueEstimate.storeCount < 5 ? " · 점포 수가 적어 평균값이 왜곡될 수 있습니다" : ""}
+                    서울시 골목상권 카드매출 기준 · {report.revenueEstimate.storeCount ?? 0}개 점포 평균{(report.revenueEstimate.storeCount ?? 0) < 5 ? " · 점포 수가 적어 평균값이 왜곡될 수 있습니다" : ""}
                   </p>
                 </div>
               </AccordionContent>
@@ -321,18 +327,18 @@ export function ReportViewer({
         )}
 
         {/* ── 리스크 경고 ── */}
-        {report.riskWarnings.length > 0 && (
+        {report.riskWarnings && report.riskWarnings.length > 0 && (
           <>
             <AccordionItem value="risk" className="border-none px-4">
               <AccordionTrigger className="hover:no-underline py-4 items-start">
                 <div className="flex items-start gap-2 text-left">
                   <span>🚨</span>
                   <span className="font-semibold text-sm">리스크 경고</span>
-                  <Badge variant="destructive" className="text-[10px] px-1.5 py-0">{report.riskWarnings.length}</Badge>
+                  <Badge variant="destructive" className="text-[10px] px-1.5 py-0">{report.riskWarnings!.length}</Badge>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="pb-6 space-y-4">
-                {report.riskWarnings.map((risk, i) => (
+                {report.riskWarnings!.map((risk, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <div className="space-y-1">
                       <div className="flex items-start gap-1.5">
@@ -355,6 +361,7 @@ export function ReportViewer({
         )}
 
         {/* ── 맞춤형 전략 ── */}
+        {report.strategy && (
         <AccordionItem value="strategy" className="border-none px-4">
           <AccordionTrigger className="hover:no-underline py-4 items-start">
             <div className="flex items-start gap-2 text-left">
@@ -391,6 +398,7 @@ export function ReportViewer({
             </div>
           </AccordionContent>
         </AccordionItem>
+        )}
 
         <Separator />
 
