@@ -27,14 +27,13 @@ export async function GET(request: NextRequest) {
     const address = searchParams.get("address");
     const industry = searchParams.get("industry");
     const scoreStr = searchParams.get("score");
-    const verdict = searchParams.get("verdict");
+    const verdict = searchParams.get("verdict") ?? "";
 
     // 리포트 OG
     if (address && industry && scoreStr) {
       const score = Number(scoreStr);
       const { grade, label, color } = getGradeInfo(score);
-      // verdict가 길면 잘라내기 (OG 이미지에 너무 길면 안됨)
-      const shortVerdict = verdict && verdict.length > 60 ? verdict.slice(0, 60) + "..." : verdict;
+      const shortVerdict = verdict.length > 60 ? verdict.slice(0, 60) + "..." : verdict;
 
       return new ImageResponse(
         (
@@ -43,121 +42,83 @@ export async function GET(request: NextRequest) {
               width: "100%",
               height: "100%",
               display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
               backgroundColor: "#0f172a",
               fontFamily: "Pretendard",
               padding: "60px",
             }}
           >
-            {/* 왼쪽: 점수 원형 */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "320px",
-                marginRight: "60px",
-              }}
-            >
-              {/* 점수 원 */}
+            {/* 브랜드 */}
+            <div style={{ display: "flex", alignItems: "center", marginBottom: "24px" }}>
               <div
                 style={{
-                  width: "200px",
-                  height: "200px",
-                  borderRadius: "100px",
-                  border: `8px solid ${color}`,
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "16px",
+                  backgroundColor: "#7c3aed",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                  fontSize: "16px",
+                  fontWeight: 700,
+                  marginRight: "10px",
+                }}
+              >
+                S
+              </div>
+              <span style={{ fontSize: "18px", color: "#a78bfa", fontWeight: 700 }}>스팟리</span>
+              <span style={{ fontSize: "16px", color: "#64748b", marginLeft: "8px" }}>AI 창업 입지 분석</span>
+            </div>
+
+            {/* 점수 원 + 등급 */}
+            <div style={{ display: "flex", alignItems: "center", marginBottom: "32px" }}>
+              <div
+                style={{
+                  width: "120px",
+                  height: "120px",
+                  borderRadius: "60px",
+                  border: `6px solid ${color}`,
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
+                  marginRight: "24px",
                 }}
               >
-                <span style={{ fontSize: "64px", fontWeight: 700, color }}>
-                  {grade}
-                </span>
-                <span style={{ fontSize: "20px", color: "#94a3b8" }}>
-                  {score}/100
-                </span>
+                <span style={{ fontSize: "40px", fontWeight: 700, color }}>{grade}</span>
+                <span style={{ fontSize: "14px", color: "#94a3b8" }}>{score}/100</span>
               </div>
-              {/* 등급 뱃지 */}
-              <div
-                style={{
-                  display: "flex",
-                  marginTop: "20px",
-                }}
-              >
+              <div style={{ display: "flex", flexDirection: "column" }}>
                 <div
                   style={{
-                    padding: "8px 20px",
-                    borderRadius: "20px",
+                    padding: "6px 16px",
+                    borderRadius: "16px",
                     backgroundColor: color,
                     color: "#0f172a",
-                    fontSize: "18px",
+                    fontSize: "16px",
                     fontWeight: 700,
+                    marginBottom: "8px",
                   }}
                 >
                   {grade}등급 · {label}
                 </div>
+                <span style={{ fontSize: "14px", color: "#94a3b8" }}>
+                  {shortVerdict || "AI 창업 입지 분석 리포트"}
+                </span>
               </div>
             </div>
 
-            {/* 오른쪽: 텍스트 정보 */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                flexGrow: 1,
-              }}
-            >
-              {/* 브랜드 */}
-              <div style={{ display: "flex", alignItems: "center", marginBottom: "24px" }}>
-                <div
-                  style={{
-                    width: "32px",
-                    height: "32px",
-                    borderRadius: "16px",
-                    backgroundColor: "#7c3aed",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "white",
-                    fontSize: "16px",
-                    fontWeight: 700,
-                    marginRight: "10px",
-                  }}
-                >
-                  S
-                </div>
-                <span style={{ fontSize: "18px", color: "#a78bfa", fontWeight: 700 }}>
-                  스팟리
-                </span>
-              </div>
+            {/* 업종 */}
+            <div style={{ fontSize: "20px", color: "#a78bfa", marginBottom: "12px", fontWeight: 700 }}>
+              {industry}
+            </div>
 
-              {/* 업종 */}
-              <div style={{ fontSize: "20px", color: "#a78bfa", marginBottom: "8px", fontWeight: 700 }}>
-                {industry}
-              </div>
-
-              {/* 주소 */}
-              <div style={{ fontSize: "32px", fontWeight: 700, color: "white", marginBottom: "24px" }}>
-                {address}
-              </div>
-
-              {/* verdict */}
-              {shortVerdict && (
-                <div
-                  style={{
-                    fontSize: "18px",
-                    color: "#94a3b8",
-                    lineHeight: 1.6,
-                    borderLeft: `3px solid ${color}`,
-                    paddingLeft: "16px",
-                  }}
-                >
-                  {shortVerdict}
-                </div>
-              )}
+            {/* 주소 */}
+            <div style={{ fontSize: "36px", fontWeight: 700, color: "white", textAlign: "center" }}>
+              {address}
             </div>
           </div>
         ),
@@ -210,9 +171,9 @@ export async function GET(request: NextRequest) {
           </div>
 
           <div style={{ display: "flex", marginTop: "40px" }}>
-            {["경쟁 강도", "유동인구", "교통·접근성", "인프라"].map((label) => (
+            {["경쟁 강도", "유동인구", "교통·접근성", "인프라"].map((l) => (
               <div
-                key={label}
+                key={l}
                 style={{
                   padding: "12px 28px",
                   borderRadius: "12px",
@@ -223,7 +184,7 @@ export async function GET(request: NextRequest) {
                   marginRight: "16px",
                 }}
               >
-                {label}
+                {l}
               </div>
             ))}
           </div>
