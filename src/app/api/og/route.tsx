@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
               justifyContent: "center",
               backgroundColor: "#0f172a",
               fontFamily,
-              padding: "0 20px 0 60px",
+              padding: "0 60px",
             }}
           >
             <div
