@@ -20,9 +20,18 @@ function getGradeInfo(score: number) {
 
 export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = request.nextUrl;
+
+    // 디버그: ?debug=1 이면 텍스트로 파라미터 반환
+    if (searchParams.get("debug")) {
+      return new Response(
+        JSON.stringify(Object.fromEntries(searchParams.entries())),
+        { headers: { "content-type": "application/json" } },
+      );
+    }
+
     const fontData = await loadFont();
     const fonts = [{ name: "Pretendard", data: fontData, weight: 700 as const }];
-    const { searchParams } = request.nextUrl;
 
     const address = searchParams.get("address");
     const industry = searchParams.get("industry");
