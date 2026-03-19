@@ -3,18 +3,15 @@ import type { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
 
+// SVG 로고를 빌드타임 인라인 (런타임 fetch 없음)
+const LOGO_SVG_BASE64 = "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSJub25lIj4KICA8ZGVmcz4KICAgIDxtYXNrIGlkPSJwaW4taG9sZSI+CiAgICAgIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiBmaWxsPSJ3aGl0ZSIvPgogICAgICA8Y2lyY2xlIGN4PSIyNTYiIGN5PSIxODYiIHI9IjUwIiBmaWxsPSJibGFjayIvPgogICAgPC9tYXNrPgogIDwvZGVmcz4KCiAgPCEtLSDsmbjqs70g7JuQIC0tPgogIDxjaXJjbGUgY3g9IjI1NiIgY3k9IjI1NiIgcj0iMjQwIiBzdHJva2U9IiM3YzNhZWQiIHN0cm9rZS13aWR0aD0iMjQiIGZpbGw9IndoaXRlIi8+CgogIDwhLS0g7YOA7JuQIDLqsJwgLS0+CiAgPGVsbGlwc2UgY3g9IjI1NiIgY3k9IjM1MCIgcng9IjcwIiByeT0iNTUiIHN0cm9rZT0iIzdjM2FlZCIgc3Ryb2tlLXdpZHRoPSIxMiIgZmlsbD0ibm9uZSIvPgogIDxlbGxpcHNlIGN4PSIyNTYiIGN5PSIzNTAiIHJ4PSIxMjAiIHJ5PSI5NSIgc3Ryb2tlPSIjN2MzYWVkIiBzdHJva2Utd2lkdGg9IjEyIiBmaWxsPSJub25lIi8+CgogIDwhLS0g7Iut7J6Q7ISgICjsmrDsuKEgKyDtlZjri6jrp4wsIOuBnSDrnbzsmrTrk5wpIC0tPgogIDxsaW5lIHgxPSIyNTYiIHkxPSIzNzgiIHgyPSIyNTYiIHkyPSI0NzMiIHN0cm9rZT0iIzdjM2FlZCIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPGxpbmUgeDE9IjI5MiIgeTE9IjM1MCIgeDI9IjQxMiIgeTI9IjM1MCIgc3Ryb2tlPSIjN2MzYWVkIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KCiAgPCEtLSDsnITsuZgg7ZWAICjrgrTrtoAg7JuQIOq1rOupjSkgLS0+CiAgPHBhdGggZD0iTTI1NiA5MCBDMjAwIDkwIDE1NiAxMzQgMTU2IDE5MCBDMTU2IDI2MiAyNTYgMzQ4IDI1NiAzNDggQzI1NiAzNDggMzU2IDI2MiAzNTYgMTkwIEMzNTYgMTM0IDMxMiA5MCAyNTYgOTBaIiBmaWxsPSIjN2MzYWVkIiBtYXNrPSJ1cmwoI3Bpbi1ob2xlKSIvPgo8L3N2Zz4K";
+const LOGO_DATA_URL = `data:image/svg+xml;base64,${LOGO_SVG_BASE64}`;
+
 async function loadFont() {
   const res = await fetch(
     "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/static/woff/Pretendard-Bold.woff",
   );
   return res.arrayBuffer();
-}
-
-async function loadLogo() {
-  const res = await fetch("https://spotly-beta.vercel.app/icons/icon-192.png");
-  const buf = await res.arrayBuffer();
-  const base64 = Buffer.from(buf).toString("base64");
-  return `data:image/png;base64,${base64}`;
 }
 
 function getGradeInfo(score: number) {
@@ -26,7 +23,7 @@ function getGradeInfo(score: number) {
 }
 
 export async function GET(request: NextRequest) {
-  const [fontData, logoDataUrl] = await Promise.all([loadFont(), loadLogo()]);
+  const fontData = await loadFont();
   const fonts = [{ name: "Pretendard" as const, data: fontData, weight: 700 as const }];
   const { searchParams } = request.nextUrl;
 
@@ -58,7 +55,7 @@ export async function GET(request: NextRequest) {
         >
           {/* 브랜드 */}
           <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
-            <img src={logoDataUrl} width={32} height={32} style={{ marginRight: "10px" }} />
+            <img src={LOGO_DATA_URL} width={32} height={32} style={{ marginRight: "10px" }} />
             <span style={{ fontSize: "22px", fontWeight: 700, color: "white" }}>스팟리</span>
           </div>
 
@@ -141,7 +138,7 @@ export async function GET(request: NextRequest) {
           fontFamily: "Pretendard",
         }}
       >
-        <img src={logoDataUrl} width={80} height={80} style={{ marginBottom: "24px" }} />
+        <img src={LOGO_DATA_URL} width={80} height={80} style={{ marginBottom: "24px" }} />
         <span style={{ fontSize: "48px", fontWeight: 700, color: "white", marginBottom: "16px" }}>스팟리</span>
         <div style={{ fontSize: "52px", fontWeight: 700, color: "#a78bfa", marginBottom: "20px" }}>
           AI 창업 입지 분석
