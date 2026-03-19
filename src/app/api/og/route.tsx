@@ -57,10 +57,9 @@ export async function GET(request: NextRequest) {
               width: "100%",
               height: "100%",
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              alignItems: "flex-start",
               backgroundColor: "#0f172a",
-              padding: "40px 60px",
+              padding: "50px 60px",
             }}
           >
             <div style={{ display: "flex", marginRight: "50px" }}>
@@ -77,7 +76,7 @@ export async function GET(request: NextRequest) {
                     backgroundColor: colors.bg,
                     color: colors.text,
                     fontSize: "30px",
-                    fontWeight: 700,
+                    fontWeight: 900,
                   }}
                 >
                   {grade}등급 · {label} · {score}점
@@ -85,15 +84,15 @@ export async function GET(request: NextRequest) {
               </div>
 
               <div style={{ display: "flex", marginBottom: "24px" }}>
-                <span style={{ fontSize: "72px", fontWeight: 700, color: "#7c3aed" }}>Spot</span>
-                <span style={{ fontSize: "72px", fontWeight: 700, color: "#a78bfa" }}>ly</span>
+                <span style={{ fontSize: "72px", fontWeight: 900, color: "#7c3aed" }}>Spot</span>
+                <span style={{ fontSize: "72px", fontWeight: 900, color: "#a78bfa" }}>ly</span>
               </div>
 
-              <div style={{ display: "flex", fontSize: "36px", fontWeight: 700, color: "white", marginBottom: "16px" }}>
+              <div style={{ display: "flex", fontSize: "36px", fontWeight: 900, color: "white", marginBottom: "16px" }}>
                 {address} {industry}
               </div>
 
-              <div style={{ display: "flex", fontSize: "24px", color: "#94a3b8" }}>
+              <div style={{ display: "flex", fontSize: "24px", fontWeight: 900, color: "#94a3b8" }}>
                 {shortVerdict || "AI 창업 입지 분석 리포트"}
               </div>
             </div>
@@ -111,10 +110,9 @@ export async function GET(request: NextRequest) {
             width: "100%",
             height: "100%",
             display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            alignItems: "flex-start",
             backgroundColor: "#0f172a",
-            padding: "40px 60px",
+            padding: "50px 60px",
           }}
         >
           <div style={{ display: "flex", marginRight: "60px" }}>
@@ -123,13 +121,13 @@ export async function GET(request: NextRequest) {
 
           <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
             <div style={{ display: "flex", marginBottom: "24px" }}>
-              <span style={{ fontSize: "96px", fontWeight: 700, color: "#7c3aed" }}>Spot</span>
-              <span style={{ fontSize: "96px", fontWeight: 700, color: "#a78bfa" }}>ly</span>
+              <span style={{ fontSize: "96px", fontWeight: 900, color: "#7c3aed" }}>Spot</span>
+              <span style={{ fontSize: "96px", fontWeight: 900, color: "#a78bfa" }}>ly</span>
             </div>
-            <div style={{ display: "flex", fontSize: "44px", fontWeight: 700, color: "white", marginBottom: "16px" }}>
+            <div style={{ display: "flex", fontSize: "44px", fontWeight: 900, color: "white", marginBottom: "16px" }}>
               AI 창업 입지 분석
             </div>
-            <div style={{ display: "flex", fontSize: "28px", color: "#94a3b8" }}>
+            <div style={{ display: "flex", fontSize: "28px", fontWeight: 900, color: "#94a3b8" }}>
               주소와 업종만 입력하면, 100점 만점 맞춤 리포트 제공
             </div>
           </div>
