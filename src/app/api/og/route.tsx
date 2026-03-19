@@ -20,31 +20,18 @@ function getGradeInfo(score: number) {
   return { grade: "F", label: "위험" };
 }
 
-// 로고 대체: 텍스트 기반 아이콘 (satori는 svg/img 불안정)
-function LogoIcon() {
+// spotly-logo2.svg 기반 (clipPath 제외 — satori 미지원)
+function LogoIcon({ size = 120 }: { size?: number }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: "120px",
-        height: "120px",
-        borderRadius: "28px",
-        backgroundColor: "#7c3aed",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          fontSize: "60px",
-          fontWeight: 700,
-          color: "white",
-        }}
-      >
-        S
-      </div>
-    </div>
+    <svg viewBox="0 0 512 512" width={size} height={size}>
+      <rect width="512" height="512" rx="80" fill="#7c3aed" />
+      <ellipse cx="256" cy="421" rx="42" ry="8" fill="black" opacity={0.3} />
+      <path
+        d="M256 100 C188 100 134 154 134 222 C134 310 256 420 256 420 C256 420 378 310 378 222 C378 154 324 100 256 100Z"
+        fill="white"
+      />
+      <circle cx="256" cy="218" r="52" fill="#7c3aed" />
+    </svg>
   );
 }
 
