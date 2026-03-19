@@ -1,12 +1,10 @@
 import { ImageResponse } from "next/og";
 import { prisma } from "@/server/db/prisma";
 
-export const runtime = "nodejs";
 export const alt = "스팟리 창업 분석 리포트";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-// 점수별 색상
 function getScoreColor(score: number) {
   if (score >= 80) return "#22c55e";
   if (score >= 60) return "#eab308";
@@ -14,7 +12,6 @@ function getScoreColor(score: number) {
   return "#ef4444";
 }
 
-// 점수별 등급
 function getGrade(score: number) {
   if (score >= 90) return "S";
   if (score >= 80) return "A";
@@ -30,10 +27,16 @@ export default async function ReportOgImage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const report = await prisma.analysisReport.findUnique({
-    where: { id },
-    select: { address: true, industryName: true, totalScore: true },
-  });
+
+  let report: { address: string; industryName: string; totalScore: number } | null = null;
+  try {
+    report = await prisma.analysisReport.findUnique({
+      where: { id },
+      select: { address: true, industryName: true, totalScore: true },
+    });
+  } catch {
+    // DB 연결 실패 시 폴백
+  }
 
   if (!report) {
     return new ImageResponse(
@@ -45,12 +48,12 @@ export default async function ReportOgImage({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "#0f172a",
+            backgroundColor: "#0f172a",
             color: "white",
             fontSize: "36px",
           }}
         >
-          리포트를 찾을 수 없습니다
+          스팟리 - AI 창업 입지 분석
         </div>
       ),
       { ...size },
@@ -68,17 +71,15 @@ export default async function ReportOgImage({
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          background: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)",
-          fontFamily: "sans-serif",
+          backgroundColor: "#0f172a",
           padding: "60px",
         }}
       >
-        {/* 상단: 로고 + 브랜드 */}
+        {/* 상단: 브랜드 */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "12px",
             marginBottom: "48px",
           }}
         >
@@ -86,42 +87,45 @@ export default async function ReportOgImage({
             style={{
               width: "40px",
               height: "40px",
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, #7c3aed, #a78bfa)",
+              borderRadius: "20px",
+              backgroundColor: "#7c3aed",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              color: "white",
               fontSize: "20px",
+              fontWeight: 700,
+              marginRight: "12px",
             }}
           >
-            📍
+            S
           </div>
           <span style={{ fontSize: "24px", color: "#a78bfa", fontWeight: 700 }}>
             스팟리
           </span>
-          <span style={{ fontSize: "18px", color: "#64748b", marginLeft: "8px" }}>
+          <span style={{ fontSize: "18px", color: "#64748b", marginLeft: "12px" }}>
             AI 창업 입지 분석
           </span>
         </div>
 
-        {/* 중앙: 주소 + 업종 */}
+        {/* 중앙: 업종 + 주소 */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
-            flex: 1,
+            flexGrow: 1,
             justifyContent: "center",
           }}
         >
           <div
             style={{
-              fontSize: "20px",
-              color: "#94a3b8",
-              marginBottom: "12px",
+              fontSize: "22px",
+              color: "#a78bfa",
+              marginBottom: "16px",
               fontWeight: 600,
             }}
           >
-            📌 {report.industryName}
+            {report.industryName}
           </div>
           <div
             style={{
@@ -129,15 +133,17 @@ export default async function ReportOgImage({
               fontWeight: 800,
               color: "white",
               lineHeight: 1.3,
-              marginBottom: "36px",
+              marginBottom: "40px",
             }}
           >
             {report.address}
           </div>
 
           {/* 점수 */}
-          <div style={{ display: "flex", alignItems: "baseline", gap: "16px" }}>
-            <span style={{ fontSize: "18px", color: "#94a3b8" }}>종합 점수</span>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <span style={{ fontSize: "18px", color: "#94a3b8", marginRight: "16px" }}>
+              종합 점수
+            </span>
             <span
               style={{
                 fontSize: "72px",
@@ -148,13 +154,15 @@ export default async function ReportOgImage({
             >
               {report.totalScore}
             </span>
-            <span style={{ fontSize: "28px", color: "#64748b" }}>/ 100</span>
+            <span style={{ fontSize: "28px", color: "#64748b", marginLeft: "4px" }}>
+              / 100
+            </span>
             <div
               style={{
-                marginLeft: "16px",
+                marginLeft: "24px",
                 padding: "8px 20px",
                 borderRadius: "8px",
-                background: scoreColor,
+                backgroundColor: scoreColor,
                 color: "#0f172a",
                 fontSize: "28px",
                 fontWeight: 800,
