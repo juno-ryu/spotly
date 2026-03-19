@@ -18,191 +18,117 @@ function getGradeInfo(score: number) {
   return { grade: "F", label: "위험", color: "#ef4444" };
 }
 
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = request.nextUrl;
-
-    // 디버그: ?debug=1 이면 텍스트로 파라미터 반환
-    if (searchParams.get("debug")) {
-      return new Response(
-        JSON.stringify(Object.fromEntries(searchParams.entries())),
-        { headers: { "content-type": "application/json" } },
-      );
-    }
-
-    const fontData = await loadFont();
-    const fonts = [{ name: "Pretendard", data: fontData, weight: 700 as const }];
-
-    const address = searchParams.get("address");
-    const industry = searchParams.get("industry");
-    const scoreStr = searchParams.get("score");
-    const verdict = searchParams.get("verdict") ?? "";
-
-    // 리포트 OG
-    if (address && industry && scoreStr) {
-      const score = Number(scoreStr);
-      const { grade, label, color } = getGradeInfo(score);
-      const shortVerdict = verdict.length > 60 ? verdict.slice(0, 60) + "..." : verdict;
-
-      return new ImageResponse(
-        (
+function buildOgImage(
+  elements: { title: string; subtitle: string; badge?: string; badgeColor?: string },
+  fonts: { name: string; data: ArrayBuffer; weight: 700 }[],
+) {
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#0f172a",
+          fontFamily: "Pretendard",
+        }}
+      >
+        {/* 브랜드 */}
+        <div style={{ display: "flex", alignItems: "center", marginBottom: "32px" }}>
           <div
             style={{
-              width: "100%",
-              height: "100%",
+              width: "48px",
+              height: "48px",
+              borderRadius: "24px",
+              backgroundColor: "#7c3aed",
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: "#0f172a",
-              fontFamily: "Pretendard",
-              padding: "60px",
+              fontSize: "24px",
+              color: "white",
+              fontWeight: 700,
+              marginRight: "12px",
             }}
           >
-            {/* 브랜드 */}
-            <div style={{ display: "flex", alignItems: "center", marginBottom: "24px" }}>
-              <div
-                style={{
-                  width: "32px",
-                  height: "32px",
-                  borderRadius: "16px",
-                  backgroundColor: "#7c3aed",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "white",
-                  fontSize: "16px",
-                  fontWeight: 700,
-                  marginRight: "10px",
-                }}
-              >
-                S
-              </div>
-              <span style={{ fontSize: "18px", color: "#a78bfa", fontWeight: 700 }}>스팟리</span>
-              <span style={{ fontSize: "16px", color: "#64748b", marginLeft: "8px" }}>AI 창업 입지 분석</span>
-            </div>
-
-            {/* 점수 원 + 등급 */}
-            <div style={{ display: "flex", alignItems: "center", marginBottom: "32px" }}>
-              <div
-                style={{
-                  width: "120px",
-                  height: "120px",
-                  borderRadius: "60px",
-                  border: `6px solid ${color}`,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginRight: "24px",
-                }}
-              >
-                <span style={{ fontSize: "40px", fontWeight: 700, color }}>{grade}</span>
-                <span style={{ fontSize: "14px", color: "#94a3b8" }}>{score}/100</span>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <div
-                  style={{
-                    padding: "6px 16px",
-                    borderRadius: "16px",
-                    backgroundColor: color,
-                    color: "#0f172a",
-                    fontSize: "16px",
-                    fontWeight: 700,
-                    marginBottom: "8px",
-                  }}
-                >
-                  {grade}등급 · {label}
-                </div>
-                <span style={{ fontSize: "14px", color: "#94a3b8" }}>
-                  {shortVerdict || "AI 창업 입지 분석 리포트"}
-                </span>
-              </div>
-            </div>
-
-            {/* 업종 */}
-            <div style={{ fontSize: "20px", color: "#a78bfa", marginBottom: "12px", fontWeight: 700 }}>
-              {industry}
-            </div>
-
-            {/* 주소 */}
-            <div style={{ fontSize: "36px", fontWeight: 700, color: "white", textAlign: "center" }}>
-              {address}
-            </div>
+            S
           </div>
-        ),
-        { width: 1200, height: 630, fonts },
-      );
-    }
+          <span style={{ fontSize: "32px", fontWeight: 700, color: "white" }}>스팟리</span>
+        </div>
 
-    // 메인 OG
-    return new ImageResponse(
-      (
-        <div
-          style={{
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "#0f172a",
-            fontFamily: "Pretendard",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", marginBottom: "32px" }}>
+        {/* 뱃지 (있으면) */}
+        {elements.badge ? (
+          <div
+            style={{
+              display: "flex",
+              marginBottom: "24px",
+            }}
+          >
             <div
               style={{
-                width: "72px",
-                height: "72px",
-                borderRadius: "36px",
-                backgroundColor: "#7c3aed",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "36px",
-                color: "white",
+                padding: "8px 24px",
+                borderRadius: "20px",
+                backgroundColor: elements.badgeColor ?? "#22c55e",
+                color: "#0f172a",
+                fontSize: "20px",
                 fontWeight: 700,
-                marginRight: "16px",
               }}
             >
-              S
+              {elements.badge}
             </div>
-            <span style={{ fontSize: "48px", fontWeight: 700, color: "white" }}>스팟리</span>
           </div>
+        ) : null}
 
-          <div style={{ fontSize: "52px", fontWeight: 700, color: "#a78bfa", marginBottom: "20px" }}>
-            AI 창업 입지 분석
-          </div>
-
-          <div style={{ fontSize: "24px", color: "#94a3b8" }}>
-            주소와 업종만 입력하면, 100점 만점 맞춤 리포트 제공
-          </div>
-
-          <div style={{ display: "flex", marginTop: "40px" }}>
-            {["경쟁 강도", "유동인구", "교통·접근성", "인프라"].map((l) => (
-              <div
-                key={l}
-                style={{
-                  padding: "12px 28px",
-                  borderRadius: "12px",
-                  border: "1px solid #4c1d95",
-                  color: "#c4b5fd",
-                  fontSize: "18px",
-                  fontWeight: 700,
-                  marginRight: "16px",
-                }}
-              >
-                {l}
-              </div>
-            ))}
-          </div>
+        {/* 제목 */}
+        <div style={{ fontSize: "44px", fontWeight: 700, color: "#a78bfa", marginBottom: "16px", textAlign: "center" }}>
+          {elements.title}
         </div>
-      ),
-      { width: 1200, height: 630, fonts },
+
+        {/* 부제목 */}
+        <div style={{ fontSize: "24px", color: "#94a3b8", textAlign: "center" }}>
+          {elements.subtitle}
+        </div>
+      </div>
+    ),
+    { width: 1200, height: 630, fonts },
+  );
+}
+
+export async function GET(request: NextRequest) {
+  const fontData = await loadFont();
+  const fonts = [{ name: "Pretendard" as const, data: fontData, weight: 700 as const }];
+  const { searchParams } = request.nextUrl;
+
+  const address = searchParams.get("address");
+  const industry = searchParams.get("industry");
+  const scoreStr = searchParams.get("score");
+  const verdict = searchParams.get("verdict") ?? "";
+
+  // 리포트 OG
+  if (address && industry && scoreStr) {
+    const score = Number(scoreStr);
+    const { grade, label, color } = getGradeInfo(score);
+    const shortVerdict = verdict.length > 50 ? verdict.slice(0, 50) + "..." : verdict;
+
+    return buildOgImage(
+      {
+        title: `${address} ${industry}`,
+        subtitle: shortVerdict || "AI 창업 입지 분석 리포트",
+        badge: `${grade}등급 · ${label} · ${score}점`,
+        badgeColor: color,
+      },
+      fonts,
     );
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    return new Response(`OG error: ${msg}`, { status: 500 });
   }
+
+  // 메인 OG
+  return buildOgImage(
+    {
+      title: "AI 창업 입지 분석",
+      subtitle: "주소와 업종만 입력하면, 100점 만점 맞춤 리포트 제공",
+    },
+    fonts,
+  );
 }
