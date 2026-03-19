@@ -23,6 +23,7 @@ export async function generateMetadata({
 
   const title = `${report.address} ${report.industryName} 창업 분석`;
   const description = `${report.address}의 ${report.industryName} 창업 입지 분석 결과 — 종합 점수 ${report.totalScore}점. 경쟁 강도, 유동인구, 인프라 등 AI 리포트를 확인하세요.`;
+  const ogImageUrl = `${SITE_CONFIG.url}/api/og?id=${id}`;
 
   return {
     title,
@@ -35,11 +36,13 @@ export async function generateMetadata({
       description,
       url: `${SITE_CONFIG.url}/report/${id}`,
       type: "article",
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: title }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      images: [ogImageUrl],
     },
   };
 }
