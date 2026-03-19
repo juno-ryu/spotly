@@ -57,11 +57,19 @@ export async function GET(request: NextRequest) {
               width: "100%",
               height: "100%",
               display: "flex",
-              alignItems: "flex-start",
+              alignItems: "center",
+              justifyContent: "center",
               backgroundColor: "#0f172a",
-              padding: "50px 60px",
+              padding: "0 60px",
             }}
           >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                flex: 1,
+              }}
+            >
             <div style={{ display: "flex", marginRight: "50px" }}>
               <LogoIcon size={280} />
             </div>
@@ -96,6 +104,7 @@ export async function GET(request: NextRequest) {
                 {shortVerdict || "AI 창업 입지 분석 리포트"}
               </div>
             </div>
+            </div>
           </div>
         ),
         { width: 1200, height: 630 },
@@ -110,11 +119,19 @@ export async function GET(request: NextRequest) {
             width: "100%",
             height: "100%",
             display: "flex",
-            alignItems: "flex-start",
+            alignItems: "center",
+            justifyContent: "center",
             backgroundColor: "#0f172a",
-            padding: "50px 60px",
+            padding: "0 60px",
           }}
         >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              flex: 1,
+            }}
+          >
           <div style={{ display: "flex", marginRight: "60px" }}>
             <LogoIcon size={320} />
           </div>
@@ -130,6 +147,7 @@ export async function GET(request: NextRequest) {
             <div style={{ display: "flex", fontSize: "28px", fontWeight: 900, color: "#94a3b8" }}>
               주소와 업종만 입력하면, 100점 만점 맞춤 리포트 제공
             </div>
+          </div>
           </div>
         </div>
       ),
