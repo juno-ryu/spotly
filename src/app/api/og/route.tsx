@@ -1,10 +1,8 @@
 import { ImageResponse } from "next/og";
 import type { NextRequest } from "next/server";
-import { prisma } from "@/server/db/prisma";
 
 export const dynamic = "force-dynamic";
 
-// 한글 폰트 로드 (Pretendard)
 async function loadFont() {
   const res = await fetch(
     "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/static/woff/Pretendard-Bold.woff",
@@ -12,11 +10,40 @@ async function loadFont() {
   return res.arrayBuffer();
 }
 
+// Prisma 대신 내부 페이지를 fetch해서 메타데이터 파싱
+async function getReportData(id: string, origin: string) {
+  try {
+    const res = await fetch(`${origin}/report/${id}`, {
+      headers: { Accept: "text/html" },
+    });
+    if (!res.ok) return null;
+    const html = await res.text();
+
+    const titleMatch = html.match(/<title>([^<]+)<\/title>/);
+    const title = titleMatch?.[1]?.replace(" | 스팟리", "") ?? "";
+
+    // 주소 + 업종 파싱: "부산광역시... 치킨전문점 창업 분석"
+    const parts = title.split(" ");
+    const idx = parts.findIndex((p) => p === "창업");
+    if (idx < 1) return null;
+
+    const industryName = parts[idx - 1];
+    const address = parts.slice(0, idx - 1).join(" ");
+
+    // 점수 파싱: "종합 점수 60점"
+    const scoreMatch = html.match(/종합 점수 (\d+)점/);
+    const totalScore = scoreMatch ? Number(scoreMatch[1]) : 0;
+
+    return { address, industryName, totalScore };
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(request: NextRequest) {
   const fontData = await loadFont();
   const fonts = [{ name: "Pretendard", data: fontData, weight: 700 as const }];
-
-  const { searchParams } = request.nextUrl;
+  const { searchParams, origin } = request.nextUrl;
   const id = searchParams.get("id");
 
   // id 없으면 메인 OG 이미지
@@ -35,13 +62,7 @@ export async function GET(request: NextRequest) {
             fontFamily: "Pretendard",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: "32px",
-            }}
-          >
+          <div style={{ display: "flex", alignItems: "center", marginBottom: "32px" }}>
             <div
               style={{
                 width: "72px",
@@ -96,16 +117,8 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // id 있으면 리포트 OG 이미지
-  let report: { address: string; industryName: string; totalScore: number } | null = null;
-  try {
-    report = await prisma.analysisReport.findUnique({
-      where: { id },
-      select: { address: true, industryName: true, totalScore: true },
-    });
-  } catch {
-    // DB 연결 실패 시 폴백
-  }
+  // 리포트 데이터 가져오기
+  const report = await getReportData(id, origin);
 
   if (!report) {
     return new ImageResponse(
@@ -142,13 +155,15 @@ export async function GET(request: NextRequest) {
           height: "100%",
           display: "flex",
           flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
           backgroundColor: "#0f172a",
-          padding: "60px",
           fontFamily: "Pretendard",
+          padding: "60px",
         }}
       >
         {/* 브랜드 */}
-        <div style={{ display: "flex", alignItems: "center", marginBottom: "48px" }}>
+        <div style={{ display: "flex", alignItems: "center", marginBottom: "40px" }}>
           <div
             style={{
               width: "40px",
@@ -174,33 +189,33 @@ export async function GET(request: NextRequest) {
           </span>
         </div>
 
-        {/* 업종 + 주소 */}
-        <div style={{ display: "flex", flexDirection: "column", flexGrow: 1, justifyContent: "center" }}>
-          <div style={{ fontSize: "22px", color: "#a78bfa", marginBottom: "16px", fontWeight: 700 }}>
-            {report.industryName}
-          </div>
-          <div style={{ fontSize: "40px", fontWeight: 700, color: "white", marginBottom: "40px" }}>
-            {report.address}
-          </div>
+        {/* 업종 */}
+        <div style={{ fontSize: "22px", color: "#a78bfa", marginBottom: "16px", fontWeight: 700 }}>
+          {report.industryName}
+        </div>
 
-          {/* 점수 */}
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <span style={{ fontSize: "18px", color: "#94a3b8", marginRight: "16px" }}>종합 점수</span>
-            <span style={{ fontSize: "72px", fontWeight: 700, color: scoreColor }}>{score}</span>
-            <span style={{ fontSize: "28px", color: "#64748b", marginLeft: "4px" }}>/ 100</span>
-            <div
-              style={{
-                marginLeft: "24px",
-                padding: "8px 20px",
-                borderRadius: "8px",
-                backgroundColor: scoreColor,
-                color: "#0f172a",
-                fontSize: "28px",
-                fontWeight: 700,
-              }}
-            >
-              {grade}등급
-            </div>
+        {/* 주소 */}
+        <div style={{ fontSize: "36px", fontWeight: 700, color: "white", marginBottom: "40px", textAlign: "center" }}>
+          {report.address}
+        </div>
+
+        {/* 점수 */}
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <span style={{ fontSize: "18px", color: "#94a3b8", marginRight: "16px" }}>종합 점수</span>
+          <span style={{ fontSize: "72px", fontWeight: 700, color: scoreColor }}>{score}</span>
+          <span style={{ fontSize: "28px", color: "#64748b", marginLeft: "4px" }}>/ 100</span>
+          <div
+            style={{
+              marginLeft: "24px",
+              padding: "8px 20px",
+              borderRadius: "8px",
+              backgroundColor: scoreColor,
+              color: "#0f172a",
+              fontSize: "28px",
+              fontWeight: 700,
+            }}
+          >
+            {grade}등급
           </div>
         </div>
       </div>
