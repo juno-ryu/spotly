@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
               justifyContent: "center",
               backgroundColor: "#0f172a",
               fontFamily,
-              padding: "0 60px",
+              padding: "0 20px 0 60px",
             }}
           >
             <div
@@ -91,20 +91,20 @@ export async function GET(request: NextRequest) {
                 flex: 1,
               }}
             >
-            <div style={{ display: "flex", marginRight: "50px" }}>
-              <LogoIcon size={280} />
+            <div style={{ display: "flex", marginRight: "40px" }}>
+              <LogoIcon size={340} />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-              <div style={{ display: "flex", marginBottom: "24px" }}>
+              <div style={{ display: "flex", marginBottom: "20px" }}>
                 <div
                   style={{
                     display: "flex",
-                    padding: "12px 28px",
+                    padding: "14px 32px",
                     borderRadius: "24px",
                     backgroundColor: colors.bg,
                     color: colors.text,
-                    fontSize: "30px",
+                    fontSize: "34px",
                     fontWeight: 900,
                   }}
                 >
@@ -112,16 +112,16 @@ export async function GET(request: NextRequest) {
                 </div>
               </div>
 
-              <div style={{ display: "flex", marginBottom: "24px" }}>
-                <span style={{ fontSize: "72px", fontWeight: 900, color: "#7c3aed" }}>Spot</span>
-                <span style={{ fontSize: "72px", fontWeight: 900, color: "#a78bfa" }}>ly</span>
+              <div style={{ display: "flex", marginBottom: "20px" }}>
+                <span style={{ fontSize: "84px", fontWeight: 900, color: "#7c3aed" }}>Spot</span>
+                <span style={{ fontSize: "84px", fontWeight: 900, color: "#a78bfa" }}>ly</span>
               </div>
 
-              <div style={{ display: "flex", fontSize: "36px", fontWeight: 900, color: "white", marginBottom: "16px" }}>
+              <div style={{ display: "flex", fontSize: "42px", fontWeight: 900, color: "white", marginBottom: "14px" }}>
                 {address} {industry}
               </div>
 
-              <div style={{ display: "flex", fontSize: "24px", fontWeight: 900, color: "#94a3b8" }}>
+              <div style={{ display: "flex", fontSize: "28px", fontWeight: 900, color: "#94a3b8" }}>
                 {shortVerdict || "AI 창업 입지 분석 리포트"}
               </div>
             </div>
@@ -153,19 +153,19 @@ export async function GET(request: NextRequest) {
               flex: 1,
             }}
           >
-          <div style={{ display: "flex", marginRight: "60px" }}>
-            <LogoIcon size={320} />
+          <div style={{ display: "flex", marginRight: "50px" }}>
+            <LogoIcon size={380} />
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-            <div style={{ display: "flex", marginBottom: "24px" }}>
-              <span style={{ fontSize: "96px", fontWeight: 900, color: "#7c3aed" }}>Spot</span>
-              <span style={{ fontSize: "96px", fontWeight: 900, color: "#a78bfa" }}>ly</span>
+            <div style={{ display: "flex", marginBottom: "20px" }}>
+              <span style={{ fontSize: "110px", fontWeight: 900, color: "#7c3aed" }}>Spot</span>
+              <span style={{ fontSize: "110px", fontWeight: 900, color: "#a78bfa" }}>ly</span>
             </div>
-            <div style={{ display: "flex", fontSize: "44px", fontWeight: 900, color: "white", marginBottom: "16px" }}>
+            <div style={{ display: "flex", fontSize: "52px", fontWeight: 900, color: "white", marginBottom: "14px" }}>
               AI 창업 입지 분석
             </div>
-            <div style={{ display: "flex", fontSize: "28px", fontWeight: 900, color: "#94a3b8" }}>
+            <div style={{ display: "flex", fontSize: "32px", fontWeight: 900, color: "#94a3b8" }}>
               주소와 업종만 입력하면, 100점 만점 맞춤 리포트 제공
             </div>
           </div>
