@@ -3,13 +3,18 @@ import type { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const LOGO_URL = "https://spotly-beta.vercel.app/icons/icon-192.png";
-
 async function loadFont() {
   const res = await fetch(
     "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/static/woff/Pretendard-Bold.woff",
   );
   return res.arrayBuffer();
+}
+
+async function loadLogo() {
+  const res = await fetch("https://spotly-beta.vercel.app/icons/icon-192.png");
+  const buf = await res.arrayBuffer();
+  const base64 = Buffer.from(buf).toString("base64");
+  return `data:image/png;base64,${base64}`;
 }
 
 function getGradeInfo(score: number) {
@@ -21,7 +26,7 @@ function getGradeInfo(score: number) {
 }
 
 export async function GET(request: NextRequest) {
-  const fontData = await loadFont();
+  const [fontData, logoDataUrl] = await Promise.all([loadFont(), loadLogo()]);
   const fonts = [{ name: "Pretendard" as const, data: fontData, weight: 700 as const }];
   const { searchParams } = request.nextUrl;
 
@@ -30,11 +35,12 @@ export async function GET(request: NextRequest) {
   const scoreStr = searchParams.get("score");
   const verdict = searchParams.get("verdict") ?? "";
 
-  // 리포트 OG — Step 1: 로고 img만 추가
+  // 리포트 OG
   if (address && industry && scoreStr) {
     const score = Number(scoreStr);
     const { grade, label, color } = getGradeInfo(score);
     const shortVerdict = verdict.length > 50 ? verdict.slice(0, 50) + "..." : verdict;
+    const pct = Math.round((score / 100) * 360);
 
     return new ImageResponse(
       (
@@ -50,35 +56,68 @@ export async function GET(request: NextRequest) {
             fontFamily: "Pretendard",
           }}
         >
-          {/* 브랜드 — img 로고 */}
-          <div style={{ display: "flex", alignItems: "center", marginBottom: "24px" }}>
-            <img src={LOGO_URL} width={36} height={36} style={{ borderRadius: "18px", marginRight: "10px" }} />
-            <span style={{ fontSize: "24px", fontWeight: 700, color: "white" }}>스팟리</span>
+          {/* 브랜드 */}
+          <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
+            <img src={logoDataUrl} width={32} height={32} style={{ marginRight: "10px" }} />
+            <span style={{ fontSize: "22px", fontWeight: 700, color: "white" }}>스팟리</span>
           </div>
 
-          {/* 등급 뱃지 */}
-          <div style={{ display: "flex", marginBottom: "24px" }}>
+          {/* 점수 프로그레스 원 */}
+          <div
+            style={{
+              width: "140px",
+              height: "140px",
+              borderRadius: "70px",
+              backgroundImage: `conic-gradient(${color} ${pct}deg, #1e293b ${pct}deg)`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: "16px",
+            }}
+          >
             <div
               style={{
-                padding: "8px 24px",
-                borderRadius: "20px",
-                backgroundColor: color,
-                color: "#0f172a",
-                fontSize: "20px",
-                fontWeight: 700,
+                width: "110px",
+                height: "110px",
+                borderRadius: "55px",
+                backgroundColor: "#0f172a",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              {grade}등급 · {label} · {score}점
+              <span style={{ fontSize: "40px", fontWeight: 700, color }}>{grade}</span>
+              <span style={{ fontSize: "14px", color: "#94a3b8" }}>{score}/100</span>
             </div>
           </div>
 
-          {/* 제목 */}
-          <div style={{ fontSize: "44px", fontWeight: 700, color: "#a78bfa", marginBottom: "16px", textAlign: "center" }}>
-            {address} {industry}
+          {/* 등급 뱃지 */}
+          <div style={{ display: "flex", marginBottom: "20px" }}>
+            <div
+              style={{
+                padding: "6px 20px",
+                borderRadius: "16px",
+                backgroundColor: color,
+                color: "#0f172a",
+                fontSize: "16px",
+                fontWeight: 700,
+              }}
+            >
+              {grade}등급 · {label}
+            </div>
           </div>
 
-          {/* 부제 */}
-          <div style={{ fontSize: "24px", color: "#94a3b8", textAlign: "center" }}>
+          {/* 업종 + 주소 */}
+          <div style={{ fontSize: "18px", color: "#a78bfa", marginBottom: "8px", fontWeight: 700 }}>
+            {industry}
+          </div>
+          <div style={{ fontSize: "32px", fontWeight: 700, color: "white", textAlign: "center", marginBottom: "12px" }}>
+            {address}
+          </div>
+
+          {/* verdict */}
+          <div style={{ fontSize: "16px", color: "#94a3b8", textAlign: "center" }}>
             {shortVerdict || "AI 창업 입지 분석 리포트"}
           </div>
         </div>
@@ -102,7 +141,7 @@ export async function GET(request: NextRequest) {
           fontFamily: "Pretendard",
         }}
       >
-        <img src={LOGO_URL} width={80} height={80} style={{ borderRadius: "40px", marginBottom: "24px" }} />
+        <img src={logoDataUrl} width={80} height={80} style={{ marginBottom: "24px" }} />
         <span style={{ fontSize: "48px", fontWeight: 700, color: "white", marginBottom: "16px" }}>스팟리</span>
         <div style={{ fontSize: "52px", fontWeight: 700, color: "#a78bfa", marginBottom: "20px" }}>
           AI 창업 입지 분석
