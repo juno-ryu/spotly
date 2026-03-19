@@ -4,7 +4,18 @@ import { prisma } from "@/server/db/prisma";
 
 export const dynamic = "force-dynamic";
 
+// 한글 폰트 로드 (Pretendard)
+async function loadFont() {
+  const res = await fetch(
+    "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/static/woff/Pretendard-Bold.woff",
+  );
+  return res.arrayBuffer();
+}
+
 export async function GET(request: NextRequest) {
+  const fontData = await loadFont();
+  const fonts = [{ name: "Pretendard", data: fontData, weight: 700 as const }];
+
   const { searchParams } = request.nextUrl;
   const id = searchParams.get("id");
 
@@ -21,6 +32,7 @@ export async function GET(request: NextRequest) {
             alignItems: "center",
             justifyContent: "center",
             backgroundColor: "#0f172a",
+            fontFamily: "Pretendard",
           }}
         >
           <div
@@ -41,18 +53,18 @@ export async function GET(request: NextRequest) {
                 justifyContent: "center",
                 fontSize: "36px",
                 color: "white",
-                fontWeight: 800,
+                fontWeight: 700,
                 marginRight: "16px",
               }}
             >
               S
             </div>
-            <span style={{ fontSize: "48px", fontWeight: 800, color: "white" }}>
+            <span style={{ fontSize: "48px", fontWeight: 700, color: "white" }}>
               스팟리
             </span>
           </div>
 
-          <div style={{ fontSize: "52px", fontWeight: 800, color: "#a78bfa", marginBottom: "20px" }}>
+          <div style={{ fontSize: "52px", fontWeight: 700, color: "#a78bfa", marginBottom: "20px" }}>
             AI 창업 입지 분석
           </div>
 
@@ -70,7 +82,7 @@ export async function GET(request: NextRequest) {
                   border: "1px solid #4c1d95",
                   color: "#c4b5fd",
                   fontSize: "18px",
-                  fontWeight: 600,
+                  fontWeight: 700,
                   marginRight: "16px",
                 }}
               >
@@ -80,7 +92,7 @@ export async function GET(request: NextRequest) {
           </div>
         </div>
       ),
-      { width: 1200, height: 630 },
+      { width: 1200, height: 630, fonts },
     );
   }
 
@@ -108,12 +120,13 @@ export async function GET(request: NextRequest) {
             backgroundColor: "#0f172a",
             color: "white",
             fontSize: "36px",
+            fontFamily: "Pretendard",
           }}
         >
           스팟리 - AI 창업 입지 분석
         </div>
       ),
-      { width: 1200, height: 630 },
+      { width: 1200, height: 630, fonts },
     );
   }
 
@@ -131,6 +144,7 @@ export async function GET(request: NextRequest) {
           flexDirection: "column",
           backgroundColor: "#0f172a",
           padding: "60px",
+          fontFamily: "Pretendard",
         }}
       >
         {/* 브랜드 */}
@@ -162,17 +176,17 @@ export async function GET(request: NextRequest) {
 
         {/* 업종 + 주소 */}
         <div style={{ display: "flex", flexDirection: "column", flexGrow: 1, justifyContent: "center" }}>
-          <div style={{ fontSize: "22px", color: "#a78bfa", marginBottom: "16px", fontWeight: 600 }}>
+          <div style={{ fontSize: "22px", color: "#a78bfa", marginBottom: "16px", fontWeight: 700 }}>
             {report.industryName}
           </div>
-          <div style={{ fontSize: "40px", fontWeight: 800, color: "white", marginBottom: "40px" }}>
+          <div style={{ fontSize: "40px", fontWeight: 700, color: "white", marginBottom: "40px" }}>
             {report.address}
           </div>
 
           {/* 점수 */}
           <div style={{ display: "flex", alignItems: "center" }}>
             <span style={{ fontSize: "18px", color: "#94a3b8", marginRight: "16px" }}>종합 점수</span>
-            <span style={{ fontSize: "72px", fontWeight: 900, color: scoreColor }}>{score}</span>
+            <span style={{ fontSize: "72px", fontWeight: 700, color: scoreColor }}>{score}</span>
             <span style={{ fontSize: "28px", color: "#64748b", marginLeft: "4px" }}>/ 100</span>
             <div
               style={{
@@ -182,7 +196,7 @@ export async function GET(request: NextRequest) {
                 backgroundColor: scoreColor,
                 color: "#0f172a",
                 fontSize: "28px",
-                fontWeight: 800,
+                fontWeight: 700,
               }}
             >
               {grade}등급
@@ -191,6 +205,6 @@ export async function GET(request: NextRequest) {
         </div>
       </div>
     ),
-    { width: 1200, height: 630 },
+    { width: 1200, height: 630, fonts },
   );
 }
