@@ -5,11 +5,7 @@ import { useRouter } from "next/navigation";
 import { WelcomeScreen } from "./welcome-screen";
 import { useWizardStore } from "@/features/analysis/stores/wizard-store";
 
-interface WelcomePageClientProps {
-  isLoggedIn: boolean;
-}
-
-export function WelcomePageClient({ isLoggedIn }: WelcomePageClientProps) {
+export function WelcomePageClient() {
   const router = useRouter();
   const reset = useWizardStore((s) => s.reset);
 
@@ -18,5 +14,5 @@ export function WelcomePageClient({ isLoggedIn }: WelcomePageClientProps) {
     router.push("/industry");
   }, [reset, router]);
 
-  return <WelcomeScreen onNext={handleNext} isLoggedIn={isLoggedIn} />;
+  return <WelcomeScreen onNext={handleNext} />;
 }

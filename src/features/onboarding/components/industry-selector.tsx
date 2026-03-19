@@ -25,7 +25,7 @@ import {
   type IndustryCode,
 } from "@/features/analysis/constants/industry-codes";
 
-const HEADER_TEXT = "어떤 창업을 생각하고 계신가요?";
+const HEADER_TEXT = "어떤 창업 생각 중이세요?";
 const TYPING_SPEED = 33;
 import { GRADIENT_TEXT_STYLE as GRADIENT_STYLE } from "@/constants/site";
 

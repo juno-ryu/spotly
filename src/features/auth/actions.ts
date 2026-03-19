@@ -1,11 +1,27 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { createSupabaseServer } from "@/server/supabase/server";
 
+/** OAuth 로그인 전 returnTo 경로를 쿠키에 저장 */
+async function saveReturnTo(formData?: FormData) {
+  const returnTo = formData?.get("returnTo") as string | null;
+  if (returnTo?.startsWith("/")) {
+    const cookieStore = await cookies();
+    cookieStore.set("auth_return_to", returnTo, {
+      maxAge: 300,
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+    });
+  }
+}
+
 /** Google OAuth 로그인 시작 */
-export async function signInWithGoogle() {
+export async function signInWithGoogle(formData?: FormData) {
+  await saveReturnTo(formData);
+
   const headersList = await headers();
   const host = headersList.get("host") ?? "localhost:3000";
   const protocol = host.startsWith("localhost") ? "http" : "https";
@@ -24,7 +40,9 @@ export async function signInWithGoogle() {
 }
 
 /** Kakao OAuth 로그인 시작 */
-export async function signInWithKakao() {
+export async function signInWithKakao(formData?: FormData) {
+  await saveReturnTo(formData);
+
   const headersList = await headers();
   const host = headersList.get("host") ?? "localhost:3000";
   const protocol = host.startsWith("localhost") ? "http" : "https";

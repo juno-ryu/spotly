@@ -11,6 +11,7 @@ import { BackButton } from "@/components/back-button";
 import { AnalysisResult } from "@/features/analysis/components/analysis-result";
 import { AnalysisResultSkeleton } from "@/features/analysis/components/analysis-result-skeleton";
 import { executeAnalysis, type AnalyzeParams } from "@/features/analysis/actions";
+import { createSupabaseServer } from "@/server/supabase/server";
 
 /** searchParams에서 분석 파라미터 추출. 필수값 누락 시 null 반환 */
 function parseSearchParams(sp: Record<string, string | string[] | undefined>): AnalyzeParams | null {
@@ -28,8 +29,11 @@ function parseSearchParams(sp: Record<string, string | string[] | undefined>): A
 
 /** 분석 실행 + 결과 표시 — Suspense 내부에서 비동기 실행 */
 async function AnalysisLoader({ params }: { params: AnalyzeParams }) {
+  const supabase = await createSupabaseServer();
+  const { data: { user } } = await supabase.auth.getUser();
+
   const data = await executeAnalysis(params);
-  return <AnalysisResult data={data} />;
+  return <AnalysisResult data={data} isAuthenticated={!!user} />;
 }
 
 export default async function AnalyzePage({

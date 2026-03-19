@@ -56,7 +56,7 @@ const GENERATION_STEPS = [
 
 const GEN_STEP_INTERVAL = 2500;
 
-function GeneratingProgress() {
+export function GeneratingProgress() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -270,7 +270,7 @@ export function PurchaseOverlay({ isGenerating, onGenerate, onClose }: PurchaseO
               다른 곳에서 상권 분석 해보기 전에
             </p>
             <p className="text-[12px] text-muted-foreground mt-1">
-              인간 상권 컨설팅 비용 평균 <span className="font-bold text-foreground">35만원</span>
+              민간 상권 컨설팅 비용 평균 <span className="font-bold text-foreground">35만원</span>
             </p>
           </div>
         </div>

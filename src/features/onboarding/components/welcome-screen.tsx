@@ -6,27 +6,24 @@ import { hapticLight } from "../lib/haptic";
 import { useTypingAnimation } from "../hooks/use-typing-animation";
 import Image from "next/image";
 import { GRADIENT_TEXT_STYLE as GRADIENT_STYLE } from "@/constants/site";
-import { LoginScreen } from "@/features/auth/components/login-screen";
 
-const STEP1_TEXT = "창업을 준비중이신가요?";
-const STEP2_TEXT = "저와 함께 괜찮은 자리인지\n알아볼까요? 😊";
+const STEP1_TEXT = "창업 준비중이세요?";
+const STEP2_TEXT = "같이 한번 알아볼까요? 😊";
 
 const TYPING_SPEED = 33;
 const PHASE_PAUSE = 500;
 
 interface WelcomeScreenProps {
   onNext: () => void;
-  isLoggedIn: boolean;
 }
 
 /** Step 1: 환영 인사 — 타이핑 애니메이션 + CTA */
-export function WelcomeScreen({ onNext, isLoggedIn }: WelcomeScreenProps) {
+export function WelcomeScreen({ onNext }: WelcomeScreenProps) {
   const [phase, setPhase] = useState<"step1" | "pause" | "step2" | "done">(
     "step1",
   );
   const [showCTA, setShowCTA] = useState(false);
   const [showBounce, setShowBounce] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
   const touchStartY = useRef(0);
 
   const { displayText: text1, isDone: text1Done } = useTypingAnimation(
@@ -78,12 +75,8 @@ export function WelcomeScreen({ onNext, isLoggedIn }: WelcomeScreenProps) {
 
   const handleCTATap = useCallback(() => {
     hapticLight();
-    if (isLoggedIn) {
-      onNext();
-    } else {
-      setShowLogin(true);
-    }
-  }, [isLoggedIn, onNext]);
+    onNext();
+  }, [onNext]);
 
   // 스와이프 업 폴백
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -118,7 +111,7 @@ export function WelcomeScreen({ onNext, isLoggedIn }: WelcomeScreenProps) {
       </span>
     ));
 
-  if (showLogin) return <LoginScreen />;
+
 
   return (
     <div

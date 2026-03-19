@@ -9,7 +9,8 @@ import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount } from "@/compone
 import dynamic from "next/dynamic";
 
 const CompetitorMap = dynamic(() => import("./competitor-map").then(m => m.CompetitorMap), { ssr: false });
-import { PurchaseOverlay } from "./purchase-overlay";
+import { AuthRequiredModal } from "@/features/auth/components/auth-required-modal";
+import { GeneratingProgress } from "./purchase-overlay";
 import { GradeBadge } from "./grade-badge";
 import { MetricCards } from "./metric-cards";
 import { DataFacts } from "./data-facts";
@@ -239,17 +240,20 @@ function HeaderWithGrade({
 
 interface AnalysisResultProps {
   data: AnalysisData;
+  isAuthenticated: boolean;
+
 }
 
 const SHEET_MIN_HEIGHT = 140;
 
-export function AnalysisResult({ data }: AnalysisResultProps) {
+export function AnalysisResult({ data, isAuthenticated }: AnalysisResultProps) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<HTMLDivElement>(null);
   const contentHeightRef = useRef<number>(0);
   const router = useRouter();
   const [isGenerating, startTransition] = useTransition();
-  const [showPurchase, setShowPurchase] = useState(false);
+
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // AI 리포트 생성 — 서버 액션 호출 후 리포트 페이지로 이동
   const handleGenerateReport = () => {
@@ -263,11 +267,9 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
           router.push(`/report/${result.id}`);
         } else {
           toast.error(result.error ?? "AI 리포트 생성에 실패했어요. 다시 시도해주세요.");
-          setShowPurchase(false);
         }
       } catch {
         toast.error("AI 리포트 생성 중 오류가 발생했어요. 다시 시도해주세요.");
-        setShowPurchase(false);
       }
     });
   };
@@ -276,6 +278,8 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
   useEffect(() => {
     trackEvent(AnalyticsEvent.REPORT_VIEW, { address: data.address });
   }, [data.address]);
+
+
 
   // 마운트 후 콘텐츠 높이 측정
   useEffect(() => {
@@ -405,14 +409,16 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
 
   return (
     <>
-    {/* Purchase 오버레이 + AI 생성 로딩 */}
-    {showPurchase && (
-      <PurchaseOverlay
-        isGenerating={isGenerating}
-        onGenerate={handleGenerateReport}
-        onClose={() => setShowPurchase(false)}
+    {/* AI 리포트 생성 로딩 */}
+    {isGenerating && <GeneratingProgress />}
+    {/* 비로그인 가입 유도 모달 */}
+    {showAuthModal && (
+      <AuthRequiredModal
+        onClose={() => setShowAuthModal(false)}
+        returnTo={typeof window !== "undefined" ? window.location.pathname + window.location.search : "/analyze"}
       />
     )}
+
     <div className="fixed inset-0 pointer-events-none">
       {/* ── 배경 지도 ── */}
       {centerLat && centerLng ? (
@@ -488,7 +494,7 @@ export function AnalysisResult({ data }: AnalysisResultProps) {
         <div className="shrink-0 px-4 pb-3 pt-3 border-t bg-background space-y-2.5">
           <button
             type="button"
-            onClick={() => setShowPurchase(true)}
+            onClick={() => isAuthenticated ? handleGenerateReport() : setShowAuthModal(true)}
             className="flex items-center justify-center gap-1.5 w-full h-12 rounded-xl bg-violet-600 text-white font-bold text-sm transition-transform hover:bg-violet-700 active:scale-95"
           >
             AI 전문가 분석 시작

@@ -22,5 +22,5 @@ export default async function HomePage() {
 
   if (user) redirect("/industry");
 
-  return <WelcomePageClient isLoggedIn={false} />;
+  return <WelcomePageClient />;
 }
