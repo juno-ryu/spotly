@@ -3,6 +3,20 @@ import type { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
 
+// Noto Sans KR Black(900) — 한글+영문 굵은 폰트
+const FONT_URL =
+  "https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans@latest/Subset/SpoqaHanSansNeo/SpoqaHanSansNeo-Bold.woff";
+
+async function loadFont(): Promise<ArrayBuffer | null> {
+  try {
+    const res = await fetch(FONT_URL);
+    if (!res.ok) return null;
+    return res.arrayBuffer();
+  } catch {
+    return null;
+  }
+}
+
 // 실제 프로젝트 상수와 동일한 등급 색상
 const GRADE_COLORS: Record<string, { text: string; bg: string }> = {
   A: { text: "#16a34a", bg: "#dcfce7" },
@@ -37,6 +51,12 @@ function LogoIcon({ size = 120 }: { size?: number }) {
 
 export async function GET(request: NextRequest) {
   try {
+    const fontData = await loadFont();
+    const fonts = fontData
+      ? [{ name: "SpoqaHanSans", data: fontData, weight: 900 as const }]
+      : [];
+    const fontFamily = fontData ? "SpoqaHanSans" : "sans-serif";
+
     const { searchParams } = request.nextUrl;
     const address = searchParams.get("address");
     const industry = searchParams.get("industry");
@@ -60,6 +80,7 @@ export async function GET(request: NextRequest) {
               alignItems: "center",
               justifyContent: "center",
               backgroundColor: "#0f172a",
+              fontFamily,
               padding: "0 60px",
             }}
           >
@@ -107,7 +128,7 @@ export async function GET(request: NextRequest) {
             </div>
           </div>
         ),
-        { width: 1200, height: 630 },
+        { width: 1200, height: 630, fonts },
       );
     }
 
@@ -151,7 +172,7 @@ export async function GET(request: NextRequest) {
           </div>
         </div>
       ),
-      { width: 1200, height: 630 },
+      { width: 1200, height: 630, fonts },
     );
   } catch (e) {
     console.error("[OG] 이미지 생성 실패:", e);
