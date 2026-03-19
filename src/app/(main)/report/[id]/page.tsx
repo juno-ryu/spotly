@@ -16,17 +16,27 @@ export async function generateMetadata({
   const { id } = await params;
   const report = await prisma.analysisReport.findUnique({
     where: { id },
-    select: { address: true, industryName: true, totalScore: true },
+    select: {
+      address: true,
+      industryName: true,
+      totalScore: true,
+      aiReportJson: true,
+    },
   });
 
   if (!report) return { title: "리포트를 찾을 수 없습니다" };
 
   const title = `${report.address} ${report.industryName} 창업 분석`;
   const description = `${report.address}의 ${report.industryName} 창업 입지 분석 결과 — 종합 점수 ${report.totalScore}점. 경쟁 강도, 유동인구, 인프라 등 AI 리포트를 확인하세요.`;
+
+  const aiReport = report.aiReportJson as AiReport | null;
+  const verdict = aiReport?.verdict ?? "";
+
   const ogParams = new URLSearchParams({
     address: report.address,
     industry: report.industryName,
     score: String(report.totalScore),
+    ...(verdict && { verdict }),
   });
   const ogImageUrl = `${SITE_CONFIG.url}/api/og?${ogParams}`;
 
