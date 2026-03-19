@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
       const score = Number(scoreStr);
       const { grade, label } = getGradeInfo(score);
       const colors = GRADE_COLORS[grade] ?? GRADE_COLORS.C;
-      const shortVerdict = verdict.length > 60 ? verdict.slice(0, 60) + "..." : verdict;
+      const shortVerdict = verdict.length > 80 ? verdict.slice(0, 80) + "..." : verdict;
 
       return new ImageResponse(
         (
@@ -58,24 +58,25 @@ export async function GET(request: NextRequest) {
               height: "100%",
               display: "flex",
               alignItems: "center",
+              justifyContent: "center",
               backgroundColor: "#0f172a",
-              padding: "60px 80px",
+              padding: "40px 60px",
             }}
           >
-            <div style={{ display: "flex", marginRight: "60px" }}>
-              <LogoIcon />
+            <div style={{ display: "flex", marginRight: "50px" }}>
+              <LogoIcon size={280} />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-              <div style={{ display: "flex", marginBottom: "20px" }}>
+              <div style={{ display: "flex", marginBottom: "24px" }}>
                 <div
                   style={{
                     display: "flex",
-                    padding: "8px 20px",
-                    borderRadius: "20px",
+                    padding: "12px 28px",
+                    borderRadius: "24px",
                     backgroundColor: colors.bg,
                     color: colors.text,
-                    fontSize: "22px",
+                    fontSize: "30px",
                     fontWeight: 700,
                   }}
                 >
@@ -83,16 +84,16 @@ export async function GET(request: NextRequest) {
                 </div>
               </div>
 
-              <div style={{ display: "flex", marginBottom: "20px" }}>
-                <span style={{ fontSize: "56px", fontWeight: 700, color: "#7c3aed" }}>Spot</span>
-                <span style={{ fontSize: "56px", fontWeight: 700, color: "#a78bfa" }}>ly</span>
+              <div style={{ display: "flex", marginBottom: "24px" }}>
+                <span style={{ fontSize: "72px", fontWeight: 700, color: "#7c3aed" }}>Spot</span>
+                <span style={{ fontSize: "72px", fontWeight: 700, color: "#a78bfa" }}>ly</span>
               </div>
 
-              <div style={{ display: "flex", fontSize: "28px", fontWeight: 700, color: "white", marginBottom: "16px" }}>
+              <div style={{ display: "flex", fontSize: "36px", fontWeight: 700, color: "white", marginBottom: "16px" }}>
                 {address} {industry}
               </div>
 
-              <div style={{ display: "flex", fontSize: "18px", color: "#94a3b8" }}>
+              <div style={{ display: "flex", fontSize: "24px", color: "#94a3b8" }}>
                 {shortVerdict || "AI 창업 입지 분석 리포트"}
               </div>
             </div>
@@ -111,23 +112,24 @@ export async function GET(request: NextRequest) {
             height: "100%",
             display: "flex",
             alignItems: "center",
+            justifyContent: "center",
             backgroundColor: "#0f172a",
-            padding: "60px 80px",
+            padding: "40px 60px",
           }}
         >
           <div style={{ display: "flex", marginRight: "60px" }}>
-            <LogoIcon />
+            <LogoIcon size={320} />
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-            <div style={{ display: "flex", marginBottom: "16px" }}>
-              <span style={{ fontSize: "64px", fontWeight: 700, color: "#7c3aed" }}>Spot</span>
-              <span style={{ fontSize: "64px", fontWeight: 700, color: "#a78bfa" }}>ly</span>
+            <div style={{ display: "flex", marginBottom: "24px" }}>
+              <span style={{ fontSize: "96px", fontWeight: 700, color: "#7c3aed" }}>Spot</span>
+              <span style={{ fontSize: "96px", fontWeight: 700, color: "#a78bfa" }}>ly</span>
             </div>
-            <div style={{ display: "flex", fontSize: "32px", fontWeight: 700, color: "white", marginBottom: "12px" }}>
+            <div style={{ display: "flex", fontSize: "44px", fontWeight: 700, color: "white", marginBottom: "16px" }}>
               AI 창업 입지 분석
             </div>
-            <div style={{ display: "flex", fontSize: "22px", color: "#94a3b8" }}>
+            <div style={{ display: "flex", fontSize: "28px", color: "#94a3b8" }}>
               주소와 업종만 입력하면, 100점 만점 맞춤 리포트 제공
             </div>
           </div>
