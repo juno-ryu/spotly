@@ -5,7 +5,7 @@ import { Home } from "lucide-react";
 import Link from "next/link";
 
 /** 홈 버튼 + 뒤로가기 차단 — 리포트 페이지용 */
-export function HomeButton({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
+export function HomeButton() {
   // 브라우저 뒤로가기 차단
   useEffect(() => {
     history.pushState(null, "", location.href);
@@ -19,7 +19,7 @@ export function HomeButton({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   return (
     <Link
       href="/"
-      className={`fixed ${isLoggedIn ? "top-16" : "top-4"} right-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-background border shadow-sm transition-colors hover:bg-muted`}
+      className="flex h-10 w-10 items-center justify-center rounded-full bg-background border shadow-sm transition-colors hover:bg-muted"
       aria-label="홈으로"
     >
       <Home className="h-5 w-5 text-foreground" />

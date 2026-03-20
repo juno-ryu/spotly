@@ -1,6 +1,9 @@
+import { createSupabaseServer } from "@/server/supabase/server";
 import { prisma } from "@/server/db/prisma";
 import { notFound } from "next/navigation";
 import { ShareButton } from "@/components/share-button";
+import { HomeButton } from "@/components/home-button";
+import { LoginIconButton } from "@/components/login-icon-button";
 import { ReportViewer } from "@/features/report/components/report-viewer";
 import { scoreToGrade } from "@/features/analysis/lib/scoring/types";
 import { GRADIENT_TEXT_STYLE, SITE_CONFIG } from "@/constants/site";
@@ -101,6 +104,10 @@ export default async function ReportPage({
 }) {
   const { id } = await params;
 
+  const supabase = await createSupabaseServer();
+  const { data: { user } } = await supabase.auth.getUser();
+  const isLoggedIn = !!user;
+
   const report = await prisma.analysisReport.findUnique({
     where: { id },
   });
@@ -130,13 +137,17 @@ export default async function ReportPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {/* 공유 버튼 — 프로필 아이콘 아래 */}
-      <ShareButton
-        title={`${report.address} ${report.industryName} 창업 점수 ${totalScore}점!`}
-        text={`AI가 8개 공공데이터를 분석한 상권 리포트를 확인해보세요.`}
-        url={`${SITE_CONFIG.url}/report/${id}`}
-        imageUrl={`${SITE_CONFIG.url}/api/og?${new URLSearchParams({ address: report.address, industry: report.industryName, score: String(totalScore), ...(reportJson.verdict && { verdict: reportJson.verdict }), square: "1" })}`}
-      />
+      {/* 홈 + 공유 버튼 — 우상단 고정 */}
+      <div className={`fixed ${isLoggedIn ? "top-16" : "top-4"} right-4 z-50 flex flex-col items-center gap-2`}>
+        <HomeButton />
+        {!isLoggedIn && <LoginIconButton returnTo="/" />}
+        <ShareButton
+          title={`${report.address} ${report.industryName} 창업 점수 ${totalScore}점!`}
+          text="AI가 8개 공공데이터를 분석한 상권 리포트를 확인해보세요."
+          url={`${SITE_CONFIG.url}/report/${id}`}
+          imageUrl={`${SITE_CONFIG.url}/api/og?${new URLSearchParams({ address: report.address, industry: report.industryName, score: String(totalScore), ...(reportJson.verdict && { verdict: reportJson.verdict }), square: "1" })}`}
+        />
+      </div>
       <div className="pl-6">
         <h1 className="text-2xl font-bold" style={GRADIENT_TEXT_STYLE}>{report.address}</h1>
         <p className="text-muted-foreground">{report.industryName} · AI 리포트</p>

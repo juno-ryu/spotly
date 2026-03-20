@@ -83,11 +83,11 @@ export function AuthRequiredModal({ onClose, returnTo }: AuthRequiredModalProps)
           </button>
 
           {/* 타이틀 */}
-          <div className="pt-2 pb-4 text-center">
+          <div className="pt-[10px] pb-4">
             <h1 className="text-[22px] font-black leading-[1.4] break-keep">
-              <span style={GRADIENT_TEXT_STYLE}>AI 리포트로</span>
+              <span style={GRADIENT_TEXT_STYLE}>수천만원 창업 투자,</span>
               <br />
-              <span style={GRADIENT_TEXT_STYLE}>정확한 창업 결정을 내리세요</span>
+              <span style={GRADIENT_TEXT_STYLE}>무료로 리스크를 줄이세요</span>
             </h1>
           </div>
 
