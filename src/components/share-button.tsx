@@ -4,6 +4,12 @@ import { useEffect, useState } from "react";
 import { Share2, Check } from "lucide-react";
 import { toast } from "sonner";
 import Script from "next/script";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ShareButtonProps {
   title: string;
@@ -15,6 +21,7 @@ interface ShareButtonProps {
 export function ShareButton({ title, text, url, imageUrl }: ShareButtonProps) {
   const [kakaoReady, setKakaoReady] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [clicked, setClicked] = useState(false);
   const appKey = process.env.NEXT_PUBLIC_KAKAO_MAP_APP_KEY;
 
   useEffect(() => {
@@ -54,7 +61,6 @@ export function ShareButton({ title, text, url, imageUrl }: ShareButtonProps) {
     try {
       await navigator.clipboard.writeText(url);
     } catch {
-      // clipboard API 실패 시 폴백
       const textarea = document.createElement("textarea");
       textarea.value = url;
       textarea.style.position = "fixed";
@@ -65,11 +71,14 @@ export function ShareButton({ title, text, url, imageUrl }: ShareButtonProps) {
       document.body.removeChild(textarea);
     }
     setCopied(true);
-    toast.success("링크가 복사되었어요");
+    toast.success("링크가 복사되었어요", { icon: "✅" });
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleShare = async () => {
+    // 클릭 시 툴팁 영구 닫기
+    setClicked(true);
+
     // 모바일: 카카오톡 우선
     if (isMobile && kakaoReady) {
       shareToKakao();
@@ -99,17 +108,26 @@ export function ShareButton({ title, text, url, imageUrl }: ShareButtonProps) {
           onLoad={handleKakaoInit}
         />
       )}
-      <button
-        type="button"
-        onClick={handleShare}
-        className="fixed top-16 right-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-background border shadow-sm transition-colors hover:bg-muted"
-        aria-label="공유하기"
-      >
-        {copied
-          ? <Check className="h-5 w-5 text-emerald-500" />
-          : <Share2 className="h-5 w-5 text-foreground" />
-        }
-      </button>
+      <TooltipProvider delayDuration={0}>
+        <Tooltip defaultOpen open={clicked ? false : undefined}>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={handleShare}
+              className="fixed top-28 right-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-background border shadow-sm transition-colors hover:bg-muted"
+              aria-label="공유하기"
+            >
+              {copied
+                ? <Check className="h-5 w-5 text-emerald-500" />
+                : <Share2 className="h-5 w-5 text-foreground" />
+              }
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="left">
+            공유하기
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </>
   );
 }

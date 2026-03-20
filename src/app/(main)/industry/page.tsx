@@ -32,7 +32,7 @@ export default function IndustryPage() {
 
   return (
     <>
-      <BackButton />
+      {/* <BackButton /> */}
       <IndustrySelector onNext={handleNext} />
     </>
   );

@@ -1,6 +1,6 @@
 import { prisma } from "@/server/db/prisma";
 import { notFound } from "next/navigation";
-import { BackButton } from "@/components/back-button";
+import { HomeButton } from "@/components/home-button";
 import { ShareButton } from "@/components/share-button";
 import { ReportViewer } from "@/features/report/components/report-viewer";
 import { scoreToGrade } from "@/features/analysis/lib/scoring/types";
@@ -56,14 +56,21 @@ export async function generateMetadata({
     : `${report.address} ${report.industryName} 창업 분석 | 스팟리`;
 
   const description = hookLine
-    ? `${hookLine}. AI가 8개 공공데이터를 종합 분석한 ${report.address} ${report.industryName} 창업 입지 리포트.`
-    : `${report.address}의 ${report.industryName} 창업 입지 분석 — 종합 ${report.totalScore}점. AI가 8개 공공데이터를 종합 분석한 리포트.`;
+    ? `${hookLine}. AI가 민간·공공데이터를 종합 분석한 ${report.address} ${report.industryName} 창업 입지 리포트.`
+    : `${report.address}의 ${report.industryName} 창업 입지 분석 — 종합 ${report.totalScore}점. AI가 민간·공공데이터를 종합 분석한 리포트.`;
 
   const ogParams = new URLSearchParams({
     address: report.address,
     industry: report.industryName,
     score: String(report.totalScore),
     ...(verdict && { verdict }),
+    ...(aiReport?.competitorCount && { competitors: String(aiReport.competitorCount.direct) }),
+    ...(aiReport?.competitorCount?.franchise != null && { franchise: String(aiReport.competitorCount.franchise) }),
+    ...(aiReport?.revenueEstimate?.monthlyPerStoreMaan && { revenue: String(Math.round(aiReport.revenueEstimate.monthlyPerStoreMaan)) }),
+    ...(aiReport?.survivalAnalysis?.closeRate != null && { closeRate: String(aiReport.survivalAnalysis.closeRate) }),
+    ...(aiReport?.riskWarnings?.[0] && { risk: aiReport.riskWarnings[0].title }),
+    ...(aiReport?.analysisScope && { scope: aiReport.analysisScope.slice(0, 80) }),
+    ...(aiReport?.summary && { summary: aiReport.summary.slice(0, 100) }),
   });
   const ogImageUrl = `${SITE_CONFIG.url}/api/og?${ogParams}`;
 
@@ -125,15 +132,15 @@ export default async function ReportPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <BackButton />
+      <HomeButton />
       {/* 공유 버튼 — 프로필 아이콘 아래 */}
       <ShareButton
         title={`${report.address} ${report.industryName} 창업 점수 ${totalScore}점!`}
         text={`AI가 8개 공공데이터를 분석한 상권 리포트를 확인해보세요.`}
         url={`${SITE_CONFIG.url}/report/${id}`}
-        imageUrl={`${SITE_CONFIG.url}/api/og?${new URLSearchParams({ address: report.address, industry: report.industryName, score: String(totalScore), ...(reportJson.verdict && { verdict: reportJson.verdict }) })}`}
+        imageUrl={`${SITE_CONFIG.url}/api/og?${new URLSearchParams({ address: report.address, industry: report.industryName, score: String(totalScore), ...(reportJson.verdict && { verdict: reportJson.verdict }), square: "1" })}`}
       />
-      <div className="px-18">
+      <div className="pl-6">
         <h1 className="text-2xl font-bold" style={GRADIENT_TEXT_STYLE}>{report.address}</h1>
         <p className="text-muted-foreground">{report.industryName} · AI 리포트</p>
       </div>

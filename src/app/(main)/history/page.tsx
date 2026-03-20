@@ -34,7 +34,7 @@ export default async function HistoryPage() {
 
   return (
     <div className="space-y-4 px-6 pt-16 pb-6">
-      <BackButton />
+      {/* <BackButton /> */}
       <h1 className="text-2xl font-bold">AI 리포트 이력</h1>
 
       {reports.length === 0 ? (

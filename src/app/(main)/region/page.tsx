@@ -47,7 +47,7 @@ export default function RegionPage() {
 
   return (
     <>
-      <BackButton />
+      {/* <BackButton /> */}
       <RegionSelector
         selectedIndustry={industryProp}
         onNext={handleNext}

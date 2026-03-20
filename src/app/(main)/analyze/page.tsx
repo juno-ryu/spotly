@@ -49,7 +49,7 @@ export default async function AnalyzePage({
 
   return (
     <>
-      <BackButton />
+      {/* <BackButton /> */}
       <Suspense fallback={<AnalysisResultSkeleton />}>
         <AnalysisLoader params={params} />
       </Suspense>
