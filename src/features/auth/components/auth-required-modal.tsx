@@ -169,6 +169,7 @@ export function AuthRequiredModal({ onClose, returnTo }: AuthRequiredModalProps)
             <div className="rounded-xl bg-muted/50 dark:bg-muted/30 p-4 text-center">
               <p className="text-[11px] text-muted-foreground break-keep leading-relaxed">
                 ⚠️ AI 리포트는 공공·민간 데이터 기반의 <span className="font-semibold text-foreground">참고 자료</span>이며,
+                <br />
                 최종 창업 결정 전 현장 답사와 전문가 상담을 권장합니다.
               </p>
             </div>
