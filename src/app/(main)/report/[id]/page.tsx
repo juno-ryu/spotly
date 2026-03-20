@@ -1,6 +1,5 @@
 import { prisma } from "@/server/db/prisma";
 import { notFound } from "next/navigation";
-import { HomeButton } from "@/components/home-button";
 import { ShareButton } from "@/components/share-button";
 import { ReportViewer } from "@/features/report/components/report-viewer";
 import { scoreToGrade } from "@/features/analysis/lib/scoring/types";
@@ -131,7 +130,6 @@ export default async function ReportPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <HomeButton />
       {/* 공유 버튼 — 프로필 아이콘 아래 */}
       <ShareButton
         title={`${report.address} ${report.industryName} 창업 점수 ${totalScore}점!`}

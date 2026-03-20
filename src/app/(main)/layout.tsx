@@ -1,5 +1,5 @@
 import { createSupabaseServer } from "@/server/supabase/server";
-import { UserMenu } from "@/features/auth/components/user-menu";
+import { LayoutButtons } from "@/components/layout-buttons";
 
 export default async function MainLayout({
   children,
@@ -9,20 +9,14 @@ export default async function MainLayout({
   const supabase = await createSupabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const avatarUrl = user?.user_metadata?.avatar_url as string | undefined;
-  const name = user?.user_metadata?.full_name as string | undefined;
-
   return (
     <>
-      {user && (
-        <div className="fixed top-4 right-4 z-50">
-          <UserMenu
-            email={user.email ?? ""}
-            avatarUrl={avatarUrl}
-            name={name}
-          />
-        </div>
-      )}
+      <LayoutButtons
+        isLoggedIn={!!user}
+        email={user?.email ?? ""}
+        avatarUrl={user?.user_metadata?.avatar_url as string | undefined}
+        name={user?.user_metadata?.full_name as string | undefined}
+      />
       {children}
     </>
   );

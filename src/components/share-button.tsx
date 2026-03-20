@@ -16,9 +16,10 @@ interface ShareButtonProps {
   text: string;
   url: string;
   imageUrl?: string;
+  isLoggedIn?: boolean;
 }
 
-export function ShareButton({ title, text, url, imageUrl }: ShareButtonProps) {
+export function ShareButton({ title, text, url, imageUrl, isLoggedIn = false }: ShareButtonProps) {
   const [kakaoReady, setKakaoReady] = useState(false);
   const [copied, setCopied] = useState(false);
   const [clicked, setClicked] = useState(false);
@@ -114,7 +115,7 @@ export function ShareButton({ title, text, url, imageUrl }: ShareButtonProps) {
             <button
               type="button"
               onClick={handleShare}
-              className="fixed top-28 right-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-background border shadow-sm transition-colors hover:bg-muted"
+              className={`fixed ${isLoggedIn ? "top-28" : "top-16"} right-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-background border shadow-sm transition-colors hover:bg-muted`}
               aria-label="공유하기"
             >
               {copied
