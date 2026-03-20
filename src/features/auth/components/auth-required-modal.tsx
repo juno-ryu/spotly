@@ -205,10 +205,6 @@ export function AuthRequiredModal({ onClose, returnTo }: AuthRequiredModalProps)
                 Google로 무료 시작하기
               </button>
             </form>
-
-            <p className="text-center text-xs text-muted-foreground">
-              현재 무료 체험 기간 · 결제 없이 이용 가능
-            </p>
           </div>
         </div>
       </div>
