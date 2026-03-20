@@ -26,11 +26,37 @@ export async function generateMetadata({
 
   if (!report) return { title: "리포트를 찾을 수 없습니다" };
 
-  const title = `${report.address} ${report.industryName} 창업 분석`;
-  const description = `${report.address}의 ${report.industryName} 창업 입지 분석 결과 — 종합 점수 ${report.totalScore}점. 경쟁 강도, 유동인구, 인프라 등 AI 리포트를 확인하세요.`;
-
   const aiReport = report.aiReportJson as AiReport | null;
   const verdict = aiReport?.verdict ?? "";
+
+  // 후킹 포인트 동적 조합 — 있는 데이터만 우선순위대로
+  const hooks: string[] = [];
+  if (verdict) hooks.push(verdict);
+  if (aiReport?.revenueEstimate?.monthlyPerStoreMaan) {
+    hooks.push(`예상 월매출 ${Math.round(aiReport.revenueEstimate.monthlyPerStoreMaan)}만원`);
+  }
+  if (aiReport?.survivalAnalysis?.closeRate != null) {
+    hooks.push(`폐업률 ${aiReport.survivalAnalysis.closeRate}%`);
+  }
+  if (aiReport?.competitorCount) {
+    hooks.push(`경쟁업체 ${aiReport.competitorCount.direct}개`);
+  }
+  if (aiReport?.riskWarnings?.[0]) {
+    hooks.push(`⚠️ ${aiReport.riskWarnings[0].title}`);
+  }
+  if (aiReport?.populationInsight) {
+    hooks.push(aiReport.populationInsight.headline);
+  }
+
+  const hookLine = hooks.length > 0 ? hooks.slice(0, 4).join(" · ") : "";
+
+  const title = verdict
+    ? `${report.address} ${report.industryName} — ${verdict} | 스팟리`
+    : `${report.address} ${report.industryName} 창업 분석 | 스팟리`;
+
+  const description = hookLine
+    ? `${hookLine}. AI가 8개 공공데이터를 종합 분석한 ${report.address} ${report.industryName} 창업 입지 리포트.`
+    : `${report.address}의 ${report.industryName} 창업 입지 분석 — 종합 ${report.totalScore}점. AI가 8개 공공데이터를 종합 분석한 리포트.`;
 
   const ogParams = new URLSearchParams({
     address: report.address,
@@ -80,8 +106,24 @@ export default async function ReportPage({
   const { grade: scoreGrade } = scoreToGrade(totalScore);
   const scoreDetail = report.scoreDetail as ScoreBreakdown | undefined;
 
+  // JSON-LD 구조화 데이터 — 검색 엔진 리치 스니펫용
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: `${report.address} ${report.industryName} 창업 입지 분석`,
+    description: reportJson.summary,
+    author: { "@type": "Organization", name: "스팟리" },
+    publisher: { "@type": "Organization", name: "스팟리" },
+    datePublished: report.createdAt.toISOString(),
+    mainEntityOfPage: `${SITE_CONFIG.url}/report/${id}`,
+  };
+
   return (
     <div className="py-4">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <BackButton />
       <div className="pl-18">
         <h1 className="text-2xl font-bold" style={GRADIENT_TEXT_STYLE}>{report.address}</h1>
