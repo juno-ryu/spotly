@@ -279,6 +279,25 @@ export function AnalysisResult({ data, isAuthenticated }: AnalysisResultProps) {
     trackEvent(AnalyticsEvent.REPORT_VIEW, { address: data.address });
   }, [data.address]);
 
+  // OAuth 로그인 복귀 후 자동 리포트 생성 (sessionStorage one-shot)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const pending = sessionStorage.getItem("spotly_pending_report");
+    if (!pending) return;
+
+    // 5분 만료 체크
+    const age = Date.now() - Number(pending);
+    if (age > 5 * 60 * 1000) {
+      sessionStorage.removeItem("spotly_pending_report");
+      return;
+    }
+
+    // 삭제 먼저, 실행 나중 (원샷 보장)
+    sessionStorage.removeItem("spotly_pending_report");
+    handleGenerateReport();
+  }, [isAuthenticated]);
+
 
 
   // 마운트 후 콘텐츠 높이 측정
@@ -414,7 +433,10 @@ export function AnalysisResult({ data, isAuthenticated }: AnalysisResultProps) {
     {/* 비로그인 가입 유도 모달 */}
     {showAuthModal && (
       <AuthRequiredModal
-        onClose={() => setShowAuthModal(false)}
+        onClose={() => {
+          sessionStorage.removeItem("spotly_pending_report");
+          setShowAuthModal(false);
+        }}
         returnTo={typeof window !== "undefined" ? window.location.pathname + window.location.search : "/analyze"}
       />
     )}
@@ -494,7 +516,14 @@ export function AnalysisResult({ data, isAuthenticated }: AnalysisResultProps) {
         <div className="shrink-0 px-4 pb-3 pt-3 border-t bg-background space-y-2.5">
           <button
             type="button"
-            onClick={() => isAuthenticated ? handleGenerateReport() : setShowAuthModal(true)}
+            onClick={() => {
+              if (isAuthenticated) {
+                handleGenerateReport();
+              } else {
+                sessionStorage.setItem("spotly_pending_report", String(Date.now()));
+                setShowAuthModal(true);
+              }
+            }}
             className="flex items-center justify-center gap-1.5 w-full h-12 rounded-xl bg-violet-600 text-white font-bold text-sm transition-transform hover:bg-violet-700 active:scale-95"
           >
             AI 전문가 분석 시작
