@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
       if (closeRate) infoItems.push(`폐업률 ${closeRate}%`);
       const infoLine = infoItems.join("  ·  ");
 
-      // 1:1 정사각형 (카카오톡 공유용)
+      // 세로형 (카카오톡 공유용, 1:1.2 비율)
       if (isSquare) {
         return new ImageResponse(
           (
@@ -144,14 +144,16 @@ export async function GET(request: NextRequest) {
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
                 backgroundColor: "#0f172a",
                 fontFamily,
-                gap: "20px",
-                padding: "40px",
+                gap: "24px",
+                padding: "50px",
               }}
             >
-              {/* 상단: 주소 + 업종 */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
+              {/* 주소 + 업종 */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
                 <div style={{ display: "flex", fontSize: "36px", fontWeight: 900, color: "white" }}>
                   {shortAddress}
                 </div>
@@ -160,56 +162,56 @@ export async function GET(request: NextRequest) {
                 </div>
               </div>
 
-              {/* 하단: 게이지 + 종합평가 */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "20px", alignItems: "center", flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <ScoreGauge score={score} grade={grade} color={colors.text} size={200} />
+              {/* 게이지 */}
+              <ScoreGauge score={score} grade={grade} color={colors.text} size={220} />
+
+              {/* 종합평가 라벨 */}
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ fontSize: "24px", fontWeight: 900, color: "#94a3b8" }}>종합평가</span>
+                <div
+                  style={{
+                    display: "flex",
+                    padding: "5px 14px",
+                    borderRadius: "10px",
+                    backgroundColor: colors.bg,
+                    color: colors.text,
+                    fontSize: "22px",
+                    fontWeight: 900,
+                  }}
+                >
+                  {grade}등급
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1, gap: "20px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <span style={{ fontSize: "22px", fontWeight: 900, color: "#94a3b8" }}>종합평가</span>
-                    <div
-                      style={{
-                        display: "flex",
-                        padding: "4px 12px",
-                        borderRadius: "8px",
-                        backgroundColor: colors.bg,
-                        color: colors.text,
-                        fontSize: "20px",
-                        fontWeight: 900,
-                      }}
-                    >
-                      {grade}등급
-                    </div>
-                    {verdict && (
-                      <div
-                        style={{
-                          display: "flex",
-                          padding: "4px 12px",
-                          borderRadius: "8px",
-                          backgroundColor: "#1e293b",
-                          color: "#cbd5e1",
-                          fontSize: "20px",
-                          fontWeight: 900,
-                        }}
-                      >
-                        {verdict}
-                      </div>
-                    )}
+                {verdict && (
+                  <div
+                    style={{
+                      display: "flex",
+                      padding: "5px 14px",
+                      borderRadius: "10px",
+                      backgroundColor: "#1e293b",
+                      color: "#cbd5e1",
+                      fontSize: "22px",
+                      fontWeight: 900,
+                    }}
+                  >
+                    {verdict}
                   </div>
-                  {scope && (
-                    <div style={{ display: "flex", fontSize: "22px", textAlign: 'center', fontWeight: 900, color: "#e2e8f0", lineHeight: 1.5 }}>
-                      {scope}
-                    </div>
-                  )}
-                  <div style={{ display: "flex", fontSize: "18px", textAlign: 'center', fontWeight: 900, color: "#94a3b8", lineHeight: 1.4 }}>
-                    {summary || `${shortAddress} ${industry} 창업 입지 분석 리포트`}
+                )}
+              </div>
+
+              {/* scope + summary */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
+                {scope && (
+                  <div style={{ display: "flex", fontSize: "22px", textAlign: "center", fontWeight: 900, color: "#e2e8f0", lineHeight: 1.5 }}>
+                    {scope}
                   </div>
+                )}
+                <div style={{ display: "flex", fontSize: "18px", textAlign: "center", fontWeight: 900, color: "#94a3b8", lineHeight: 1.4 }}>
+                  {summary || `${shortAddress} ${industry} 창업 입지 분석 리포트`}
                 </div>
               </div>
             </div>
           ),
-          { width: 600, height: 600, fonts },
+          { width: 600, height: 720, fonts },
         );
       }
 
