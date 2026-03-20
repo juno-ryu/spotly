@@ -153,8 +153,8 @@ export function AuthRequiredModal({ onClose, returnTo }: AuthRequiredModalProps)
             </div>
           </div>
 
-          {/* 카카오 애드핏 */}
-          {process.env.NEXT_PUBLIC_KAKAO_ADFIT_UNIT_ID && (
+          {/* 카카오 애드핏 — 비활성화 */}
+          {/* {process.env.NEXT_PUBLIC_KAKAO_ADFIT_UNIT_ID && (
             <div className="pb-4 flex justify-center">
               <KakaoAdfit
                 unitId={process.env.NEXT_PUBLIC_KAKAO_ADFIT_UNIT_ID}
@@ -162,16 +162,14 @@ export function AuthRequiredModal({ onClose, returnTo }: AuthRequiredModalProps)
                 height={100}
               />
             </div>
-          )}
+          )} */}
 
-          {/* 가격 앵커링 */}
+          {/* 참고용 고지 */}
           <div className="pb-5">
             <div className="rounded-xl bg-muted/50 dark:bg-muted/30 p-4 text-center">
-              <p className="text-[11px] text-muted-foreground break-keep">
-                다른 곳에서 상권 분석 해보기 전에
-              </p>
-              <p className="text-[12px] text-muted-foreground mt-1">
-                민간 상권 컨설팅 비용 평균 <span className="font-bold text-foreground">35만원</span>
+              <p className="text-[11px] text-muted-foreground break-keep leading-relaxed">
+                ⚠️ AI 리포트는 공공·민간 데이터 기반의 <span className="font-semibold text-foreground">참고 자료</span>이며,
+                최종 창업 결정 전 현장 답사와 전문가 상담을 권장합니다.
               </p>
             </div>
           </div>
