@@ -59,19 +59,18 @@ export async function generateMetadata({
     ? `${hookLine}. AI가 민간·공공데이터를 종합 분석한 ${report.address} ${report.industryName} 창업 입지 리포트.`
     : `${report.address}의 ${report.industryName} 창업 입지 분석 — 종합 ${report.totalScore}점. AI가 민간·공공데이터를 종합 분석한 리포트.`;
 
-  const ogParams = new URLSearchParams({
-    address: report.address,
-    industry: report.industryName,
-    score: String(report.totalScore),
-    ...(verdict && { verdict }),
-    ...(aiReport?.competitorCount && { competitors: String(aiReport.competitorCount.direct) }),
-    ...(aiReport?.competitorCount?.franchise != null && { franchise: String(aiReport.competitorCount.franchise) }),
-    ...(aiReport?.revenueEstimate?.monthlyPerStoreMaan && { revenue: String(Math.round(aiReport.revenueEstimate.monthlyPerStoreMaan)) }),
-    ...(aiReport?.survivalAnalysis?.closeRate != null && { closeRate: String(aiReport.survivalAnalysis.closeRate) }),
-    ...(aiReport?.riskWarnings?.[0] && { risk: aiReport.riskWarnings[0].title }),
-    ...(aiReport?.analysisScope && { scope: aiReport.analysisScope.slice(0, 80) }),
-    ...(aiReport?.summary && { summary: aiReport.summary.slice(0, 100) }),
-  });
+  const ogParams = new URLSearchParams();
+  ogParams.set("address", report.address);
+  ogParams.set("industry", report.industryName);
+  ogParams.set("score", String(report.totalScore));
+  if (verdict) ogParams.set("verdict", verdict);
+  if (aiReport?.competitorCount) ogParams.set("competitors", String(aiReport.competitorCount.direct));
+  if (aiReport?.competitorCount?.franchise != null) ogParams.set("franchise", String(aiReport.competitorCount.franchise));
+  if (aiReport?.revenueEstimate?.monthlyPerStoreMaan) ogParams.set("revenue", String(Math.round(aiReport.revenueEstimate.monthlyPerStoreMaan)));
+  if (aiReport?.survivalAnalysis?.closeRate != null) ogParams.set("closeRate", String(aiReport.survivalAnalysis.closeRate));
+  if (aiReport?.riskWarnings?.[0]) ogParams.set("risk", aiReport.riskWarnings[0].title);
+  if (aiReport?.analysisScope) ogParams.set("scope", aiReport.analysisScope.slice(0, 80));
+  if (aiReport?.summary) ogParams.set("summary", aiReport.summary.slice(0, 100));
   const ogImageUrl = `${SITE_CONFIG.url}/api/og?${ogParams}`;
 
   return {
