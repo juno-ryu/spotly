@@ -67,6 +67,29 @@ export function GeneratingProgress() {
     return () => clearTimeout(timer);
   }, [activeIndex]);
 
+  // 리포트 생성 중 모든 네비게이션 차단
+  useEffect(() => {
+    // 브라우저 새로고침/탭 닫기 차단
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+
+    // 브라우저 뒤로가기/앞으로가기 차단
+    // 더미 히스토리 엔트리를 push하고 popstate에서 다시 push해서 이탈 방지
+    history.pushState(null, "", location.href);
+    const onPopState = () => {
+      history.pushState(null, "", location.href);
+    };
+
+    window.addEventListener("beforeunload", onBeforeUnload);
+    window.addEventListener("popstate", onPopState);
+
+    return () => {
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      window.removeEventListener("popstate", onPopState);
+    };
+  }, []);
+
   // 마지막 단계(AI 리포트 작성)에서는 프로그레스 고정
   const lastIdx = GENERATION_STEPS.length - 1;
   const progress = Math.min(95, Math.round((Math.min(activeIndex, lastIdx) / lastIdx) * 95));
