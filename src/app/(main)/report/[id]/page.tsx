@@ -1,6 +1,7 @@
 import { prisma } from "@/server/db/prisma";
 import { notFound } from "next/navigation";
 import { BackButton } from "@/components/back-button";
+import { ShareButton } from "@/components/share-button";
 import { ReportViewer } from "@/features/report/components/report-viewer";
 import { scoreToGrade } from "@/features/analysis/lib/scoring/types";
 import { GRADIENT_TEXT_STYLE, SITE_CONFIG } from "@/constants/site";
@@ -125,7 +126,14 @@ export default async function ReportPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <BackButton />
-      <div className="pl-18">
+      {/* 공유 버튼 — 프로필 아이콘 아래 */}
+      <ShareButton
+        title={`${report.address} ${report.industryName} 창업 점수 ${totalScore}점!`}
+        text={`AI가 8개 공공데이터를 분석한 상권 리포트를 확인해보세요.`}
+        url={`${SITE_CONFIG.url}/report/${id}`}
+        imageUrl={`${SITE_CONFIG.url}/api/og?${new URLSearchParams({ address: report.address, industry: report.industryName, score: String(totalScore), ...(reportJson.verdict && { verdict: reportJson.verdict }) })}`}
+      />
+      <div className="px-18">
         <h1 className="text-2xl font-bold" style={GRADIENT_TEXT_STYLE}>{report.address}</h1>
         <p className="text-muted-foreground">{report.industryName} · AI 리포트</p>
       </div>
