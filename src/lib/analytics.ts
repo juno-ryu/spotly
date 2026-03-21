@@ -17,6 +17,8 @@ export const AnalyticsEvent = {
   ANALYSIS_REQUEST: "analysis_request",
   /** 리포트 조회 — 결과 페이지 진입 시 */
   REPORT_VIEW: "report_view",
+  /** 리포트 공유 — 공유하기 버튼 클릭 시 */
+  REPORT_SHARE: "report_share",
 } as const;
 
 export type AnalyticsEvent = (typeof AnalyticsEvent)[keyof typeof AnalyticsEvent];

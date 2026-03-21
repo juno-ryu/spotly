@@ -10,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { trackEvent, AnalyticsEvent } from "@/lib/analytics";
 
 interface ShareButtonProps {
   title: string;
@@ -78,6 +79,13 @@ export function ShareButton({ title, text, url, imageUrl }: ShareButtonProps) {
   const handleShare = async () => {
     // 클릭 시 툴팁 영구 닫기
     setClicked(true);
+
+    // GA4 공유 이벤트 추적
+    trackEvent(AnalyticsEvent.REPORT_SHARE, {
+      method: isMobile ? (kakaoReady ? "kakao" : "native_share") : "clipboard",
+      content_type: "report",
+      item_id: url.split("/report/")[1]?.split("?")[0],
+    });
 
     // 모바일: 카카오톡 우선
     if (isMobile && kakaoReady) {
