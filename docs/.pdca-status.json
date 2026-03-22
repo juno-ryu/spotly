@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-03-18T11:57:34.224Z",
+  "lastUpdated": "2026-03-21T03:23:05.117Z",
   "activeFeatures": [
     "analysis",
     "purchase",
@@ -16,7 +16,12 @@
     "auth",
     "constants",
     "industry",
-    "region"
+    "region",
+    "(main)",
+    "callback",
+    "popup",
+    "login",
+    "generate"
   ],
   "primaryFeature": "analysis",
   "features": {
@@ -29,9 +34,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-15T09:29:15.647Z",
-        "lastUpdated": "2026-03-18T11:40:27.587Z"
+        "lastUpdated": "2026-03-20T12:48:45.609Z"
       },
-      "lastFile": "/Users/juno/work/my/src/features/analysis/components/industry-bottom-sheet.tsx"
+      "lastFile": "/Users/juno/work/my/src/app/api/analysis/route.ts"
     },
     "purchase": {
       "phase": "do",
@@ -55,9 +60,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-15T11:37:43.250Z",
-        "lastUpdated": "2026-03-18T10:27:09.079Z"
+        "lastUpdated": "2026-03-19T12:00:46.018Z"
       },
-      "lastFile": "/Users/juno/work/my/src/features/onboarding/components/welcome-screen.tsx"
+      "lastFile": "/Users/juno/work/my/src/features/onboarding/components/welcome-page-client.tsx"
     },
     "report": {
       "phase": "do",
@@ -68,7 +73,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-15T14:51:34.875Z",
-        "lastUpdated": "2026-03-18T10:57:59.192Z"
+        "lastUpdated": "2026-03-18T12:39:52.681Z"
       },
       "lastFile": "/Users/juno/work/my/src/features/report/actions.ts"
     },
@@ -81,9 +86,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-15T15:16:49.337Z",
-        "lastUpdated": "2026-03-18T08:36:05.954Z"
+        "lastUpdated": "2026-03-20T12:48:59.455Z"
       },
-      "lastFile": "/Users/juno/work/my/src/app/(main)/report/[id]/page.tsx"
+      "lastFile": "/Users/juno/work/my/src/app/api/report/[id]/route.ts"
     },
     "pwa": {
       "phase": "do",
@@ -107,9 +112,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-18T02:09:56.549Z",
-        "lastUpdated": "2026-03-18T11:48:04.544Z"
+        "lastUpdated": "2026-03-21T03:23:05.117Z"
       },
-      "lastFile": "/Users/juno/work/my/next.config.ts"
+      "lastFile": "/Users/juno/work/my/src/components/share-button.tsx"
     },
     "analyze": {
       "phase": "do",
@@ -120,7 +125,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-18T08:05:01.697Z",
-        "lastUpdated": "2026-03-18T08:45:17.745Z"
+        "lastUpdated": "2026-03-19T13:06:39.937Z"
       },
       "lastFile": "/Users/juno/work/my/src/app/(main)/analyze/page.tsx"
     },
@@ -146,9 +151,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-18T08:13:56.362Z",
-        "lastUpdated": "2026-03-18T11:57:34.224Z"
+        "lastUpdated": "2026-03-20T12:49:05.994Z"
       },
-      "lastFile": "/Users/juno/work/my/src/app/(main)/history/page.tsx"
+      "lastFile": "/Users/juno/work/my/src/app/api/history/route.ts"
     },
     "pdf": {
       "phase": "do",
@@ -172,9 +177,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-18T10:37:53.583Z",
-        "lastUpdated": "2026-03-18T11:34:23.900Z"
+        "lastUpdated": "2026-03-19T13:36:36.860Z"
       },
-      "lastFile": "/Users/juno/work/my/src/features/auth/components/user-menu.tsx"
+      "lastFile": "/Users/juno/work/my/src/features/auth/components/auth-required-modal.tsx"
     },
     "constants": {
       "phase": "do",
@@ -214,6 +219,71 @@
         "lastUpdated": "2026-03-18T11:50:34.282Z"
       },
       "lastFile": "/Users/juno/work/my/src/app/(main)/region/layout.tsx"
+    },
+    "(main)": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-19T12:01:02.826Z",
+        "lastUpdated": "2026-03-19T12:01:02.826Z"
+      },
+      "lastFile": "/Users/juno/work/my/src/app/(main)/page.tsx"
+    },
+    "callback": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-19T12:01:31.923Z",
+        "lastUpdated": "2026-03-19T13:35:33.956Z"
+      },
+      "lastFile": "/Users/juno/work/my/src/app/auth/callback/route.ts"
+    },
+    "popup": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-19T13:04:15.305Z",
+        "lastUpdated": "2026-03-19T13:04:15.305Z"
+      },
+      "lastFile": "/Users/juno/work/my/src/app/auth/callback/popup/route.ts"
+    },
+    "login": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-19T13:34:35.565Z",
+        "lastUpdated": "2026-03-19T13:34:35.565Z"
+      },
+      "lastFile": "/Users/juno/work/my/src/app/auth/login/route.ts"
+    },
+    "generate": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-20T12:48:51.742Z",
+        "lastUpdated": "2026-03-20T12:54:05.230Z"
+      },
+      "lastFile": "/Users/juno/work/my/src/app/api/report/generate/route.ts"
     }
   },
   "pipeline": {
@@ -224,7 +294,7 @@
   "session": {
     "startedAt": "2026-03-15T09:29:15.647Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-03-18T11:57:34.224Z"
+    "lastActivity": "2026-03-21T03:23:05.117Z"
   },
   "history": [
     {
@@ -1964,6 +2034,282 @@
     {
       "timestamp": "2026-03-18T11:57:34.224Z",
       "feature": "history",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-18T12:06:48.609Z",
+      "feature": "analysis",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-18T12:07:12.677Z",
+      "feature": "report",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-18T12:14:50.792Z",
+      "feature": "report",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-18T12:35:37.100Z",
+      "feature": "report",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-18T12:36:38.393Z",
+      "feature": "report",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-18T12:37:27.568Z",
+      "feature": "report",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-18T12:38:20.269Z",
+      "feature": "report",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-18T12:39:52.681Z",
+      "feature": "report",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T12:00:46.018Z",
+      "feature": "onboarding",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T12:01:02.826Z",
+      "feature": "(main)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T12:01:21.283Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T12:01:31.923Z",
+      "feature": "callback",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T12:02:48.488Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T12:04:31.328Z",
+      "feature": "analyze",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T12:15:29.828Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T12:17:09.679Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T12:20:17.067Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T12:21:21.171Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T12:23:47.765Z",
+      "feature": "analyze",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T12:30:36.498Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T12:46:53.128Z",
+      "feature": "analyze",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T12:55:35.174Z",
+      "feature": "callback",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T12:55:57.973Z",
+      "feature": "analyze",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T13:04:15.305Z",
+      "feature": "popup",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T13:05:09.948Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T13:06:39.937Z",
+      "feature": "analyze",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T13:32:41.855Z",
+      "feature": "callback",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T13:33:21.333Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T13:34:35.565Z",
+      "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T13:34:51.114Z",
+      "feature": "callback",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T13:35:33.956Z",
+      "feature": "callback",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T13:36:36.860Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-20T12:39:05.000Z",
+      "feature": "my",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-20T12:48:45.609Z",
+      "feature": "analysis",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-20T12:48:51.742Z",
+      "feature": "generate",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-20T12:48:59.455Z",
+      "feature": "[id]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-20T12:49:05.994Z",
+      "feature": "history",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-20T12:49:37.434Z",
+      "feature": "my",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-20T12:49:49.993Z",
+      "feature": "my",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-20T12:54:05.230Z",
+      "feature": "generate",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-20T12:54:12.006Z",
+      "feature": "my",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-21T03:17:28.779Z",
+      "feature": "my",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-21T03:17:32.267Z",
+      "feature": "my",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-21T03:22:49.811Z",
+      "feature": "my",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-21T03:22:58.647Z",
+      "feature": "my",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-21T03:23:05.117Z",
+      "feature": "my",
       "phase": "do",
       "action": "updated"
     }

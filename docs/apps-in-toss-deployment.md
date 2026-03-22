@@ -1119,6 +1119,14 @@ Phase 0은 앱인토스와 무관하게 **지금 바로** 할 수 있는 것들.
 | OG 이미지 전면 개편 | ✅ | 원형 게이지 + 종합평가 + scope + summary |
 | OG 정사각형 (600×600) | ✅ | 카카오톡 공유용 센터 정렬 레이아웃 |
 | 앱인토스 배포 계획서 | ✅ | 전략, 가격, 가치제안, 로드맵 전체 문서화 |
+| API Routes 추가 (Phase 1 핵심) | ✅ | `feat/api-routes` 브랜치, 커밋 5b8065c |
+| POST /api/analysis | ✅ | executeAnalysis() 래핑, zod 검증 |
+| POST /api/report/generate | ✅ | generateReport() 래핑, zod 검증 |
+| GET /api/report/[id] | ✅ | Prisma 리포트 조회 (공개 — SEO/공유용) |
+| GET /api/history | ✅ | Supabase 인증 필수, 분석 이력 조회 |
+| CORS middleware | ✅ | origin 화이트리스트 + OPTIONS preflight |
+| 코드 리뷰 + 수정 반영 | ✅ | as 캐스팅→zod, 빈 문자열 CORS 헤더 제거 |
+| E2E 테스트 (Playwright) | ✅ | 홈→업종→지역→지도→분석→리포트 전체 에러 0건 |
 
 ### 미완료 (다음 작업)
 
@@ -1132,6 +1140,7 @@ Phase 0은 앱인토스와 무관하게 **지금 바로** 할 수 있는 것들.
 | 토스 로그인 API Route | ⏳ | mTLS 인증서 필요 |
 | SPA 프론트엔드 (`spa/`) | ⏳ | Phase 2 |
 | 구글 서치 콘솔 sitemap 상태 확인 | ⏳ | "가져올 수 없음" → 1~3일 후 재확인 |
+| `feat/api-routes` 브랜치 main 머지 | ⏳ | PR 생성 후 머지 |
 
 ---
 
