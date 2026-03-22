@@ -148,6 +148,17 @@ export function GeneratingProgress() {
           ))}
         </div>
 
+        {/* 카카오 애드핏 — 광고 크기(320px)와 컨테이너 동일 */}
+        {process.env.NEXT_PUBLIC_KAKAO_ADFIT_UNIT_ID && (
+          <div className="pt-4">
+            <KakaoAdfit
+              unitId={process.env.NEXT_PUBLIC_KAKAO_ADFIT_UNIT_ID}
+              width={320}
+              height={100}
+            />
+          </div>
+        )}
+
       </div>
     </div>
   );
@@ -275,16 +286,7 @@ export function PurchaseOverlay({ isGenerating, onGenerate, onClose }: PurchaseO
           </div>
         </div>
 
-        {/* 카카오 애드핏 */}
-        {process.env.NEXT_PUBLIC_KAKAO_ADFIT_UNIT_ID && (
-          <div className="pb-4 flex justify-center">
-            <KakaoAdfit
-              unitId={process.env.NEXT_PUBLIC_KAKAO_ADFIT_UNIT_ID}
-              width={320}
-              height={100}
-            />
-          </div>
-        )}
+
 
         {/* 가격 앵커링 */}
         <div className="pb-6">
