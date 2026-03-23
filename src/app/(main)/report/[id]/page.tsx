@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ShareButton } from "@/components/share-button";
 import { HomeButton } from "@/components/home-button";
 import { LoginIconButton } from "@/components/login-icon-button";
+import { ChatIconButton } from "@/components/chat-icon-button";
 import { ReportViewer } from "@/features/report/components/report-viewer";
 import { scoreToGrade } from "@/features/analysis/lib/scoring/types";
 import { GRADIENT_TEXT_STYLE, SITE_CONFIG } from "@/constants/site";
@@ -147,6 +148,7 @@ export default async function ReportPage({
           url={`${SITE_CONFIG.url}/report/${id}`}
           imageUrl={`${SITE_CONFIG.url}/api/og?${new URLSearchParams({ address: report.address, industry: report.industryName, score: String(totalScore), ...(reportJson.verdict && { verdict: reportJson.verdict }), square: "1" })}`}
         />
+        <ChatIconButton />
       </div>
       <div className="pl-6">
         <h1 className="text-2xl font-bold" style={GRADIENT_TEXT_STYLE}>{report.address}</h1>
