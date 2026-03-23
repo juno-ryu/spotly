@@ -15,7 +15,7 @@ export function LoginIconButton({ returnTo }: { returnTo?: string }) {
   return (
     <>
       <TooltipProvider delayDuration={0}>
-        <Tooltip defaultOpen open={clicked ? false : undefined}>
+        <Tooltip>
           <TooltipTrigger asChild>
             <button
               type="button"

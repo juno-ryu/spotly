@@ -117,7 +117,7 @@ export function ShareButton({ title, text, url, imageUrl }: ShareButtonProps) {
         />
       )}
       <TooltipProvider delayDuration={0}>
-        <Tooltip defaultOpen open={clicked ? false : undefined}>
+        <Tooltip>
           <TooltipTrigger asChild>
             <button
               type="button"

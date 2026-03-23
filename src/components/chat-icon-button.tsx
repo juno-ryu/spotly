@@ -9,7 +9,7 @@ const OPEN_CHAT_URL = "https://open.kakao.com/o/pWKM4Mmi";
 export function ChatIconButton() {
   return (
     <TooltipProvider delayDuration={0}>
-      <Tooltip>
+      <Tooltip defaultOpen>
         <TooltipTrigger asChild>
           <a
             href={OPEN_CHAT_URL}
@@ -22,7 +22,7 @@ export function ChatIconButton() {
           </a>
         </TooltipTrigger>
         <TooltipContent side="left">
-          서비스 문의
+          오픈채팅방 참여!
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
