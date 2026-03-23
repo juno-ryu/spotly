@@ -183,9 +183,9 @@ export function ReportViewer({
           <AccordionContent className="pb-6 space-y-4">
             {report.competitorCount && (
             <div className="space-y-2 text-sm">
-              <p>● 직접 경쟁 <strong>{report.competitorCount.direct}개</strong> · 간접 {report.competitorCount.indirect}개</p>
+              <p>● 직접 경쟁 <strong>약 {report.competitorCount.direct}개</strong> · 간접 약 {report.competitorCount.indirect}개 <span className="text-muted-foreground">(추정)</span></p>
               {report.competitorCount.franchise > 0 && (
-                <p className="text-muted-foreground pl-4">🏢 프랜차이즈 {report.competitorCount.franchise}개</p>
+                <p className="text-muted-foreground pl-4">🏢 프랜차이즈 약 {report.competitorCount.franchise}개 <span className="text-muted-foreground">(추정)</span></p>
               )}
             </div>
             )}
