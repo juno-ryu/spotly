@@ -58,20 +58,30 @@ export interface CompetitionScore {
 
 /** 경쟁 분석 결과 */
 export interface CompetitionAnalysis {
+  /** 카카오 API 반경 내 전체 업체 수 (meta.total_count) */
+  totalCount: number;
+  /** 실제 fetch된 샘플 수 (최대 45개) */
+  fetchedCount: number;
   /** 밀집도: 약 N미터당 1개 매장 */
   densityPerMeter: number;
   /** 업종별 밀집도 기준값 (미터) */
   densityBaseline: number;
-  /** 직접 경쟁 매장 수 (카테고리에 업종 키워드 포함) */
+  /** 직접 경쟁 매장 수 (샘플 기준) */
   directCompetitorCount: number;
-  /** 간접 경쟁 매장 수 */
+  /** 간접 경쟁 매장 수 (샘플 기준) */
   indirectCompetitorCount: number;
   /** 직접 경쟁 비율 (0~1) */
   directCompetitorRatio: number;
-  /** 프랜차이즈 매장 수 */
+  /** 직접 경쟁 추정 수 (totalCount × 비율) */
+  estimatedDirectCount: number;
+  /** 간접 경쟁 추정 수 (totalCount × 비율) */
+  estimatedIndirectCount: number;
+  /** 프랜차이즈 매장 수 (샘플 기준) */
   franchiseCount: number;
   /** 프랜차이즈 비율 (0~1, U커브 점수에 반영) */
   franchiseRatio: number;
+  /** 프랜차이즈 추정 수 (totalCount × 비율) */
+  estimatedFranchiseCount: number;
   /** 감지된 프랜차이즈 브랜드명 목록 */
   franchiseBrandNames: string[];
   /** 경쟁 강도 점수 (0~100) */

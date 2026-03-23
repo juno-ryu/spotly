@@ -76,7 +76,9 @@ export function buildAnalysisPrompt(params: {
 
   // ── 데이터 블록 ──
   const competitionData = `경쟁 강도: ${c.competitionScore.grade}등급 (${c.competitionScore.score}점)
-밀집도: ${c.densityPerMeter}m당 1개 (기준 ${c.densityBaseline}m) | 직접경쟁 ${c.directCompetitorCount}개(${(c.directCompetitorRatio * 100).toFixed(0)}%) | 간접 ${c.indirectCompetitorCount}개 | 프랜차이즈 ${c.franchiseCount}개(${(c.franchiseRatio * 100).toFixed(0)}%)${c.franchiseBrandNames.length > 0 ? ` | 브랜드: ${c.franchiseBrandNames.join(", ")}` : ""}`;
+반경 내 전체 경쟁업체: ${c.totalCount}개 (카카오 Places 기준)
+밀집도: ${c.densityPerMeter}m당 1개 (기준 ${c.densityBaseline}m) | 직접경쟁 약 ${c.estimatedDirectCount}개(${(c.directCompetitorRatio * 100).toFixed(0)}%) | 간접 약 ${c.estimatedIndirectCount}개(${((1 - c.directCompetitorRatio) * 100).toFixed(0)}%) | 프랜차이즈 약 ${c.estimatedFranchiseCount}개(${(c.franchiseRatio * 100).toFixed(0)}%)${c.franchiseBrandNames.length > 0 ? ` | 브랜드: ${c.franchiseBrandNames.join(", ")}` : ""}
+※ 직접/간접/프랜차이즈 수는 샘플 ${c.fetchedCount}개의 비율을 전체 ${c.totalCount}개에 적용한 추정치`;
 
   let vitalityData = "";
   if (v) {

@@ -275,14 +275,24 @@ export function analyzeCompetition(params: {
     competitionScore = { score: adjustedScore, grade, gradeLabel };
   }
 
+  // totalCount 기반 추정치 (샘플 비율 적용)
+  const estimatedDirectCount = Math.round(totalCount * directCompetitorRatio);
+  const estimatedIndirectCount = totalCount - estimatedDirectCount;
+  const estimatedFranchiseCount = Math.round(totalCount * franchiseRatio);
+
   return {
+    totalCount,
+    fetchedCount: places.length,
     densityPerMeter,
     densityBaseline,
     directCompetitorCount,
     indirectCompetitorCount,
     directCompetitorRatio,
+    estimatedDirectCount,
+    estimatedIndirectCount,
     franchiseCount,
     franchiseRatio,
+    estimatedFranchiseCount,
     franchiseBrandNames: [...detectedBrandNames],
     competitionScore,
   };
