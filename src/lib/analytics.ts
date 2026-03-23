@@ -30,3 +30,37 @@ export function trackEvent(
 ) {
   getGtag()?.("event", eventName, params);
 }
+
+// ────────────────────────────────────────────────────────────
+// UTM 파라미터 유틸
+// ────────────────────────────────────────────────────────────
+
+/** UTM 매체 유형 */
+export type UtmMedium =
+  | "kakao"
+  | "clipboard"
+  | "native_share"
+  | "comment"
+  | "description"
+  | "post"
+  | "bio"
+  | "story"
+  | "message";
+
+/** UTM 파라미터 옵션 */
+interface UtmParams {
+  source?: string;
+  medium: UtmMedium;
+  campaign?: string;
+  content?: string;
+}
+
+/** URL에 UTM 파라미터를 추가한다 */
+export function appendUtm(baseUrl: string, params: UtmParams): string {
+  const url = new URL(baseUrl);
+  url.searchParams.set("utm_source", params.source ?? "spotly");
+  url.searchParams.set("utm_medium", params.medium);
+  url.searchParams.set("utm_campaign", params.campaign ?? "report_share");
+  if (params.content) url.searchParams.set("utm_content", params.content);
+  return url.toString();
+}

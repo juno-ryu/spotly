@@ -10,7 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { trackEvent, AnalyticsEvent } from "@/lib/analytics";
+import { trackEvent, AnalyticsEvent, appendUtm } from "@/lib/analytics";
 
 interface ShareButtonProps {
   title: string;
@@ -43,27 +43,30 @@ export function ShareButton({ title, text, url, imageUrl }: ShareButtonProps) {
 
   const shareToKakao = () => {
     if (!kakaoReady || !window.Kakao?.Share) return;
+    const kakaoUrl = appendUtm(url, { medium: "kakao" });
+    const homeUrl = url.split("/report/")[0];
     window.Kakao.Share.sendDefault({
       objectType: "feed",
       content: {
         title,
         description: text,
-        imageUrl: imageUrl ?? `${url.split("/report/")[0]}/icons/spotly-logo3.png`,
-        link: { mobileWebUrl: url, webUrl: url },
+        imageUrl: imageUrl ?? `${homeUrl}/icons/spotly-logo3.png`,
+        link: { mobileWebUrl: kakaoUrl, webUrl: kakaoUrl },
       },
       buttons: [
-        { title: "리포트 보기", link: { mobileWebUrl: url, webUrl: url } },
-        { title: "나도 분석하기", link: { mobileWebUrl: url.split("/report/")[0], webUrl: url.split("/report/")[0] } },
+        { title: "리포트 보기", link: { mobileWebUrl: kakaoUrl, webUrl: kakaoUrl } },
+        { title: "나도 분석하기", link: { mobileWebUrl: homeUrl, webUrl: homeUrl } },
       ],
     });
   };
 
   const copyLink = async () => {
+    const clipboardUrl = appendUtm(url, { medium: "clipboard" });
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(clipboardUrl);
     } catch {
       const textarea = document.createElement("textarea");
-      textarea.value = url;
+      textarea.value = clipboardUrl;
       textarea.style.position = "fixed";
       textarea.style.opacity = "0";
       document.body.appendChild(textarea);
@@ -96,7 +99,8 @@ export function ShareButton({ title, text, url, imageUrl }: ShareButtonProps) {
     // 모바일 폴백: 네이티브 공유시트
     if (isMobile && navigator.share) {
       try {
-        await navigator.share({ title, text, url });
+        const nativeUrl = appendUtm(url, { medium: "native_share" });
+        await navigator.share({ title, text, url: nativeUrl });
         return;
       } catch {
         return;

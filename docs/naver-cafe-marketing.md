@@ -142,7 +142,17 @@
 https://spotly-beta.vercel.app/report/cmmz0w66j0000ld049kfq0v02?utm_source=naver_cafe&utm_medium=comment&utm_campaign=sangkwon&utm_content=3588419
 ```
 
-### 채널별 UTM 태그 (복붙용)
+### 채널별 UTM 태그 전체 현황
+
+#### 앱 내 자동 (코드에서 자동 부착)
+
+| 채널 | utm_source | utm_medium | utm_campaign | 구현 위치 |
+|------|-----------|-----------|-------------|---------|
+| 카카오톡 공유 | `spotly` | `kakao` | `report_share` | `share-button.tsx` |
+| 클립보드 복사 | `spotly` | `clipboard` | `report_share` | `share-button.tsx` |
+| 네이티브 공유시트 | `spotly` | `native_share` | `report_share` | `share-button.tsx` |
+
+#### 수동 (댓글/게시글에 직접 붙임)
 
 | 채널 | utm_source | utm_medium | utm_campaign | 전체 예시 |
 |------|-----------|-----------|-------------|---------|
@@ -150,7 +160,6 @@ https://spotly-beta.vercel.app/report/cmmz0w66j0000ld049kfq0v02?utm_source=naver
 | 디시인사이드 댓글 | `dcinside` | `comment` | `changup` 등 갤러리명 | `?utm_source=dcinside&utm_medium=comment&utm_campaign=changup&utm_content={글번호}` |
 | 유튜브 영상 설명란 | `youtube` | `description` | `{영상/채널명}` | `?utm_source=youtube&utm_medium=description&utm_campaign=sangkwon_review` |
 | 유튜브 댓글 | `youtube` | `comment` | `{영상/채널명}` | `?utm_source=youtube&utm_medium=comment&utm_campaign=sangkwon_review` |
-| 카카오톡 공유 | `kakao` | `share` | `report` | `?utm_source=kakao&utm_medium=share&utm_campaign=report` |
 | 네이버 블로그 | `naver_blog` | `post` | `{글제목키워드}` | `?utm_source=naver_blog&utm_medium=post&utm_campaign=gangnam_cafe` |
 | 인스타그램 | `instagram` | `bio` or `story` | `{캠페인명}` | `?utm_source=instagram&utm_medium=bio&utm_campaign=launch` |
 | 직접 공유 (문자/DM) | `direct` | `message` | `{대상}` | `?utm_source=direct&utm_medium=message&utm_campaign=friend` |
