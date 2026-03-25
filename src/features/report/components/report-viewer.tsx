@@ -57,25 +57,15 @@ export function ReportViewer({
   useEffect(() => setMounted(true), []);
 
 
-  /** RadarChart 데이터 — scoreDetail에서 활성화된 지표만 추출 */
+  /** RadarChart 데이터 — 없는 지표는 0점으로 채워 최소 3축 보장 */
   const radarData = scoreDetail
     ? [
-        scoreDetail.competition
-          ? { subject: "경쟁", score: scoreDetail.competition.score }
-          : null,
-        scoreDetail.vitality
-          ? { subject: "활력", score: scoreDetail.vitality.score }
-          : null,
-        scoreDetail.population
-          ? { subject: "인구", score: scoreDetail.population.score }
-          : null,
-        scoreDetail.survival
-          ? { subject: "생존", score: scoreDetail.survival.score }
-          : null,
-        scoreDetail.infraAccess
-          ? { subject: "인프라", score: scoreDetail.infraAccess.score }
-          : null,
-      ].filter((d): d is { subject: string; score: number } => d !== null)
+        { subject: "경쟁", score: scoreDetail.competition?.score ?? 0 },
+        { subject: "인구", score: scoreDetail.population?.score ?? 0 },
+        { subject: "활력", score: scoreDetail.vitality?.score ?? 0 },
+        { subject: "생존", score: scoreDetail.survival?.score ?? 0 },
+        { subject: "인프라", score: scoreDetail.infraAccess?.score ?? 0 },
+      ].filter((d) => d.score > 0 || true)
     : [];
 
   const showRadar = radarData.length >= 3;
@@ -124,22 +114,7 @@ export function ReportViewer({
                 </RadarChart>
               </div>
             )}
-            {mounted && !showRadar && radarData.length >= 2 && (
-              <div className="flex items-center gap-3 shrink-0">
-                {radarData.map((d) => (
-                  <div key={d.subject} className="flex flex-col items-center gap-1">
-                    <span className="text-[10px] text-muted-foreground">{d.subject}</span>
-                    <div className="w-10 bg-muted rounded-full h-[100px] relative overflow-hidden">
-                      <div
-                        className="absolute bottom-0 w-full rounded-full transition-all"
-                        style={{ height: `${d.score}%`, backgroundColor: gradeColor, opacity: 0.7 }}
-                      />
-                    </div>
-                    <span className="text-[10px] font-medium">{d.score}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+
           </div>
 
           {/* 텍스트 — 모바일: 차트 아래, 데스크톱: 차트 옆 */}
