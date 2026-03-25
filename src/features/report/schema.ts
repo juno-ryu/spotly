@@ -64,7 +64,7 @@ export const aiReportSchema = z.object({
         direction: z.string(),
         rationale: z.string(),
       }),
-    ),
+    ).default([]),
   }).nullable().optional(),
 
   populationInsight: z.object({
