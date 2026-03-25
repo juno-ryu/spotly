@@ -78,7 +78,7 @@ export function ReportViewer({
       ].filter((d): d is { subject: string; score: number } => d !== null)
     : [];
 
-  const showRadar = radarData.length >= 2;
+  const showRadar = radarData.length >= 3;
 
   return (
     <div className="space-y-6 px-2 pt-4">
@@ -114,7 +114,7 @@ export function ReportViewer({
               </div>
             </div>
 
-            {/* 지표 레이더 차트 — 180px 고정 */}
+            {/* 지표 차트 — 3개 이상: 레이더, 2개: 바 차트 */}
             {mounted && showRadar && (
               <div className="flex items-center justify-center shrink-0 w-[180px] h-[180px]">
                 <RadarChart width={180} height={180} data={radarData} cx="50%" cy="50%" outerRadius={55}>
@@ -122,6 +122,22 @@ export function ReportViewer({
                   <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: "#6b7280" }} />
                   <Radar dataKey="score" fill={gradeColor} fillOpacity={0.25} stroke={gradeColor} strokeWidth={1.5} />
                 </RadarChart>
+              </div>
+            )}
+            {mounted && !showRadar && radarData.length >= 2 && (
+              <div className="flex items-center gap-3 shrink-0">
+                {radarData.map((d) => (
+                  <div key={d.subject} className="flex flex-col items-center gap-1">
+                    <span className="text-[10px] text-muted-foreground">{d.subject}</span>
+                    <div className="w-10 bg-muted rounded-full h-[100px] relative overflow-hidden">
+                      <div
+                        className="absolute bottom-0 w-full rounded-full transition-all"
+                        style={{ height: `${d.score}%`, backgroundColor: gradeColor, opacity: 0.7 }}
+                      />
+                    </div>
+                    <span className="text-[10px] font-medium">{d.score}</span>
+                  </div>
+                ))}
               </div>
             )}
           </div>
