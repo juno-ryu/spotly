@@ -60,6 +60,11 @@ grep -r "OLD_DOMAIN" --include="*.ts" --include="*.tsx" --include="*.md" --inclu
 - https://adsense.google.com → 사이트 → 사이트 추가 → 새 도메인
 - `ads.txt` 확인 방식으로 소유권 인증 (이미 배포되어 있음)
 
+### 카카오 애드핏
+- https://adfit.kakao.com → 광고 단위 → 새 도메인으로 광고 단위 생성
+- `.env`의 `NEXT_PUBLIC_KAKAO_ADFIT_UNIT_ID` 값을 새 광고 단위 ID로 변경
+- Vercel 환경변수도 동일하게 변경
+
 ### 네이버 서치어드바이저
 - https://searchadvisor.naver.com → 사이트 추가 → **https://** 로 등록 (http 아님!)
 - 소유권 확인: `layout.tsx`에 메타태그 방식 권장
@@ -92,5 +97,6 @@ grep -r "OLD_DOMAIN" --include="*.ts" --include="*.tsx" --include="*.md" --inclu
 - [ ] Google Search Console 새 속성 + 사이트맵
 - [ ] Google Analytics 스트림 URL 변경
 - [ ] Google AdSense 사이트 추가
+- [ ] 카카오 애드핏 새 광고 단위 생성 + `.env` ID 변경
 - [ ] 네이버 서치어드바이저 사이트 추가 + 사이트맵
 - [ ] 기존 도메인 접속 시 리다이렉트 확인
