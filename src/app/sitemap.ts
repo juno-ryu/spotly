@@ -1,4 +1,7 @@
 import type { MetadataRoute } from "next";
+
+// 빌드 시 생성 + 24시간마다 재생성 (Googlebot 타임아웃 방지)
+export const revalidate = 86400;
 import { SITE_CONFIG } from "@/constants/site";
 import { prisma } from "@/server/db/prisma";
 
