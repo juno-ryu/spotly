@@ -113,7 +113,7 @@
 ### 고정댓글 (UTM 필수)
 ```
 👉 무료 상권 분석
-👉 https://spotly-beta.vercel.app/?utm_source=youtube&utm_medium=comment&utm_campaign={지역}_{업종}_shorts
+👉 https://spotly.website/?utm_source=youtube&utm_medium=comment&utm_campaign={지역}_{업종}_shorts
 ```
 
 ---

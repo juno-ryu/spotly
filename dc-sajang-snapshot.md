@@ -1,0 +1,1707 @@
+- generic [active] [ref=e1]:
+  - generic:
+    - link "통합검색 바로가기" [ref=e2] [cursor=pointer]:
+      - /url: "#search_wrap"
+      - generic [ref=e3]: 통합검색 바로가기
+    - link "본문영역 바로가기" [ref=e4] [cursor=pointer]:
+      - /url: "#container"
+      - generic [ref=e5]: 본문영역 바로가기
+    - link "페이지 하단 게시물 리스트 바로가기" [ref=e6] [cursor=pointer]:
+      - /url: "#bottom_listwrap"
+      - generic [ref=e7]: 페이지 하단 게시물 리스트 바로가기
+    - link "페이지 하단 로그인영역 바로가기" [ref=e8] [cursor=pointer]:
+      - /url: "#login"
+      - generic [ref=e9]: 페이지 하단 로그인영역 바로가기
+  - generic [ref=e10]:
+    - banner [ref=e11]:
+      - generic [ref=e12]:
+        - heading "디시인사이드 갤러리" [level=1] [ref=e13]:
+          - link "디시인사이드" [ref=e14] [cursor=pointer]:
+            - /url: https://www.dcinside.com/
+            - img "디시인사이드" [ref=e15]
+          - link "갤러리" [ref=e16] [cursor=pointer]:
+            - /url: https://gall.dcinside.com/m
+            - img "갤러리" [ref=e17]
+        - search [ref=e19]:
+          - group "통합검색" [ref=e20]:
+            - generic [ref=e21]:
+              - textbox "검색어 입력" [ref=e23]:
+                - /placeholder: 갤러리 & 통합검색
+              - button [ref=e24] [cursor=pointer]
+        - generic [ref=e25]:
+          - list [ref=e26]:
+            - listitem [ref=e27]:
+              - link "갤러리" [ref=e28] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/
+            - listitem [ref=e29]:
+              - text: "|"
+              - link "미니갤" [ref=e30] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/n
+            - listitem [ref=e31]:
+              - text: "|"
+              - link "인물갤" [ref=e32] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/p
+            - listitem [ref=e33]:
+              - text: "|"
+              - link "갤로그" [ref=e34] [cursor=pointer]:
+                - /url: https://gallog.dcinside.com
+            - listitem [ref=e35]:
+              - text: "|"
+              - link "디시게임" [ref=e36] [cursor=pointer]:
+                - /url: //h5.dcinside.com/game/main
+            - listitem [ref=e37]:
+              - text: "|"
+              - link "이벤트" [ref=e38] [cursor=pointer]:
+                - /url: https://event.dcinside.com
+            - listitem [ref=e39]:
+              - text: "|"
+              - link "디시콘" [ref=e40] [cursor=pointer]:
+                - /url: https://mall.dcinside.com/?from=A08
+            - listitem [ref=e41]:
+              - link "로그인" [ref=e42] [cursor=pointer]:
+                - /url: https://sign.dcinside.com/login?s_url=https%3A%2F%2Fgall.dcinside.com%2Fmgallery%2Fboard%2Fview%2F%3Fid%3Dsajang%26no%3D26004&s_key=900
+          - link "야간모드" [ref=e44] [cursor=pointer]:
+            - /url: javascript:;
+            - emphasis [ref=e45]
+            - text: 야간모드
+    - navigation [ref=e47]:
+      - list [ref=e48]:
+        - listitem [ref=e49]:
+          - link "갤러리" [ref=e50] [cursor=pointer]:
+            - /url: https://gall.dcinside.com
+        - listitem [ref=e52]:
+          - link "마이너갤" [ref=e53] [cursor=pointer]:
+            - /url: //gall.dcinside.com/m
+        - listitem [ref=e54]:
+          - link "미니갤" [ref=e55] [cursor=pointer]:
+            - /url: //gall.dcinside.com/n
+        - listitem [ref=e56]:
+          - link "인물갤" [ref=e57] [cursor=pointer]:
+            - /url: //gall.dcinside.com/p
+        - listitem [ref=e58]:
+          - link "갤로그" [ref=e59] [cursor=pointer]:
+            - /url: https://gallog.dcinside.com
+        - listitem [ref=e60]:
+          - button [ref=e61] [cursor=pointer]
+      - generic [ref=e62]:
+        - link "어제 2,530,107개 댓글 등록" [ref=e67] [cursor=pointer]:
+          - /url: https://gall.dcinside.com/board/lists/?id=dclottery
+          - text: 어제
+          - emphasis [ref=e68]: 2,530,107개
+          - text: 댓글 등록
+        - generic [ref=e69]:
+          - text: 총 갤러리 수
+          - emphasis [ref=e70]: 93,208개
+        - link "디시 로터리 응모" [ref=e72] [cursor=pointer]:
+          - /url: https://gall.dcinside.com/board/lists/?id=dclottery
+        - link "어제 951,920개 게시글 등록" [ref=e64] [cursor=pointer]:
+          - /url: https://gall.dcinside.com/board/lists/?id=dclottery
+          - text: 어제
+          - emphasis [ref=e65]: 951,920개
+          - text: 게시글 등록
+    - generic [ref=e74]:
+      - heading "최근 방문" [level=3] [ref=e75]
+      - button [ref=e76] [cursor=pointer]:
+        - emphasis [ref=e77]
+      - button [ref=e78] [cursor=pointer]:
+        - emphasis [ref=e79]
+      - list [ref=e81]:
+        - listitem [ref=e82]:
+          - link "자영업자" [ref=e83] [cursor=pointer]:
+            - /url: https://gall.dcinside.com/mgallery/board/lists?id=sajang
+          - emphasis [ref=e84]: ⓜ
+          - button [ref=e85] [cursor=pointer]:
+            - emphasis [ref=e86]
+        - listitem [ref=e87]:
+          - link "창업" [ref=e88] [cursor=pointer]:
+            - /url: https://gall.dcinside.com/board/lists?id=changup
+          - button [ref=e89] [cursor=pointer]:
+            - emphasis [ref=e90]
+        - listitem [ref=e91]:
+          - link "치킨" [ref=e92] [cursor=pointer]:
+            - /url: https://gall.dcinside.com/board/lists?id=chicken
+          - button [ref=e93] [cursor=pointer]:
+            - emphasis [ref=e94]
+      - button [ref=e95] [cursor=pointer]:
+        - emphasis [ref=e96]
+      - button "전체" [ref=e97] [cursor=pointer]
+    - generic [ref=e98]:
+      - main [ref=e99]:
+        - generic [ref=e100]:
+          - generic [ref=e102]:
+            - heading "자영업자 갤러리" [level=2] [ref=e104]:
+              - link "자영업자 갤러리" [ref=e105] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/mgallery/board/lists/?id=sajang
+                - text: 자영업자 갤러리
+            - generic [ref=e107]:
+              - generic [ref=e108]:
+                - button "설정" [ref=e109] [cursor=pointer]
+                - emphasis [ref=e111]
+              - button "|연관 갤러리(0/1)" [ref=e112] [cursor=pointer]:
+                - text: "|연관 갤러리(0/1)"
+                - emphasis [ref=e113]
+              - button "|갤주소 복사" [ref=e114] [cursor=pointer]
+              - button "|이용안내" [ref=e115] [cursor=pointer]
+              - button "|" [ref=e116] [cursor=pointer]:
+                - text: "|"
+                - emphasis [ref=e117]
+          - article [ref=e118]
+          - article [ref=e120]:
+            - generic [ref=e121]:
+              - generic [ref=e123]:
+                - heading "[일반] 시골인데도 주변 점포들 보면" [level=3] [ref=e124]:
+                  - text: "[일반] 시골인데도 주변 점포들 보면"
+                  - emphasis [ref=e127]
+                - generic:
+                  - generic [ref=e128] [cursor=pointer]:
+                    - generic "시골호붕이" [ref=e129]:
+                      - emphasis [ref=e130]: 시골호붕이
+                    - text: (220.80) 2026.03.20 19:36:55
+                  - generic [ref=e131] [cursor=pointer]:
+                    - button "스크랩" [ref=e133]
+                    - text: 조회 73 추천 1
+                    - link "댓글 1" [ref=e135]:
+                      - /url: "#focus_cmt"
+              - generic [ref=e136]:
+                - generic [ref=e137]:
+                  - generic [ref=e138]:
+                    - insertion [ref=e141]:
+                      - iframe [ref=e143]:
+                        - generic [ref=f268e2]:
+                          - generic [ref=f268e3]:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - link:
+                                    - /url: https://cdn-f.adsmoloco.com/moloco-cdn/privacy.html
+                                    - img [ref=f268e4] [cursor=pointer]
+                            - link [ref=f268e6] [cursor=pointer]:
+                              - /url: https://eventfnt-asia.dsp-api.moloco.com/rtb/click?exchange=ADX_RTB&imp_id=8sD-tP7qQbM9-NnuELlQqQ&info=ChDJHDPmCBtJbre4AQLXhJEAEKvL-M0GGhQIDhoQgxjov397T5OIMYga4PoCQyACKgAyAA&campaign_name=D2MXRGnseroRb9hy&dcr=
+                              - img [ref=f268e7]
+                          - img [ref=f268e8]
+                    - generic [ref=e144]:
+                      - paragraph [ref=e145]: 폐업 많이함.
+                      - paragraph [ref=e146]: 대신 잘되는곳은 더 잘됨
+                      - paragraph [ref=e147]: 또 폐업자리에 이상한 프차생김. 디저트가게도 생기고;;
+                      - paragraph [ref=e148]: 시골 시장조사도 없이 아무메뉴나 선정해서 띡 들어와서 장사해놓고 하루 30도 못파는거 보면 진짜 한숨나옴..
+                      - paragraph [ref=e149]: 폐업한곳들 대부분이 어중이떠중이 장사 쉽게보고 시작한 그럴듯한 메뉴를 팔지만 맛은 그닥없고 비싼 프차집.
+                      - paragraph [ref=e150]
+                      - paragraph [ref=e151]: 최근에 생긴집중에 내또래가 동태탕집 개업했는데
+                      - paragraph [ref=e152]: 1인분에 동태 한마리 통으로 들어가는데 9천원임; 사람들 줄서서 먹음. 반찬 무한리필에.. 저녁엔 동태탕 대짜 메뉴로 술도 팔고 장사 잘하더라고 ㅋㅋ
+                      - paragraph [ref=e153]
+                      - paragraph [ref=e154]: 경기안좋다고 음식 양줄이고 가격올리고 하는거보다
+                      - paragraph [ref=e155]: 박리다매 한다치고 양 넉넉히주면 살아남을듯
+                      - paragraph [ref=e156]
+                  - iframe [ref=e159]:
+                    - insertion [ref=f272e2]:
+                      - iframe [ref=f272e5]:
+                        - generic [ref=f284e3]:
+                          - link "카카오 애드핏 광고입니다 니들펠트 대한공예협회 전국 1500곳이상 취업협력 니들펠트 자격증 취득으로 부업/취업/창업 빠른수익창출 http://www.koreahand.or.kr 자세히 보기" [ref=f284e4] [cursor=pointer]:
+                            - /url: https://ka.ad.daum.net/click/http%3A%2F%2Fwww.koreahand.or.kr%2Flearn_sugongye%2Fneedle_felt_main.html/Tpn9jrMaHHPsWmxn2b6D509FjUJpDfLkkyutXtbFMww1gdMrewpjuAqzDYtbRrbThdHF1n7aO4mo35AjfRgrP5pp-S3P4OIMom-37NmckxS9NorstM5Sego937FLCGm-m9s2WT2HQZLmk46bNjRXyo7XRyKJqPLvZp0pcDuoY2VC38q3Jr05muVTCwrOcgQWA7uhpTE05QwiQxuCJVJAebhiPkxAxZYEIm5P5OvdljAtnKLlYRD-3yPUSBcg4hqDXzxoOgtld0EU5JoOOCfe5BvuPx2RtNom7mkPaiHDKtPCSi8wgPqS1ONFWu4FD9ZPnsqsRMUwoyOK9upb8zOYjf2jmpOcpJgf87VDx_800wxILdwxyIqcg5t8Jb0KYmShZ-0pKmKuwKWqIDlZWOTjYRYBNd12oMiCHGIR1-Er5LQJc_b7aEvBOnFtfDlPbs_aLYK3F8LZZIe4LAa7uYKzH3TDtF0uv4VvuiMaCgRYpJtYD3udXUCc5eK4AbD48muq3IH5vj4E5vEtZ1xau7uW5mMz_sLFI_5kRYo6QgXmlmVQlT_TX68neE4YZiyIo4pA1xCDxQGZqAJ6cThaZQaEyy4=?p=kOsz9VyJSBSjRj-RG05YQw
+                            - img "카카오 애드핏 광고입니다" [ref=f284e6]
+                            - generic [ref=f284e9]:
+                              - strong [ref=f284e10]: 니들펠트 대한공예협회
+                              - generic [ref=f284e11]: 전국 1500곳이상 취업협력 니들펠트 자격증 취득으로 부업/취업/창업 빠른수익창출
+                              - generic [ref=f284e13]: http://www.koreahand.or.kr
+                            - generic [ref=f284e15]: 자세히 보기
+                          - link "광고 정보" [ref=f284e16] [cursor=pointer]:
+                            - /url: https://info.ds.kakao.com/optout.do
+                            - img "광고 정보" [ref=f284e17]
+                - generic [ref=e161]:
+                  - generic [ref=e163]:
+                    - generic [ref=e164]:
+                      - paragraph [ref=e165]: "1"
+                      - paragraph [ref=e166]:
+                        - img "고정닉" [ref=e168]
+                        - text: "0"
+                    - button [ref=e169] [cursor=pointer]:
+                      - emphasis [ref=e170]
+                  - generic [ref=e171]:
+                    - button "실베추" [ref=e172] [cursor=pointer]:
+                      - emphasis [ref=e173]
+                      - text: 실베추
+                    - button "공유" [ref=e174] [cursor=pointer]:
+                      - emphasis [ref=e175]
+                      - text: 공유
+                    - button "스크랩" [ref=e176] [cursor=pointer]:
+                      - emphasis [ref=e177]
+                      - text: 스크랩
+                    - button "신고" [ref=e178] [cursor=pointer]:
+                      - emphasis [ref=e179]
+                      - text: 신고
+                - iframe [ref=e182]:
+                  - insertion [ref=f273e2]:
+                    - iframe [ref=f273e5]:
+                      - iframe [ref=f282e4]:
+                        - generic [ref=f283e2] [cursor=pointer]:
+                          - link [ref=f283e4]:
+                            - /url: https://privacy.as.criteo.com/adchoices?cppv=3&cpp=QUrSKwkHtJ4qBimUqRQi_CWawY2IJDonbtCYzWUZJjQum1s3pLesXZOLdCc9PBH6NmzyARiWWBjO9zzP8R9BKL4v0YaUZdIegXWb5EK70X_FtDHsu0a6qwlI428uk7m0LTZUmDNDAXt9-O6Ur4GC0TQsyeI
+                            - img [ref=f283e5]
+                          - img [ref=f283e7]
+                          - generic [ref=f283e8]:
+                            - link [ref=f283e9]:
+                              - /url: https://cat.jp2.as.criteo.com/delivery/ck.php?cppv=3&cpp=q4GWraBzWG0pmyD8deKklyYgWDUUIqhPIYN5uWpeK6j_qZLZOyR-gQsjrJ_M3GZCLI1K4ZnQ7dz2et_fa5q0IRB5ZK6W7cec8Iza0tOQnzXft_kWwxROQiiJnP5C-NGjTH12p6Ijj2W1oIZoJvJwNJZtN2mcDgc5BC1d80hkJrGxVqF5Ca7aZjTDd73se7n6zb7aW0BIcvTL99eTQnLcVRN1Zpf8wY2cg1QAzQc_puy_6fVw2W-JxFvRPJmWiMRe1jigxC4n4jzJQ0A0RoIwUzq6xptXSbxSk0I6SMIVdcVs2VJnyLRqpkFKfnKTAkVR1FNDBrog3bo9ylpkR4ZS4VOc_k-zR1WvHz4tdwgUqvMGHjZAruKjwA8i979cEj3uf6TvtAeTkqGAP0YZFCu0tE51mWd_JPMAGikw7kV2P0qwYpMidtln4Z8wFcQOSWvb_0md8N1rFA75Df-zLw15LtRZgCgdcjQx2TqAzUc4G0hLzHFtJ60awziQ-otVk_3Sm22WkT_B-NzDszHopv9QnSYaq2H_UDricrOSnKorKY0yMaYjP9nr426AzzjyBsF0quoeV09-2KytSRw6zHPVGcjoV7aEb1PZYAD_TInXvuIZkRS2xukCMYeDM8eKeWCsKl_gQlq1tsYPRrbK_4sUKhaWIEo&maxdest=https%3A%2F%2Fwww.adobe.com%2Fkr%2Fcreativecloud%2Froc%2Fdesign%2Fall-in-one.html%3Fsdid%3DDD5B16W3%26mv%3Ddisplay%26mv2%3Ddisplay%26utm_source%3Dcriteo%26utm_medium%3Ddisplay%26utm_campaign%3DCRI_FY26CC_PSP_PSP_KR_DSK_ST%2826.03.14-%29%26utm_id%3D674964%26cto_pld%3DMIInxiK_AQAeFs2gGXI25A
+                              - img [ref=f283e12]
+                            - link [ref=f283e13]:
+                              - /url: https://cat.jp2.as.criteo.com/delivery/ck.php?cppv=3&cpp=3pN-BKBzWG0pmyD8deKklyYgWDUUIqhPIYN5uWpeK6j_qZLZOyR-gQsjrJ_M3GZCLI1K4ZnQ7dz2et_fa5q0IRB5ZK6W7cec8Iza0tOQnzXft_kWwxROQiiJnP5C-NGjTH12p6Ijj2W1oIZoJvJwNJZtN2mcDgc5BC1d80hkJrGxVqF5Ca7aZjTDd73se7n6zb7aW0BIcvTL99eTQnLcVRN1Zpf8wY2cg1QAzQc_puy_6fVw2W-JxFvRPJmWiMRe1jigxC4n4jzJQ0A0RoIwUzq6xptXSbxSk0I6SMIVdcVs2VJnyLRqpkFKfnKTAkVR1FNDBrog3bo9ylpkR4ZS4VOc_k-zR1WvHz4tdwgUqvMGHjZAruKjwA8i979cEj3uf6TvtAeTkqGAP0YZFCu0tE51mWd_JPMAGikw7kV2P0qwYpMidtln4Z8wFcQOSWvb_0md8N1rFA75Df-zLw15LtRZgCgdcjQx2TqAzUc4G0hLzHFtA3yEMIE5gDBe4g5nLT3V6V4PVDdK_oV-RWB1shwVjsoH32Sjt5dn94U-d4-ltz3VoYh1QDPao3uKk5YWa6HtuuZI9dv2iFM_Eaop4-DhekImBIo2qM9gMp00YX49U6S3ord9O_GG4KzU5DpqQ2fRU6BsaH0wxzDy7lklNkJWPog&maxdest=https%3A%2F%2Fwww.adobe.com%2Fkr%2Fcreativecloud%2Froc%2Fdesign%2Fall-in-one.html%3Fsdid%3DDD5B16W3%26mv%3Ddisplay%26mv2%3Ddisplay%26utm_source%3Dcriteo%26utm_medium%3Ddisplay%26utm_campaign%3DCRI_FY26CC_PSP_PSP_KR_DSK_ST%2826.03.14-%29%26utm_id%3D674964%26cto_pld%3D4d1ZDCK_AQBt4FjR6tfVRw
+            - generic [ref=e183]:
+              - generic [ref=e184]:
+                - generic [ref=e185]:
+                  - generic [ref=e186]:
+                    - text: 전체 댓글
+                    - emphasis [ref=e187]: "1"
+                    - text: 개
+                    - generic [ref=e188]:
+                      - generic [ref=e189]:
+                        - radio "등록순" [checked] [ref=e190] [cursor=pointer]
+                        - emphasis [ref=e191]
+                        - text: 등록순
+                      - generic [ref=e192]:
+                        - radio "최신순" [ref=e193] [cursor=pointer]
+                        - emphasis [ref=e194]
+                        - text: 최신순
+                      - generic [ref=e195]:
+                        - radio "답글순" [ref=e196] [cursor=pointer]
+                        - emphasis [ref=e197]
+                        - text: 답글순
+                  - generic [ref=e198]:
+                    - link "본문 보기" [ref=e199] [cursor=pointer]:
+                      - /url: "#container"
+                    - button "댓글닫기" [ref=e200] [cursor=pointer]:
+                      - text: 댓글닫기
+                      - emphasis [ref=e201]
+                    - button "새로고침" [ref=e202] [cursor=pointer]
+                - generic [ref=e203]:
+                  - list [ref=e204]:
+                    - listitem [ref=e205]:
+                      - generic [ref=e206]:
+                        - generic [ref=e209] [cursor=pointer]:
+                          - emphasis [ref=e210]: 자붕이
+                          - emphasis [ref=e211]: "1"
+                          - generic [ref=e212]: (119.71)
+                        - paragraph [ref=e214] [cursor=pointer]:
+                          - text: 첨엔 다 박리다매로 열심하지 박리다매가 사람 갈아넣는건데
+                          - text: 대부분 권리금 받고 팔더라고
+                        - generic [ref=e215]:
+                          - generic [ref=e216]: 03.20 21:36:40
+                          - button "삭제" [ref=e218] [cursor=pointer]
+                  - generic [ref=e219]:
+                    - emphasis [ref=e221]: "1"
+                    - generic [ref=e222]:
+                      - link "본문 보기" [ref=e223] [cursor=pointer]:
+                        - /url: "#container"
+                      - button "댓글닫기" [ref=e224] [cursor=pointer]:
+                        - generic [ref=e225]: 댓글닫기
+                        - emphasis [ref=e226]
+                      - button "새로고침" [ref=e227] [cursor=pointer]
+              - generic [ref=e228]:
+                - generic [ref=e229]:
+                  - generic [ref=e230]:
+                    - generic [ref=e232]:
+                      - paragraph [ref=e233]:
+                        - text: 자붕이는 갤러리에서 권장하는 비회원 전용
+                        - text: 갤닉네임입니다. (삭제 시 닉네임 등록 가능)
+                      - button [ref=e234] [cursor=pointer]
+                    - textbox [ref=e235]: 자붕이
+                    - button [ref=e236] [cursor=pointer]
+                  - textbox "비밀번호" [ref=e238]: "6041"
+                - generic [ref=e239]:
+                  - generic [ref=e240]:
+                    - generic [ref=e241]:
+                      - text: 타인의 권리를 침해하거나 명예를 훼손하는 댓글은 운영원칙 및 관련 법률에 제재를 받을 수 있습니다.
+                      - text: Shift+Enter 키를 동시에 누르면 줄바꿈이 됩니다.
+                    - textbox [ref=e242]: ㅇㅇ 시장조사 안하고 들어오는 사람들 진짜 많음 ㅋㅋ 요즘 무료 상권분석 사이트 있어서 주소+업종 넣으면 경쟁업체 수, 배후인구, 유동인구 다 나오는데 이것도 안 해보고 창업하는 사람들 많더라 spotly.website
+                  - generic [ref=e243]:
+                    - generic [ref=e244]:
+                      - button "디시콘" [ref=e245] [cursor=pointer]:
+                        - emphasis [ref=e246]
+                        - text: 디시콘
+                      - button [ref=e247] [cursor=pointer]:
+                        - emphasis [ref=e248]
+                    - generic [ref=e249]:
+                      - button "등록" [ref=e250] [cursor=pointer]
+                      - button "등록+추천" [ref=e251] [cursor=pointer]
+            - generic [ref=e252]:
+              - generic [ref=e253]:
+                - button "전체글" [ref=e254] [cursor=pointer]
+                - button "개념글" [ref=e255] [cursor=pointer]
+              - generic [ref=e256]:
+                - button "수정" [ref=e257] [cursor=pointer]
+                - button "삭제" [ref=e258] [cursor=pointer]
+                - button "글쓰기" [ref=e259] [cursor=pointer]
+          - article [ref=e260]:
+            - generic [ref=e261]:
+              - article [ref=e263]:
+                - table "갤러리 리스트" [ref=e265]:
+                  - caption: 갤러리 리스트
+                  - rowgroup [ref=e274]:
+                    - row "번호 말머리 제목 글쓴이 작성일 조회 추천" [ref=e275]:
+                      - columnheader "번호" [ref=e276]
+                      - columnheader "말머리" [ref=e277]
+                      - columnheader "제목" [ref=e278]
+                      - columnheader "글쓴이" [ref=e279]
+                      - columnheader "작성일" [ref=e280]
+                      - columnheader "조회" [ref=e281]
+                      - columnheader "추천" [ref=e282]
+                  - rowgroup [ref=e283]:
+                    - row "- 설문 예능과 잘 맞지 않는 것 같은 스타는? 운영자 26/03/16 - -" [ref=e284]:
+                      - cell "-" [ref=e285]
+                      - cell "설문" [ref=e286]
+                      - cell "예능과 잘 맞지 않는 것 같은 스타는?" [ref=e287]:
+                        - link "예능과 잘 맞지 않는 것 같은 스타는?" [ref=e288] [cursor=pointer]:
+                          - /url: javascript:;
+                          - emphasis [ref=e289]
+                          - text: 예능과 잘 맞지 않는 것 같은 스타는?
+                      - cell "운영자" [ref=e290] [cursor=pointer]
+                      - cell "26/03/16" [ref=e291]
+                      - cell "-" [ref=e292]
+                      - cell "-" [ref=e293]
+                    - row "- AD 상반기 코레일 1800명 확정, 이번에 못붙으면 답없다 운영자 26/02/27 - -" [ref=e294]:
+                      - cell "-" [ref=e295]
+                      - cell "AD" [ref=e296]
+                      - cell "상반기 코레일 1800명 확정, 이번에 못붙으면 답없다" [ref=e297]:
+                        - link "상반기 코레일 1800명 확정, 이번에 못붙으면 답없다" [ref=e298] [cursor=pointer]:
+                          - /url: https://addc.dcinside.com/NetInsight/click/dcinside/adver/adver@text?ads_id=24312&creative_id=99593&click_id=97930
+                          - emphasis [ref=e299]
+                          - text: 상반기 코레일 1800명 확정, 이번에 못붙으면 답없다
+                      - cell "운영자" [ref=e300] [cursor=pointer]
+                      - cell "26/02/27" [ref=e301]
+                      - cell "-" [ref=e302]
+                      - cell "-" [ref=e303]
+                    - row "- AD 생동성·임상시험 비교 귀찮으면 그냥 '플랜메디' ㄱㄱ 운영자 26/02/03 - -" [ref=e304]:
+                      - cell "-" [ref=e305]
+                      - cell "AD" [ref=e306]
+                      - cell "생동성·임상시험 비교 귀찮으면 그냥 '플랜메디' ㄱㄱ" [ref=e307]:
+                        - link "생동성·임상시험 비교 귀찮으면 그냥 '플랜메디' ㄱㄱ" [ref=e308] [cursor=pointer]:
+                          - /url: https://addc.dcinside.com/NetInsight/click/dcinside/adver/adver@text?ads_id=23684&creative_id=98911&click_id=97211
+                          - emphasis [ref=e309]
+                          - text: 생동성·임상시험 비교 귀찮으면 그냥 '플랜메디' ㄱㄱ
+                      - cell "운영자" [ref=e310] [cursor=pointer]
+                      - cell "26/02/03" [ref=e311]
+                      - cell "-" [ref=e312]
+                      - cell "-" [ref=e313]
+                    - row "- AD 보험상담은 디시공식설계사에게 받으세요! 운영자 24/08/28 - -" [ref=e314]:
+                      - cell "-" [ref=e315]
+                      - cell "AD" [ref=e316]
+                      - cell "보험상담은 디시공식설계사에게 받으세요!" [ref=e317]:
+                        - link "보험상담은 디시공식설계사에게 받으세요!" [ref=e318] [cursor=pointer]:
+                          - /url: http://addc.dcinside.com/NetInsight/click/dcinside/adver/adver@text?ads_id=20358&creative_id=86845&click_id=84204
+                          - emphasis [ref=e319]
+                          - text: 보험상담은 디시공식설계사에게 받으세요!
+                      - cell "운영자" [ref=e320] [cursor=pointer]
+                      - cell "24/08/28" [ref=e321]
+                      - cell "-" [ref=e322]
+                      - cell "-" [ref=e323]
+                    - row "15945 공지 자영업자 갤러리 이용규칙 이자카야 갤로그로 이동합니다. 25.06.02 738 8" [ref=e324]:
+                      - cell "15945" [ref=e325]
+                      - cell "공지" [ref=e326]
+                      - cell "자영업자 갤러리 이용규칙" [ref=e327]:
+                        - link "자영업자 갤러리 이용규칙" [ref=e328] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=15945&page=1
+                          - emphasis [ref=e329]
+                          - text: 자영업자 갤러리 이용규칙
+                      - cell "이자카야 갤로그로 이동합니다." [ref=e330] [cursor=pointer]:
+                        - generic [ref=e331]:
+                          - generic "이자카야" [ref=e332]:
+                            - emphasis [ref=e333]: 이자카야
+                          - img "갤로그로 이동합니다." [ref=e335]
+                      - cell "25.06.02" [ref=e336]
+                      - cell "738" [ref=e337]
+                      - cell "8" [ref=e338]
+                    - row "15944 공지 신문고 [3] 자붕이 (106.102) 25.06.02 345 8" [ref=e339]:
+                      - cell "15944" [ref=e340]
+                      - cell "공지" [ref=e341]
+                      - cell "신문고 [3]" [ref=e342]:
+                        - link "신문고" [ref=e343] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=15944&page=1
+                          - emphasis [ref=e344]
+                          - text: 신문고
+                        - link "[3]" [ref=e345] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=15944&t=cv
+                      - cell "자붕이 (106.102)" [ref=e346] [cursor=pointer]:
+                        - generic [ref=e347]:
+                          - generic "자붕이" [ref=e348]:
+                            - emphasis [ref=e349]: 자붕이
+                          - text: (106.102)
+                      - cell "25.06.02" [ref=e350]
+                      - cell "345" [ref=e351]
+                      - cell "8" [ref=e352]
+                    - row "26018 일반 아 고추한테 또 졋다 ㅠㅠ ㅇㅇ (119.199) 13:52 2 0" [ref=e353]:
+                      - cell "26018" [ref=e354]
+                      - cell "일반" [ref=e355]
+                      - cell "아 고추한테 또 졋다 ㅠㅠ" [ref=e356]:
+                        - link "아 고추한테 또 졋다 ㅠㅠ" [ref=e357] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=26018&page=1
+                          - emphasis [ref=e358]
+                          - text: 아 고추한테 또 졋다 ㅠㅠ
+                      - cell "ㅇㅇ (119.199)" [ref=e359] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e360]:
+                          - emphasis [ref=e361]: ㅇㅇ
+                        - text: (119.199)
+                      - cell "13:52" [ref=e362]
+                      - cell "2" [ref=e363]
+                      - cell "0" [ref=e364]
+                    - row "26017 일반 토요일인데도 이러네... 뷰바먀먀 (117.111) 12:26 19 0" [ref=e365]:
+                      - cell "26017" [ref=e366]
+                      - cell "일반" [ref=e367]
+                      - cell "토요일인데도 이러네..." [ref=e368]:
+                        - link "토요일인데도 이러네..." [ref=e369] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=26017&page=1
+                          - emphasis [ref=e370]
+                          - text: 토요일인데도 이러네...
+                      - cell "뷰바먀먀 (117.111)" [ref=e371] [cursor=pointer]:
+                        - generic "뷰바먀먀" [ref=e372]:
+                          - emphasis [ref=e373]: 뷰바먀먀
+                        - text: (117.111)
+                      - cell "12:26" [ref=e374]
+                      - cell "19" [ref=e375]
+                      - cell "0" [ref=e376]
+                    - row "26016 일반 여기가 생존왕들 기만질하는 갤임? 자붕이 (211.209) 11:30 23 0" [ref=e377]:
+                      - cell "26016" [ref=e378]
+                      - cell "일반" [ref=e379]
+                      - cell "여기가 생존왕들 기만질하는 갤임?" [ref=e380]:
+                        - link "여기가 생존왕들 기만질하는 갤임?" [ref=e381] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=26016&page=1
+                          - emphasis [ref=e382]
+                          - text: 여기가 생존왕들 기만질하는 갤임?
+                      - cell "자붕이 (211.209)" [ref=e383] [cursor=pointer]:
+                        - generic "자붕이" [ref=e384]:
+                          - emphasis [ref=e385]: 자붕이
+                        - text: (211.209)
+                      - cell "11:30" [ref=e386]
+                      - cell "23" [ref=e387]
+                      - cell "0" [ref=e388]
+                    - row "26015 일반 닭팔이 게이들아 너흰 이런경우 어캐하냐 [1] 자붕이 (118.235) 11:11 26 0" [ref=e389]:
+                      - cell "26015" [ref=e390]
+                      - cell "일반" [ref=e391]
+                      - cell "닭팔이 게이들아 너흰 이런경우 어캐하냐 [1]" [ref=e392]:
+                        - link "닭팔이 게이들아 너흰 이런경우 어캐하냐" [ref=e393] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=26015&page=1
+                          - emphasis [ref=e394]
+                          - text: 닭팔이 게이들아 너흰 이런경우 어캐하냐
+                        - link "[1]" [ref=e395] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=26015&t=cv
+                      - cell "자붕이 (118.235)" [ref=e396] [cursor=pointer]:
+                        - generic "자붕이" [ref=e397]:
+                          - emphasis [ref=e398]: 자붕이
+                        - text: (118.235)
+                      - cell "11:11" [ref=e399]
+                      - cell "26" [ref=e400]
+                      - cell "0" [ref=e401]
+                    - row "26014 일반 치킨 추 [1] ㅇㅇ (223.38) 09:48 22 0" [ref=e402]:
+                      - cell "26014" [ref=e403]
+                      - cell "일반" [ref=e404]
+                      - cell "치킨 추 [1]" [ref=e405]:
+                        - link "치킨 추" [ref=e406] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=26014&page=1
+                          - emphasis [ref=e407]
+                          - text: 치킨 추
+                        - link "[1]" [ref=e408] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=26014&t=cv
+                      - cell "ㅇㅇ (223.38)" [ref=e409] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e410]:
+                          - emphasis [ref=e411]: ㅇㅇ
+                        - text: (223.38)
+                      - cell "09:48" [ref=e412]
+                      - cell "22" [ref=e413]
+                      - cell "0" [ref=e414]
+                    - row "26013 일반 거지동네 [38] ㅇㅇ (182.230) 06:16 125 0" [ref=e415]:
+                      - cell "26013" [ref=e416]
+                      - cell "일반" [ref=e417]
+                      - cell "거지동네 [38]" [ref=e418]:
+                        - link "거지동네" [ref=e419] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=26013&page=1
+                          - emphasis [ref=e420]
+                          - text: 거지동네
+                        - link "[38]" [ref=e421] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=26013&t=cv
+                      - cell "ㅇㅇ (182.230)" [ref=e422] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e423]:
+                          - emphasis [ref=e424]: ㅇㅇ
+                        - text: (182.230)
+                      - cell "06:16" [ref=e425]
+                      - cell "125" [ref=e426]
+                      - cell "0" [ref=e427]
+                    - row "26012 일반 아침부터 씨발 바갤러 (122.56) 05:48 29 0" [ref=e428]:
+                      - cell "26012" [ref=e429]
+                      - cell "일반" [ref=e430]
+                      - cell "아침부터 씨발" [ref=e431]:
+                        - link "아침부터 씨발" [ref=e432] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=26012&page=1
+                          - emphasis [ref=e433]
+                          - text: 아침부터 씨발
+                      - cell "바갤러 (122.56)" [ref=e434] [cursor=pointer]:
+                        - generic "바갤러" [ref=e435]:
+                          - emphasis [ref=e436]: 바갤러
+                        - text: (122.56)
+                      - cell "05:48" [ref=e437]
+                      - cell "29" [ref=e438]
+                      - cell "0" [ref=e439]
+                    - row "26010 일반 환불전화 올때마다 스트레스 ㅈㄴ받네 [2] 자붕이 (118.235) 00:58 52 0" [ref=e440]:
+                      - cell "26010" [ref=e441]
+                      - cell "일반" [ref=e442]
+                      - cell "환불전화 올때마다 스트레스 ㅈㄴ받네 [2]" [ref=e443]:
+                        - link "환불전화 올때마다 스트레스 ㅈㄴ받네" [ref=e444] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=26010&page=1
+                          - emphasis [ref=e445]
+                          - text: 환불전화 올때마다 스트레스 ㅈㄴ받네
+                        - link "[2]" [ref=e446] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=26010&t=cv
+                      - cell "자붕이 (118.235)" [ref=e447] [cursor=pointer]:
+                        - generic "자붕이" [ref=e448]:
+                          - emphasis [ref=e449]: 자붕이
+                        - text: (118.235)
+                      - cell "00:58" [ref=e450]
+                      - cell "52" [ref=e451]
+                      - cell "0" [ref=e452]
+                    - row "26009 매출 금 자붕이 (118.235) 00:55 40 1" [ref=e453]:
+                      - cell "26009" [ref=e454]
+                      - cell "매출" [ref=e455]
+                      - cell "금" [ref=e456]:
+                        - link "금" [ref=e457] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=26009&page=1
+                          - emphasis [ref=e458]
+                          - text: 금
+                      - cell "자붕이 (118.235)" [ref=e459] [cursor=pointer]:
+                        - generic "자붕이" [ref=e460]:
+                          - emphasis [ref=e461]: 자붕이
+                        - text: (118.235)
+                      - cell "00:55" [ref=e462]
+                      - cell "40" [ref=e463]
+                      - cell "1" [ref=e464]
+                    - row "26008 일반 형들 왜 ㅇㅇ (221.141) 00:08 58 0" [ref=e465]:
+                      - cell "26008" [ref=e466]
+                      - cell "일반" [ref=e467]
+                      - cell "형들 왜" [ref=e468]:
+                        - link "형들 왜" [ref=e469] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=26008&page=1
+                          - emphasis [ref=e470]
+                          - text: 형들 왜
+                      - cell "ㅇㅇ (221.141)" [ref=e471] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e472]:
+                          - emphasis [ref=e473]: ㅇㅇ
+                        - text: (221.141)
+                      - cell "00:08" [ref=e474]
+                      - cell "58" [ref=e475]
+                      - cell "0" [ref=e476]
+                    - row "26006 일반 대학가 분위기 여긴 좀 살아났네 [1] 자붕이 (211.241) 03.20 89 0" [ref=e477]:
+                      - cell "26006" [ref=e478]
+                      - cell "일반" [ref=e479]
+                      - cell "대학가 분위기 여긴 좀 살아났네 [1]" [ref=e480]:
+                        - link "대학가 분위기 여긴 좀 살아났네" [ref=e481] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=26006&page=1
+                          - emphasis [ref=e482]
+                          - text: 대학가 분위기 여긴 좀 살아났네
+                        - link "[1]" [ref=e483] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=26006&t=cv
+                      - cell "자붕이 (211.241)" [ref=e484] [cursor=pointer]:
+                        - generic "자붕이" [ref=e485]:
+                          - emphasis [ref=e486]: 자붕이
+                        - text: (211.241)
+                      - cell "03.20" [ref=e487]
+                      - cell "89" [ref=e488]
+                      - cell "0" [ref=e489]
+                    - row "26005 일반 배달수수료가 어떻길래 배달집을 하지말란거여 [2] ㅇㅇ (211.235) 03.20 89 0" [ref=e490]:
+                      - cell "26005" [ref=e491]
+                      - cell "일반" [ref=e492]
+                      - cell "배달수수료가 어떻길래 배달집을 하지말란거여 [2]" [ref=e493]:
+                        - link "배달수수료가 어떻길래 배달집을 하지말란거여" [ref=e494] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=26005&page=1
+                          - emphasis [ref=e495]
+                          - text: 배달수수료가 어떻길래 배달집을 하지말란거여
+                        - link "[2]" [ref=e496] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=26005&t=cv
+                      - cell "ㅇㅇ (211.235)" [ref=e497] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e498]:
+                          - emphasis [ref=e499]: ㅇㅇ
+                        - text: (211.235)
+                      - cell "03.20" [ref=e500]
+                      - cell "89" [ref=e501]
+                      - cell "0" [ref=e502]
+                    - row "일반 시골인데도 주변 점포들 보면 [1] 시골호붕이 (220.80) 03.20 73 1" [ref=e503]:
+                      - cell [ref=e504]
+                      - cell "일반" [ref=e506]
+                      - cell "시골인데도 주변 점포들 보면 [1]" [ref=e507]:
+                        - link "시골인데도 주변 점포들 보면" [ref=e508] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=26004&page=1
+                          - emphasis [ref=e509]
+                          - text: 시골인데도 주변 점포들 보면
+                        - link "[1]" [ref=e510] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=26004&t=cv
+                      - cell "시골호붕이 (220.80)" [ref=e511] [cursor=pointer]:
+                        - generic "시골호붕이" [ref=e512]:
+                          - emphasis [ref=e513]: 시골호붕이
+                        - text: (220.80)
+                      - cell "03.20" [ref=e514]
+                      - cell "73" [ref=e515]
+                      - cell "1" [ref=e516]
+                    - row "26003 ❓질문 이자카야님 혹시 자영업에 도움되는 앱광고 해도 괜찮을까요? [5] 김발기1 갤로그로 이동합니다. 03.20 78 0" [ref=e517]:
+                      - cell "26003" [ref=e518]
+                      - cell "❓질문" [ref=e519]
+                      - cell "이자카야님 혹시 자영업에 도움되는 앱광고 해도 괜찮을까요? [5]" [ref=e520]:
+                        - link "이자카야님 혹시 자영업에 도움되는 앱광고 해도 괜찮을까요?" [ref=e521] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=26003&page=1
+                          - emphasis [ref=e522]
+                          - text: 이자카야님 혹시 자영업에 도움되는 앱광고 해도 괜찮을까요?
+                        - link "[5]" [ref=e523] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=26003&t=cv
+                      - cell "김발기1 갤로그로 이동합니다." [ref=e524] [cursor=pointer]:
+                        - generic "김발기1" [ref=e525]:
+                          - emphasis [ref=e526]: 김발기1
+                        - img "갤로그로 이동합니다." [ref=e528]
+                      - cell "03.20" [ref=e529]
+                      - cell "78" [ref=e530]
+                      - cell "0" [ref=e531]
+                    - row "26002 일반 가게배달 좆같이 나오네 자붕이 (124.63) 03.20 55 0" [ref=e532]:
+                      - cell "26002" [ref=e533]
+                      - cell "일반" [ref=e534]
+                      - cell "가게배달 좆같이 나오네" [ref=e535]:
+                        - link "가게배달 좆같이 나오네" [ref=e536] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=26002&page=1
+                          - emphasis [ref=e537]
+                          - text: 가게배달 좆같이 나오네
+                      - cell "자붕이 (124.63)" [ref=e538] [cursor=pointer]:
+                        - generic "자붕이" [ref=e539]:
+                          - emphasis [ref=e540]: 자붕이
+                        - text: (124.63)
+                      - cell "03.20" [ref=e541]
+                      - cell "55" [ref=e542]
+                      - cell "0" [ref=e543]
+                    - row "26000 일반 식당 오래할수록 점점 성격이 틀어진다 [6] 자붕이 (118.235) 03.20 110 2" [ref=e544]:
+                      - cell "26000" [ref=e545]
+                      - cell "일반" [ref=e546]
+                      - cell "식당 오래할수록 점점 성격이 틀어진다 [6]" [ref=e547]:
+                        - link "식당 오래할수록 점점 성격이 틀어진다" [ref=e548] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=26000&page=1
+                          - emphasis [ref=e549]
+                          - text: 식당 오래할수록 점점 성격이 틀어진다
+                        - link "[6]" [ref=e550] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=26000&t=cv
+                      - cell "자붕이 (118.235)" [ref=e551] [cursor=pointer]:
+                        - generic "자붕이" [ref=e552]:
+                          - emphasis [ref=e553]: 자붕이
+                        - text: (118.235)
+                      - cell "03.20" [ref=e554]
+                      - cell "110" [ref=e555]
+                      - cell "2" [ref=e556]
+                    - row "25999 일반 자동차쪽 관련 장사하는 사람들 [1] 자붕이 (106.101) 03.20 59 0" [ref=e557]:
+                      - cell "25999" [ref=e558]
+                      - cell "일반" [ref=e559]
+                      - cell "자동차쪽 관련 장사하는 사람들 [1]" [ref=e560]:
+                        - link "자동차쪽 관련 장사하는 사람들" [ref=e561] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25999&page=1
+                          - emphasis [ref=e562]
+                          - text: 자동차쪽 관련 장사하는 사람들
+                        - link "[1]" [ref=e563] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25999&t=cv
+                      - cell "자붕이 (106.101)" [ref=e564] [cursor=pointer]:
+                        - generic "자붕이" [ref=e565]:
+                          - emphasis [ref=e566]: 자붕이
+                        - text: (106.101)
+                      - cell "03.20" [ref=e567]
+                      - cell "59" [ref=e568]
+                      - cell "0" [ref=e569]
+                    - row "25998 일반 주식 떨어지면 내수 살아날 거라고 보는 사람들 많던데 [5] ㅇㅇ (118.235) 03.20 156 4" [ref=e570]:
+                      - cell "25998" [ref=e571]
+                      - cell "일반" [ref=e572]
+                      - cell "주식 떨어지면 내수 살아날 거라고 보는 사람들 많던데 [5]" [ref=e573]:
+                        - link "주식 떨어지면 내수 살아날 거라고 보는 사람들 많던데" [ref=e574] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25998&page=1
+                          - emphasis [ref=e575]
+                          - text: 주식 떨어지면 내수 살아날 거라고 보는 사람들 많던데
+                        - link "[5]" [ref=e576] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25998&t=cv
+                      - cell "ㅇㅇ (118.235)" [ref=e577] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e578]:
+                          - emphasis [ref=e579]: ㅇㅇ
+                        - text: (118.235)
+                      - cell "03.20" [ref=e580]
+                      - cell "156" [ref=e581]
+                      - cell "4" [ref=e582]
+                    - row "25997 일반 뻔뻔 할배 퇴치했다 ㅠ [10] 시골호붕이 (220.80) 03.20 113 1" [ref=e583]:
+                      - cell "25997" [ref=e584]
+                      - cell "일반" [ref=e585]
+                      - cell "뻔뻔 할배 퇴치했다 ㅠ [10]" [ref=e586]:
+                        - link "뻔뻔 할배 퇴치했다 ㅠ" [ref=e587] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25997&page=1
+                          - emphasis [ref=e588]
+                          - text: 뻔뻔 할배 퇴치했다 ㅠ
+                        - link "[10]" [ref=e589] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25997&t=cv
+                      - cell "시골호붕이 (220.80)" [ref=e590] [cursor=pointer]:
+                        - generic "시골호붕이" [ref=e591]:
+                          - emphasis [ref=e592]: 시골호붕이
+                        - text: (220.80)
+                      - cell "03.20" [ref=e593]
+                      - cell "113" [ref=e594]
+                      - cell "1" [ref=e595]
+                    - row "25996 일반 와 좆망이네 [1] 바갤러 (122.56) 03.20 112 1" [ref=e596]:
+                      - cell "25996" [ref=e597]
+                      - cell "일반" [ref=e598]
+                      - cell "와 좆망이네 [1]" [ref=e599]:
+                        - link "와 좆망이네" [ref=e600] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25996&page=1
+                          - emphasis [ref=e601]
+                          - text: 와 좆망이네
+                        - link "[1]" [ref=e602] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25996&t=cv
+                      - cell "바갤러 (122.56)" [ref=e603] [cursor=pointer]:
+                        - generic "바갤러" [ref=e604]:
+                          - emphasis [ref=e605]: 바갤러
+                        - text: (122.56)
+                      - cell "03.20" [ref=e606]
+                      - cell "112" [ref=e607]
+                      - cell "1" [ref=e608]
+                    - row "25995 일반 배달음식점 시작하려는데 비용좀 대충 알려줄천사구함 [6] ㅇㅇ (211.235) 03.20 92 0" [ref=e609]:
+                      - cell "25995" [ref=e610]
+                      - cell "일반" [ref=e611]
+                      - cell "배달음식점 시작하려는데 비용좀 대충 알려줄천사구함 [6]" [ref=e612]:
+                        - link "배달음식점 시작하려는데 비용좀 대충 알려줄천사구함" [ref=e613] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25995&page=1
+                          - emphasis [ref=e614]
+                          - text: 배달음식점 시작하려는데 비용좀 대충 알려줄천사구함
+                        - link "[6]" [ref=e615] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25995&t=cv
+                      - cell "ㅇㅇ (211.235)" [ref=e616] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e617]:
+                          - emphasis [ref=e618]: ㅇㅇ
+                        - text: (211.235)
+                      - cell "03.20" [ref=e619]
+                      - cell "92" [ref=e620]
+                      - cell "0" [ref=e621]
+                    - row "25993 일반 식당 자영업은 ... [3] 자붕이 (112.157) 03.20 139 0" [ref=e622]:
+                      - cell "25993" [ref=e623]
+                      - cell "일반" [ref=e624]
+                      - cell "식당 자영업은 ... [3]" [ref=e625]:
+                        - link "식당 자영업은 ..." [ref=e626] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25993&page=1
+                          - emphasis [ref=e627]
+                          - text: 식당 자영업은 ...
+                        - link "[3]" [ref=e628] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25993&t=cv
+                      - cell "자붕이 (112.157)" [ref=e629] [cursor=pointer]:
+                        - generic "자붕이" [ref=e630]:
+                          - emphasis [ref=e631]: 자붕이
+                        - text: (112.157)
+                      - cell "03.20" [ref=e632]
+                      - cell "139" [ref=e633]
+                      - cell "0" [ref=e634]
+                    - row "25992 일반 나도 단골들로 버티고있지 [1] 이자카야 갤로그로 이동합니다. 03.20 114 0" [ref=e635]:
+                      - cell "25992" [ref=e636]
+                      - cell "일반" [ref=e637]
+                      - cell "나도 단골들로 버티고있지 [1]" [ref=e638]:
+                        - link "나도 단골들로 버티고있지" [ref=e639] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25992&page=1
+                          - emphasis [ref=e640]
+                          - text: 나도 단골들로 버티고있지
+                        - link "[1]" [ref=e641] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25992&t=cv
+                      - cell "이자카야 갤로그로 이동합니다." [ref=e642] [cursor=pointer]:
+                        - generic "이자카야" [ref=e643]:
+                          - emphasis [ref=e644]: 이자카야
+                        - img "갤로그로 이동합니다." [ref=e646]
+                      - cell "03.20" [ref=e647]
+                      - cell "114" [ref=e648]
+                      - cell "0" [ref=e649]
+                    - row "25991 매출 목 자붕이 (118.235) 03.20 50 0" [ref=e650]:
+                      - cell "25991" [ref=e651]
+                      - cell "매출" [ref=e652]
+                      - cell "목" [ref=e653]:
+                        - link "목" [ref=e654] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25991&page=1
+                          - emphasis [ref=e655]
+                          - text: 목
+                      - cell "자붕이 (118.235)" [ref=e656] [cursor=pointer]:
+                        - generic "자붕이" [ref=e657]:
+                          - emphasis [ref=e658]: 자붕이
+                        - text: (118.235)
+                      - cell "03.20" [ref=e659]
+                      - cell "50" [ref=e660]
+                      - cell "0" [ref=e661]
+                    - row "25990 일반 다른가게도 객단가 박살났네 [1] 자붕이 (118.235) 03.20 117 1" [ref=e662]:
+                      - cell "25990" [ref=e663]
+                      - cell "일반" [ref=e664]
+                      - cell "다른가게도 객단가 박살났네 [1]" [ref=e665]:
+                        - link "다른가게도 객단가 박살났네" [ref=e666] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25990&page=1
+                          - emphasis [ref=e667]
+                          - text: 다른가게도 객단가 박살났네
+                        - link "[1]" [ref=e668] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25990&t=cv
+                      - cell "자붕이 (118.235)" [ref=e669] [cursor=pointer]:
+                        - generic "자붕이" [ref=e670]:
+                          - emphasis [ref=e671]: 자붕이
+                        - text: (118.235)
+                      - cell "03.20" [ref=e672]
+                      - cell "117" [ref=e673]
+                      - cell "1" [ref=e674]
+                    - row "25986 일반 배민90쿠팡73 [1] ㅇㅇ 갤로그로 이동합니다. 03.19 85 0" [ref=e675]:
+                      - cell "25986" [ref=e676]
+                      - cell "일반" [ref=e677]
+                      - cell "배민90쿠팡73 [1]" [ref=e678]:
+                        - link "배민90쿠팡73" [ref=e679] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25986&page=1
+                          - emphasis [ref=e680]
+                          - text: 배민90쿠팡73
+                        - link "[1]" [ref=e681] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25986&t=cv
+                      - cell "ㅇㅇ 갤로그로 이동합니다." [ref=e682] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e683]:
+                          - emphasis [ref=e684]: ㅇㅇ
+                        - img "갤로그로 이동합니다." [ref=e686]
+                      - cell "03.19" [ref=e687]
+                      - cell "85" [ref=e688]
+                      - cell "0" [ref=e689]
+                    - row "25985 일반 징사 안됨 실물경제 죽어 나가는중이라는데 [1] 자붕이 (124.51) 03.19 132 1" [ref=e690]:
+                      - cell "25985" [ref=e691]
+                      - cell "일반" [ref=e692]
+                      - cell "징사 안됨 실물경제 죽어 나가는중이라는데 [1]" [ref=e693]:
+                        - link "징사 안됨 실물경제 죽어 나가는중이라는데" [ref=e694] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25985&page=1
+                          - emphasis [ref=e695]
+                          - text: 징사 안됨 실물경제 죽어 나가는중이라는데
+                        - link "[1]" [ref=e696] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25985&t=cv
+                      - cell "자붕이 (124.51)" [ref=e697] [cursor=pointer]:
+                        - generic "자붕이" [ref=e698]:
+                          - emphasis [ref=e699]: 자붕이
+                        - text: (124.51)
+                      - cell "03.19" [ref=e700]
+                      - cell "132" [ref=e701]
+                      - cell "1" [ref=e702]
+                    - row "25984 일반 3월 코노 일자별 순익 기록해봄 [4] 자붕이 (116.33) 03.19 109 0" [ref=e703]:
+                      - cell "25984" [ref=e704]
+                      - cell "일반" [ref=e705]
+                      - cell "3월 코노 일자별 순익 기록해봄 [4]" [ref=e706]:
+                        - link "3월 코노 일자별 순익 기록해봄" [ref=e707] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25984&page=1
+                          - emphasis [ref=e708]
+                          - text: 3월 코노 일자별 순익 기록해봄
+                        - link "[4]" [ref=e709] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25984&t=cv
+                      - cell "자붕이 (116.33)" [ref=e710] [cursor=pointer]:
+                        - generic "자붕이" [ref=e711]:
+                          - emphasis [ref=e712]: 자붕이
+                        - text: (116.33)
+                      - cell "03.19" [ref=e713]
+                      - cell "109" [ref=e714]
+                      - cell "0" [ref=e715]
+                    - row "25982 일반 우리매장만 손해보고 있던 건 아닐까? [1] 자붕이 (58.122) 03.19 107 1" [ref=e716]:
+                      - cell "25982" [ref=e717]
+                      - cell "일반" [ref=e718]
+                      - cell "우리매장만 손해보고 있던 건 아닐까? [1]" [ref=e719]:
+                        - link "우리매장만 손해보고 있던 건 아닐까?" [ref=e720] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25982&page=1
+                          - emphasis [ref=e721]
+                          - text: 우리매장만 손해보고 있던 건 아닐까?
+                        - link "[1]" [ref=e722] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25982&t=cv
+                      - cell "자붕이 (58.122)" [ref=e723] [cursor=pointer]:
+                        - generic "자붕이" [ref=e724]:
+                          - emphasis [ref=e725]: 자붕이
+                        - text: (58.122)
+                      - cell "03.19" [ref=e726]
+                      - cell "107" [ref=e727]
+                      - cell "1" [ref=e728]
+                    - row "25981 일반 걍 개좆됏네 홍대도 공실 보임 ㅋ [1] 자붕이 (118.235) 03.19 144 2" [ref=e729]:
+                      - cell "25981" [ref=e730]
+                      - cell "일반" [ref=e731]
+                      - cell "걍 개좆됏네 홍대도 공실 보임 ㅋ [1]" [ref=e732]:
+                        - link "걍 개좆됏네 홍대도 공실 보임 ㅋ" [ref=e733] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25981&page=1
+                          - emphasis [ref=e734]
+                          - text: 걍 개좆됏네 홍대도 공실 보임 ㅋ
+                        - link "[1]" [ref=e735] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25981&t=cv
+                      - cell "자붕이 (118.235)" [ref=e736] [cursor=pointer]:
+                        - generic "자붕이" [ref=e737]:
+                          - emphasis [ref=e738]: 자붕이
+                        - text: (118.235)
+                      - cell "03.19" [ref=e739]
+                      - cell "144" [ref=e740]
+                      - cell "2" [ref=e741]
+                    - row "25980 일반 6시간 1마리 자붕이 (124.63) 03.19 73 1" [ref=e742]:
+                      - cell "25980" [ref=e743]
+                      - cell "일반" [ref=e744]
+                      - cell "6시간 1마리" [ref=e745]:
+                        - link "6시간 1마리" [ref=e746] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25980&page=1
+                          - emphasis [ref=e747]
+                          - text: 6시간 1마리
+                      - cell "자붕이 (124.63)" [ref=e748] [cursor=pointer]:
+                        - generic "자붕이" [ref=e749]:
+                          - emphasis [ref=e750]: 자붕이
+                        - text: (124.63)
+                      - cell "03.19" [ref=e751]
+                      - cell "73" [ref=e752]
+                      - cell "1" [ref=e753]
+                    - row "25978 일반 니네 장사 되냐? [7] 자붕이 (222.112) 03.19 196 1" [ref=e754]:
+                      - cell "25978" [ref=e755]
+                      - cell "일반" [ref=e756]
+                      - cell "니네 장사 되냐? [7]" [ref=e757]:
+                        - link "니네 장사 되냐?" [ref=e758] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25978&page=1
+                          - emphasis [ref=e759]
+                          - text: 니네 장사 되냐?
+                        - link "[7]" [ref=e760] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25978&t=cv
+                      - cell "자붕이 (222.112)" [ref=e761] [cursor=pointer]:
+                        - generic "자붕이" [ref=e762]:
+                          - emphasis [ref=e763]: 자붕이
+                        - text: (222.112)
+                      - cell "03.19" [ref=e764]
+                      - cell "196" [ref=e765]
+                      - cell "1" [ref=e766]
+                    - row "25977 일반 커피팔이다 진지하게 1인1음료 개고민된다 [7] 자붕이 (118.235) 03.19 145 2" [ref=e767]:
+                      - cell "25977" [ref=e768]
+                      - cell "일반" [ref=e769]
+                      - cell "커피팔이다 진지하게 1인1음료 개고민된다 [7]" [ref=e770]:
+                        - link "커피팔이다 진지하게 1인1음료 개고민된다" [ref=e771] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25977&page=1
+                          - emphasis [ref=e772]
+                          - text: 커피팔이다 진지하게 1인1음료 개고민된다
+                        - link "[7]" [ref=e773] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25977&t=cv
+                      - cell "자붕이 (118.235)" [ref=e774] [cursor=pointer]:
+                        - generic "자붕이" [ref=e775]:
+                          - emphasis [ref=e776]: 자붕이
+                        - text: (118.235)
+                      - cell "03.19" [ref=e777]
+                      - cell "145" [ref=e778]
+                      - cell "2" [ref=e779]
+                    - row "25976 일반 자영업자들 뭐만하면 징징징징 세금으로 지원1금 존나 받으면서 ㅇㅇ [2] ㅇㅇ (118.235) 03.19 90 0" [ref=e780]:
+                      - cell "25976" [ref=e781]
+                      - cell "일반" [ref=e782]
+                      - cell "자영업자들 뭐만하면 징징징징 세금으로 지원1금 존나 받으면서 ㅇㅇ [2]" [ref=e783]:
+                        - link "자영업자들 뭐만하면 징징징징 세금으로 지원1금 존나 받으면서 ㅇㅇ" [ref=e784] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25976&page=1
+                          - emphasis [ref=e785]
+                          - text: 자영업자들 뭐만하면 징징징징 세금으로 지원1금 존나 받으면서 ㅇㅇ
+                        - link "[2]" [ref=e786] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25976&t=cv
+                      - cell "ㅇㅇ (118.235)" [ref=e787] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e788]:
+                          - emphasis [ref=e789]: ㅇㅇ
+                        - text: (118.235)
+                      - cell "03.19" [ref=e790]
+                      - cell "90" [ref=e791]
+                      - cell "0" [ref=e792]
+                    - row "25975 일반 배달은 점점 어려워질거같네 [1] 자붕이 (124.63) 03.19 129 1" [ref=e793]:
+                      - cell "25975" [ref=e794]
+                      - cell "일반" [ref=e795]
+                      - cell "배달은 점점 어려워질거같네 [1]" [ref=e796]:
+                        - link "배달은 점점 어려워질거같네" [ref=e797] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25975&page=1
+                          - emphasis [ref=e798]
+                          - text: 배달은 점점 어려워질거같네
+                        - link "[1]" [ref=e799] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25975&t=cv
+                      - cell "자붕이 (124.63)" [ref=e800] [cursor=pointer]:
+                        - generic "자붕이" [ref=e801]:
+                          - emphasis [ref=e802]: 자붕이
+                        - text: (124.63)
+                      - cell "03.19" [ref=e803]
+                      - cell "129" [ref=e804]
+                      - cell "1" [ref=e805]
+                    - row "25972 일반 니들 매장 월세 얼마냐? [9] 바갤러 (122.56) 03.19 146 0" [ref=e806]:
+                      - cell "25972" [ref=e807]
+                      - cell "일반" [ref=e808]
+                      - cell "니들 매장 월세 얼마냐? [9]" [ref=e809]:
+                        - link "니들 매장 월세 얼마냐?" [ref=e810] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25972&page=1
+                          - emphasis [ref=e811]
+                          - text: 니들 매장 월세 얼마냐?
+                        - link "[9]" [ref=e812] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25972&t=cv
+                      - cell "바갤러 (122.56)" [ref=e813] [cursor=pointer]:
+                        - generic "바갤러" [ref=e814]:
+                          - emphasis [ref=e815]: 바갤러
+                        - text: (122.56)
+                      - cell "03.19" [ref=e816]
+                      - cell "146" [ref=e817]
+                      - cell "0" [ref=e818]
+                    - row "25970 매출 수 자붕이 (118.235) 03.19 62 0" [ref=e819]:
+                      - cell "25970" [ref=e820]
+                      - cell "매출" [ref=e821]
+                      - cell "수" [ref=e822]:
+                        - link "수" [ref=e823] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25970&page=1
+                          - emphasis [ref=e824]
+                          - text: 수
+                      - cell "자붕이 (118.235)" [ref=e825] [cursor=pointer]:
+                        - generic "자붕이" [ref=e826]:
+                          - emphasis [ref=e827]: 자붕이
+                        - text: (118.235)
+                      - cell "03.19" [ref=e828]
+                      - cell "62" [ref=e829]
+                      - cell "0" [ref=e830]
+                    - row "25969 일반 보조배터리 충전해달라는거 어케생각하냐 [2] 자붕이 (182.210) 03.19 91 1" [ref=e831]:
+                      - cell "25969" [ref=e832]
+                      - cell "일반" [ref=e833]
+                      - cell "보조배터리 충전해달라는거 어케생각하냐 [2]" [ref=e834]:
+                        - link "보조배터리 충전해달라는거 어케생각하냐" [ref=e835] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25969&page=1
+                          - emphasis [ref=e836]
+                          - text: 보조배터리 충전해달라는거 어케생각하냐
+                        - link "[2]" [ref=e837] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25969&t=cv
+                      - cell "자붕이 (182.210)" [ref=e838] [cursor=pointer]:
+                        - generic "자붕이" [ref=e839]:
+                          - emphasis [ref=e840]: 자붕이
+                        - text: (182.210)
+                      - cell "03.19" [ref=e841]
+                      - cell "91" [ref=e842]
+                      - cell "1" [ref=e843]
+                    - row "25968 일반 직장인 자영업자 스트레스 모임 오세요 자붕이 (125.183) 03.19 59 0" [ref=e844]:
+                      - cell "25968" [ref=e845]
+                      - cell "일반" [ref=e846]
+                      - cell "직장인 자영업자 스트레스 모임 오세요" [ref=e847]:
+                        - link "직장인 자영업자 스트레스 모임 오세요" [ref=e848] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25968&page=1
+                          - emphasis [ref=e849]
+                          - text: 직장인 자영업자 스트레스 모임 오세요
+                      - cell "자붕이 (125.183)" [ref=e850] [cursor=pointer]:
+                        - generic "자붕이" [ref=e851]:
+                          - emphasis [ref=e852]: 자붕이
+                        - text: (125.183)
+                      - cell "03.19" [ref=e853]
+                      - cell "59" [ref=e854]
+                      - cell "0" [ref=e855]
+                    - row "25967 일반 자영엽자 카페로 오세요 자붕이 (125.183) 03.18 63 0" [ref=e856]:
+                      - cell "25967" [ref=e857]
+                      - cell "일반" [ref=e858]
+                      - cell "자영엽자 카페로 오세요" [ref=e859]:
+                        - link "자영엽자 카페로 오세요" [ref=e860] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25967&page=1
+                          - emphasis [ref=e861]
+                          - text: 자영엽자 카페로 오세요
+                      - cell "자붕이 (125.183)" [ref=e862] [cursor=pointer]:
+                        - generic "자붕이" [ref=e863]:
+                          - emphasis [ref=e864]: 자붕이
+                        - text: (125.183)
+                      - cell "03.18" [ref=e865]
+                      - cell "63" [ref=e866]
+                      - cell "0" [ref=e867]
+                    - row "25966 일반 노차이니즈 걸면 신고먹나 [1] ㅇㅇ 갤로그로 이동합니다. 03.18 61 0" [ref=e868]:
+                      - cell "25966" [ref=e869]
+                      - cell "일반" [ref=e870]
+                      - cell "노차이니즈 걸면 신고먹나 [1]" [ref=e871]:
+                        - link "노차이니즈 걸면 신고먹나" [ref=e872] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25966&page=1
+                          - emphasis [ref=e873]
+                          - text: 노차이니즈 걸면 신고먹나
+                        - link "[1]" [ref=e874] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25966&t=cv
+                      - cell "ㅇㅇ 갤로그로 이동합니다." [ref=e875] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e876]:
+                          - emphasis [ref=e877]: ㅇㅇ
+                        - img "갤로그로 이동합니다." [ref=e879]
+                      - cell "03.18" [ref=e880]
+                      - cell "61" [ref=e881]
+                      - cell "0" [ref=e882]
+                    - row "25965 일반 가게 좆망이라 배달뛰는데 [1] 자붕이 (118.235) 03.18 139 3" [ref=e883]:
+                      - cell "25965" [ref=e884]
+                      - cell "일반" [ref=e885]
+                      - cell "가게 좆망이라 배달뛰는데 [1]" [ref=e886]:
+                        - link "가게 좆망이라 배달뛰는데" [ref=e887] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25965&page=1
+                          - emphasis [ref=e888]
+                          - text: 가게 좆망이라 배달뛰는데
+                        - link "[1]" [ref=e889] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25965&t=cv
+                      - cell "자붕이 (118.235)" [ref=e890] [cursor=pointer]:
+                        - generic "자붕이" [ref=e891]:
+                          - emphasis [ref=e892]: 자붕이
+                        - text: (118.235)
+                      - cell "03.18" [ref=e893]
+                      - cell "139" [ref=e894]
+                      - cell "3" [ref=e895]
+                    - row "25964 일반 여기가 자영업자 상위권 갤러리인가요? 자붕이 (211.209) 03.18 55 0" [ref=e896]:
+                      - cell "25964" [ref=e897]
+                      - cell "일반" [ref=e898]
+                      - cell "여기가 자영업자 상위권 갤러리인가요?" [ref=e899]:
+                        - link "여기가 자영업자 상위권 갤러리인가요?" [ref=e900] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25964&page=1
+                          - emphasis [ref=e901]
+                          - text: 여기가 자영업자 상위권 갤러리인가요?
+                      - cell "자붕이 (211.209)" [ref=e902] [cursor=pointer]:
+                        - generic "자붕이" [ref=e903]:
+                          - emphasis [ref=e904]: 자붕이
+                        - text: (211.209)
+                      - cell "03.18" [ref=e905]
+                      - cell "55" [ref=e906]
+                      - cell "0" [ref=e907]
+                    - row "25963 일반 양많이 달라는 새기들 [9] ㅇㅇ (119.71) 03.18 144 1" [ref=e908]:
+                      - cell "25963" [ref=e909]
+                      - cell "일반" [ref=e910]
+                      - cell "양많이 달라는 새기들 [9]" [ref=e911]:
+                        - link "양많이 달라는 새기들" [ref=e912] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25963&page=1
+                          - emphasis [ref=e913]
+                          - text: 양많이 달라는 새기들
+                        - link "[9]" [ref=e914] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25963&t=cv
+                      - cell "ㅇㅇ (119.71)" [ref=e915] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e916]:
+                          - emphasis [ref=e917]: ㅇㅇ
+                        - text: (119.71)
+                      - cell "03.18" [ref=e918]
+                      - cell "144" [ref=e919]
+                      - cell "1" [ref=e920]
+                    - row "25961 일반 어제부터 주문 존나 없네 [1] ㅇㅇ 갤로그로 이동합니다. 03.18 101 2" [ref=e921]:
+                      - cell "25961" [ref=e922]
+                      - cell "일반" [ref=e923]
+                      - cell "어제부터 주문 존나 없네 [1]" [ref=e924]:
+                        - link "어제부터 주문 존나 없네" [ref=e925] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25961&page=1
+                          - emphasis [ref=e926]
+                          - text: 어제부터 주문 존나 없네
+                        - link "[1]" [ref=e927] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25961&t=cv
+                      - cell "ㅇㅇ 갤로그로 이동합니다." [ref=e928] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e929]:
+                          - emphasis [ref=e930]: ㅇㅇ
+                        - img "갤로그로 이동합니다." [ref=e932]
+                      - cell "03.18" [ref=e933]
+                      - cell "101" [ref=e934]
+                      - cell "2" [ref=e935]
+                    - row "25960 일반 구청 다녀오는데 어떤 아줌마 폐업 신고하러 왔어요 이러네 [1] ㅇㅇ (223.39) 03.18 142 1" [ref=e936]:
+                      - cell "25960" [ref=e937]
+                      - cell "일반" [ref=e938]
+                      - cell "구청 다녀오는데 어떤 아줌마 폐업 신고하러 왔어요 이러네 [1]" [ref=e939]:
+                        - link "구청 다녀오는데 어떤 아줌마 폐업 신고하러 왔어요 이러네" [ref=e940] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25960&page=1
+                          - emphasis [ref=e941]
+                          - text: 구청 다녀오는데 어떤 아줌마 폐업 신고하러 왔어요 이러네
+                        - link "[1]" [ref=e942] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25960&t=cv
+                      - cell "ㅇㅇ (223.39)" [ref=e943] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e944]:
+                          - emphasis [ref=e945]: ㅇㅇ
+                        - text: (223.39)
+                      - cell "03.18" [ref=e946]
+                      - cell "142" [ref=e947]
+                      - cell "1" [ref=e948]
+                    - row "25959 일반 서울에서 어케 장사하냐? [6] 시골호붕이 (220.80) 03.18 163 2" [ref=e949]:
+                      - cell "25959" [ref=e950]
+                      - cell "일반" [ref=e951]
+                      - cell "서울에서 어케 장사하냐? [6]" [ref=e952]:
+                        - link "서울에서 어케 장사하냐?" [ref=e953] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25959&page=1
+                          - emphasis [ref=e954]
+                          - text: 서울에서 어케 장사하냐?
+                        - link "[6]" [ref=e955] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25959&t=cv
+                      - cell "시골호붕이 (220.80)" [ref=e956] [cursor=pointer]:
+                        - generic "시골호붕이" [ref=e957]:
+                          - emphasis [ref=e958]: 시골호붕이
+                        - text: (220.80)
+                      - cell "03.18" [ref=e959]
+                      - cell "163" [ref=e960]
+                      - cell "2" [ref=e961]
+                    - row "25958 일반 비와서 좀 좋았는데 [2] lightcityclub 갤로그로 이동합니다. 03.18 78 0" [ref=e962]:
+                      - cell "25958" [ref=e963]
+                      - cell "일반" [ref=e964]
+                      - cell "비와서 좀 좋았는데 [2]" [ref=e965]:
+                        - link "비와서 좀 좋았는데" [ref=e966] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25958&page=1
+                          - emphasis [ref=e967]
+                          - text: 비와서 좀 좋았는데
+                        - link "[2]" [ref=e968] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25958&t=cv
+                      - cell "lightcityclub 갤로그로 이동합니다." [ref=e969] [cursor=pointer]:
+                        - generic "lightcityclub" [ref=e970]:
+                          - emphasis [ref=e971]: lightcityclub
+                        - img "갤로그로 이동합니다." [ref=e973]
+                      - cell "03.18" [ref=e974]
+                      - cell "78" [ref=e975]
+                      - cell "0" [ref=e976]
+                    - row "25957 일반 3시간 한그릇2개 [1] 자붕이 (124.63) 03.18 85 1" [ref=e977]:
+                      - cell "25957" [ref=e978]
+                      - cell "일반" [ref=e979]
+                      - cell "3시간 한그릇2개 [1]" [ref=e980]:
+                        - link "3시간 한그릇2개" [ref=e981] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25957&page=1
+                          - emphasis [ref=e982]
+                          - text: 3시간 한그릇2개
+                        - link "[1]" [ref=e983] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/mgallery/board/view/?id=sajang&no=25957&t=cv
+                      - cell "자붕이 (124.63)" [ref=e984] [cursor=pointer]:
+                        - generic "자붕이" [ref=e985]:
+                          - emphasis [ref=e986]: 자붕이
+                        - text: (124.63)
+                      - cell "03.18" [ref=e987]
+                      - cell "85" [ref=e988]
+                      - cell "1" [ref=e989]
+                    - row "25956 일반 비와서 노는중 형형섹섹보자기 갤로그로 이동합니다. 03.18 54 0" [ref=e990]:
+                      - cell "25956" [ref=e991]
+                      - cell "일반" [ref=e992]
+                      - cell "비와서 노는중" [ref=e993]:
+                        - link "비와서 노는중" [ref=e994] [cursor=pointer]:
+                          - /url: /mgallery/board/view/?id=sajang&no=25956&page=1
+                          - emphasis [ref=e995]
+                          - text: 비와서 노는중
+                      - cell "형형섹섹보자기 갤로그로 이동합니다." [ref=e996] [cursor=pointer]:
+                        - generic "형형섹섹보자기" [ref=e997]:
+                          - emphasis [ref=e998]: 형형섹섹보자기
+                        - img "갤로그로 이동합니다." [ref=e1000]
+                      - cell "03.18" [ref=e1001]
+                      - cell "54" [ref=e1002]
+                      - cell "0" [ref=e1003]
+                - generic [ref=e1004]:
+                  - generic [ref=e1005]:
+                    - button "전체글" [ref=e1006] [cursor=pointer]
+                    - button "개념글" [ref=e1007] [cursor=pointer]
+                  - button "글쓰기" [ref=e1009] [cursor=pointer]
+                - generic [ref=e1010]:
+                  - generic [ref=e1011]:
+                    - emphasis [ref=e1012]: "1"
+                    - link "2" [ref=e1013] [cursor=pointer]:
+                      - /url: /mgallery/board/lists/?id=sajang&page=2
+                    - link "3" [ref=e1014] [cursor=pointer]:
+                      - /url: /mgallery/board/lists/?id=sajang&page=3
+                    - link "4" [ref=e1015] [cursor=pointer]:
+                      - /url: /mgallery/board/lists/?id=sajang&page=4
+                    - link "5" [ref=e1016] [cursor=pointer]:
+                      - /url: /mgallery/board/lists/?id=sajang&page=5
+                    - link "6" [ref=e1017] [cursor=pointer]:
+                      - /url: /mgallery/board/lists/?id=sajang&page=6
+                    - link "7" [ref=e1018] [cursor=pointer]:
+                      - /url: /mgallery/board/lists/?id=sajang&page=7
+                    - link "8" [ref=e1019] [cursor=pointer]:
+                      - /url: /mgallery/board/lists/?id=sajang&page=8
+                    - link "9" [ref=e1020] [cursor=pointer]:
+                      - /url: /mgallery/board/lists/?id=sajang&page=9
+                    - link "10" [ref=e1021] [cursor=pointer]:
+                      - /url: /mgallery/board/lists/?id=sajang&page=10
+                    - link "11" [ref=e1022] [cursor=pointer]:
+                      - /url: /mgallery/board/lists/?id=sajang&page=11
+                    - link "12" [ref=e1023] [cursor=pointer]:
+                      - /url: /mgallery/board/lists/?id=sajang&page=12
+                    - link "13" [ref=e1024] [cursor=pointer]:
+                      - /url: /mgallery/board/lists/?id=sajang&page=13
+                    - link "14" [ref=e1025] [cursor=pointer]:
+                      - /url: /mgallery/board/lists/?id=sajang&page=14
+                    - link "15" [ref=e1026] [cursor=pointer]:
+                      - /url: /mgallery/board/lists/?id=sajang&page=15
+                    - link "다음" [ref=e1027] [cursor=pointer]:
+                      - /url: /mgallery/board/lists/?id=sajang&page=16
+                    - link "끝" [ref=e1028] [cursor=pointer]:
+                      - /url: /mgallery/board/lists/?id=sajang&page=385
+                  - button "페이지 이동" [ref=e1030] [cursor=pointer]: 페이지 이동
+                  - text: /
+                - group "갤러리 내부 검색" [ref=e1033]:
+                  - generic [ref=e1034]:
+                    - generic [ref=e1036] [cursor=pointer]:
+                      - text: 제목+내용
+                      - emphasis [ref=e1038]
+                    - generic [ref=e1039]:
+                      - textbox "검색어 입력" [ref=e1041]
+                      - button [ref=e1042] [cursor=pointer]
+              - generic [ref=e1044]:
+                - generic [ref=e1045]:
+                  - strong [ref=e1047] [cursor=pointer]: 로그인해 주세요.
+                  - generic [ref=e1048]:
+                    - link "즐겨찾기" [ref=e1050] [cursor=pointer]:
+                      - /url: javascript:;
+                    - generic [ref=e1051]: "|스크랩"
+                    - generic [ref=e1052]:
+                      - text: "|"
+                      - link "알림" [ref=e1053] [cursor=pointer]:
+                        - /url: javascript:;
+                        - emphasis [ref=e1054]
+                        - text: 알림
+                  - text: "| | | |"
+                - iframe [ref=e1057]:
+                  - iframe [ref=f274e2]:
+                    - insertion [ref=f280e2]:
+                      - iframe [ref=f280e5]:
+                        - generic [ref=f285e3]:
+                          - link "크리테오의 광고입니다 굿리치" [ref=f285e4] [cursor=pointer]:
+                            - /url: https://cat.jp2.as.criteo.com/delivery/ckn.php?cppv=3&cpp=XhFDtlHZ1afJ-0_GjRJQKH1O1RT09piJT5HHUrVwr8s5tbTxdYKUHFtZnxnL5-bGuL8TQdziyARfog3bvxR0LPbemJQDnbsY94_eActujJNJAspxB05I8pfkhee3b2sfcBitztYVUtIQ23qF3jky2mR_sk06FtU1j3Sf-kvl2DYCcrCOxBbE-BOOzXpsx0mCCHv_PmsYOwCtVjokbt40RaFzXUUw7YT9v5_cbXqFhSpCYF1ryzMyH2OiiTKcEMKJvvqO0OtzrpUsqhGEntC6Ws1r006hghfwAeSaXMzoou1US_4MA58CQU80Kh8FnFJtsUNWlke-gwTYGUlZfvm6sfwnVSGXOte0oku1x2DhLqSiBPDtUPSnVQd_JsVGreI3tDyZmlfGkUdZURxrVuKMuR4_Z5xAwxYD6RhoGgdBZSD8y9UM0YaCaG1cSLksOtlUZIs-aJ3wlgNuYo1Q9EkEoRONdRltcbrQCjUFy4_Mjubdj22A-Esa9pq_sS6BLVCL2wb8vY2iwqUSJ1S1_ejG2gXNmcE_8G8Ucl0VH-F4HttXCcJSQ8z6W63SdSL5DPmC_d7v7Pn9R7F5QrkiM8O-ZLDcZEUx4ADTNkIpkx_fMVToezJA&maxdest=https%3A%2F%2Fnews.wec.co.kr%2Fgoodrich%2Fpc%3Fboard_id%3D109%26site_id%3D10%26page_cd%3Dcriteo_pc_sil3%26utm_source%3Dcriteo%26utm_medium%3Ddisplay%26utm_campaign%3D%25EA%25B5%25BF%25EB%25A6%25AC%25EC%25B9%2598-%25EC%258B%25A4%25EB%25B9%2584-pc-sil1%26utm_id%3D477915%26cto_pld%3Dg-HuAnPCAQD5D1iJusEXyA
+                            - img "크리테오의 광고입니다" [ref=f285e6]
+                            - generic [ref=f285e8]: 굿리치
+                          - link "크리테오의 광고입니다 크리테오의 광고입니다 “월 만원대” 실손보험 최적가 비교! \"할인… “보험료 절감 기회!” 암·실손·치매·연금·상해보험까지 통합 비교하고 최적 조건… 바로가기" [ref=f285e9] [cursor=pointer]:
+                            - /url: https://cat.jp2.as.criteo.com/delivery/ckn.php?cppv=3&cpp=XhFDtlHZ1afJ-0_GjRJQKH1O1RT09piJT5HHUrVwr8s5tbTxdYKUHFtZnxnL5-bGuL8TQdziyARfog3bvxR0LPbemJQDnbsY94_eActujJNJAspxB05I8pfkhee3b2sfcBitztYVUtIQ23qF3jky2mR_sk06FtU1j3Sf-kvl2DYCcrCOxBbE-BOOzXpsx0mCCHv_PmsYOwCtVjokbt40RaFzXUUw7YT9v5_cbXqFhSpCYF1ryzMyH2OiiTKcEMKJvvqO0OtzrpUsqhGEntC6Ws1r006hghfwAeSaXMzoou1US_4MA58CQU80Kh8FnFJtsUNWlke-gwTYGUlZfvm6sfwnVSGXOte0oku1x2DhLqSiBPDtUPSnVQd_JsVGreI3tDyZmlfGkUdZURxrVuKMuR4_Z5xAwxYD6RhoGgdBZSD8y9UM0YaCaG1cSLksOtlUZIs-aJ3wlgNuYo1Q9EkEoRONdRltcbrQCjUFy4_Mjubdj22A-Esa9pq_sS6BLVCL2wb8vY2iwqUSJ1S1_ejG2gXNmcE_8G8Ucl0VH-F4HttXCcJSQ8z6W63SdSL5DPmC_d7v7Pn9R7F5QrkiM8O-ZLDcZEUx4ADTNkIpkx_fMVToezJA&maxdest=https%3A%2F%2Fnews.wec.co.kr%2Fgoodrich%2Fpc%3Fboard_id%3D109%26site_id%3D10%26page_cd%3Dcriteo_pc_sil3%26utm_source%3Dcriteo%26utm_medium%3Ddisplay%26utm_campaign%3D%25EA%25B5%25BF%25EB%25A6%25AC%25EC%25B9%2598-%25EC%258B%25A4%25EB%25B9%2584-pc-sil1%26utm_id%3D477915%26cto_pld%3Dg-HuAnPCAQD5D1iJusEXyA
+                            - img "크리테오의 광고입니다" [ref=f285e12]
+                            - img "크리테오의 광고입니다" [ref=f285e17]
+                            - generic [ref=f285e18]:
+                              - strong [ref=f285e19]: “월 만원대” 실손보험 최적가 비교! "할인…
+                              - generic [ref=f285e20]: “보험료 절감 기회!” 암·실손·치매·연금·상해보험까지 통합 비교하고 최적 조건…
+                            - generic [ref=f285e21]: 바로가기
+                          - link "광고 정보" [ref=f285e23] [cursor=pointer]:
+                            - /url: https://privacy.as.criteo.com/adchoices?cppv=3&cpp=NME5EUqJIK2RC_BgLITll80YCNBGxUybL2rpmCYf0j-psYzrseqXGVgNwUzsvdeE7lRhG77Cu0ey7NH_s8SLkHdfa-ue0_c7zvsEJ_wCipsmxipfkBo_SDdlzNy6itgVA9Rml4JhB9aH0SlcJS1ACjbS-eQ
+                            - generic [ref=f285e24]: 광고 정보
+                - article [ref=e1058]:
+                  - generic [ref=e1059]:
+                    - generic [ref=e1060]:
+                      - heading "실시간 베스트" [level=3] [ref=e1061]:
+                        - link "실시간 베스트" [ref=e1062] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/lists?id=dcbest
+                      - generic [ref=e1063]:
+                        - generic [ref=e1064]:
+                          - strong [ref=e1065]: "1"
+                          - text: /8
+                        - button [ref=e1066] [cursor=pointer]:
+                          - emphasis [ref=e1067]
+                        - button [ref=e1068] [cursor=pointer]:
+                          - emphasis [ref=e1069]
+                    - generic [ref=e1070]:
+                      - generic [ref=e1071]:
+                        - link "이란 전쟁 종료? 트럼프 \"5가지 전쟁 목표 달성 임박\"…" [ref=e1073] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/view/?id=dcbest&no=414713
+                          - strong [ref=e1076]: 이란 전쟁 종료? 트럼프 "5가지 전쟁 목표 달성 임박"…
+                        - link "스압) NPB 유니폼 모은것들" [ref=e1078] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/view/?id=dcbest&no=414665
+                          - strong [ref=e1081]: 스압) NPB 유니폼 모은것들
+                      - list [ref=e1082]:
+                        - listitem [ref=e1083]:
+                          - link "싱글벙글 국방비 지출이 큰 나라 Top 10" [ref=e1084] [cursor=pointer]:
+                            - /url: https://gall.dcinside.com/board/view/?id=dcbest&no=414580
+                        - listitem [ref=e1085]:
+                          - link "여자축구 ‘벤치 규정’ 바꾼 FIFA… 여성 지도자 없으면 못 뛴다" [ref=e1086] [cursor=pointer]:
+                            - /url: https://gall.dcinside.com/board/view/?id=dcbest&no=414588
+                        - listitem [ref=e1087]:
+                          - link "혐주의) [요리대회] 밀웜 두쫀쿠" [ref=e1088] [cursor=pointer]:
+                            - /url: https://gall.dcinside.com/board/view/?id=dcbest&no=414584
+                        - listitem [ref=e1089]:
+                          - link "우리은행 홍보하러 간 김선태 근황" [ref=e1090] [cursor=pointer]:
+                            - /url: https://gall.dcinside.com/board/view/?id=dcbest&no=414686
+                        - listitem [ref=e1091]:
+                          - link "싱글벙글 애완두꺼비의 일상" [ref=e1092] [cursor=pointer]:
+                            - /url: https://gall.dcinside.com/board/view/?id=dcbest&no=414671
+                - article [ref=e1093]:
+                  - generic [ref=e1094]:
+                    - generic [ref=e1095]:
+                      - heading "디시미디어" [level=3] [ref=e1096]:
+                        - link "디시미디어" [ref=e1097] [cursor=pointer]:
+                          - /url: javascript:mediaTabMove('media');
+                      - heading "| 디시이슈" [level=3] [ref=e1098]:
+                        - text: "|"
+                        - link "디시이슈" [ref=e1099] [cursor=pointer]:
+                          - /url: javascript:mediaTabMove('issue');
+                      - generic [ref=e1100]:
+                        - generic [ref=e1101]:
+                          - strong [ref=e1102]: "1"
+                          - text: /2
+                        - button [ref=e1103] [cursor=pointer]:
+                          - emphasis [ref=e1104]
+                        - button [ref=e1105] [cursor=pointer]:
+                          - emphasis [ref=e1106]
+                    - generic [ref=e1107]:
+                      - generic [ref=e1108]:
+                        - link "1 인플루언서 픽시(@_pixie.00)의 치명적 아우라! '스네이크 스킨' 비키니로 완성한 팜므파탈 무드" [ref=e1110] [cursor=pointer]:
+                          - /url: https://issuefeed.dcinside.com/content/2188484
+                          - generic [ref=e1112]:
+                            - generic [ref=e1113]: "1"
+                            - strong [ref=e1114]: 인플루언서 픽시(@_pixie.00)의 치명적 아우라! '스네이크 스킨' 비키니로 완성한 팜므파탈 무드
+                        - link "2 인플루언서 하린 비키니, 럭셔리한 주얼리 포인트" [ref=e1116] [cursor=pointer]:
+                          - /url: https://issuefeed.dcinside.com/content/2189233
+                          - generic [ref=e1118]:
+                            - generic [ref=e1119]: "2"
+                            - strong [ref=e1120]: 인플루언서 하린 비키니, 럭셔리한 주얼리 포인트
+                      - list [ref=e1121]:
+                        - listitem [ref=e1122]:
+                          - link "3 이혼 12년만에 드디어 재혼 소식 전한 서장훈" [ref=e1123] [cursor=pointer]:
+                            - /url: https://issuefeed.dcinside.com/content/2186101
+                        - listitem [ref=e1124]:
+                          - link "4 공항에서 강강술래? \"대통령 경호도 이렇게는 안 한다\" 아이돌 경호 대참사" [ref=e1125] [cursor=pointer]:
+                            - /url: https://issuefeed.dcinside.com/content/2189232
+                        - listitem [ref=e1126]:
+                          - link "5 유명 연예인의 현재 아내, 상간 여성(?)…결국 삼자대면으로 만나" [ref=e1127] [cursor=pointer]:
+                            - /url: https://issuefeed.dcinside.com/content/2188415
+                - article [ref=e1128]:
+                  - generic [ref=e1129]:
+                    - generic [ref=e1130]:
+                      - heading "개념글 [ 피겨스케이팅 ]" [level=3] [ref=e1131]:
+                        - link "개념글 [ 피겨스케이팅 ]" [ref=e1132] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/view/?id=figureskating_new&no=4588750
+                          - text: 개념글
+                          - generic [ref=e1133]:
+                            - text: "["
+                            - emphasis [ref=e1134]: 피겨스케이팅
+                            - text: "]"
+                      - generic [ref=e1135]:
+                        - generic [ref=e1136]:
+                          - strong [ref=e1137]: "1"
+                          - text: /25
+                        - button [ref=e1138] [cursor=pointer]:
+                          - emphasis [ref=e1139]
+                        - button [ref=e1140] [cursor=pointer]:
+                          - emphasis [ref=e1141]
+                    - list [ref=e1142]:
+                      - listitem [ref=e1143]:
+                        - link "트루 xx기 진짜 미친거아니긔?" [ref=e1144] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/view/?id=figureskating_new&no=4588750
+                      - listitem [ref=e1145]:
+                        - link "말깅이는 커여운데" [ref=e1146] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/view/?id=figureskating_new&no=4586264
+                      - listitem [ref=e1147]:
+                        - link "연느 쌀국에서 반응온거 맞는데" [ref=e1148] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/view/?id=figureskating_new&no=4585399
+                      - listitem [ref=e1149]:
+                        - link "수성구 범4만3 부촌이 아니라 수성동 외곽이시잖아요" [ref=e1150] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/view/?id=figureskating_new&no=4585347
+                      - listitem [ref=e1151]:
+                        - link "외퀴들도 다 알아" [ref=e1152] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/view/?id=figureskating_new&no=4585094
+                      - listitem [ref=e1153]:
+                        - link "둥이 유튜브 장문댓글" [ref=e1154] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/view/?id=figureskating_new&no=4583904
+      - insertion [ref=e1158]:
+        - iframe [ref=e1161]:
+          - generic [ref=f270e3]:
+            - link "OK웨딩 다이렉트 웨딩페어 2월21~22일 in 대구그랜드호텔/웨딩홀계약금지원/혼수POWER SALE http://대구웨딩박람회.kr 자세히 보기" [ref=f270e4] [cursor=pointer]:
+              - /url: https://ka.ad.daum.net/click/http%3A%2F%2F%EB%8C%80%EA%B5%AC%EC%9B%A8%EB%94%A9%EB%B0%95%EB%9E%8C%ED%9A%8C.kr%3Futm_source%3Dkakao%26utm_medium%3Dkeyword%26utm_campaign%3DPREMIUM_LINK%26k_campaign%3D309648908443467777%26k_adgroup%3D309649052510900225%26k_media%3DPREMIUM_LINK_CONTENT%26k_creative%3D802948036902555648%26k_creativelink%3D802948036961275904%26k_rank%3D1%26kclid%3DS7WDdGhdBzXChoWkx_niupWouk49YVpVMNhpw6i2p6H9mBf8CcdK94AipAbi5h-HZcgO9NeAPAtVuYjMuTLJagy2cVae7evyM7FV4TdD_OM/Tpn9jrMaHHPsWmxn2b6D509CjB5nXvTkmyunD9bDMwwygNQre1hguArkAd8LF7aDhYTE13faE6aL4ZAjfRgrP5pp-S3P4OIMom-37NmckxS9NornuM0GLQQxjbEcCz25m9s1WG2HGZngkI7NMDZay4yMECbZr_fvZp0pcDuoY2VC38q3Jr05muVTCwrOcgQWArSgpTQ25FwiExyOJVJAeLxlPkxAz5cEJWwbteuPxm0smqPkYRD-3yPUSBcg4hqDXzxoOgtld0EU5JoOOCfe5BvuPx2RtNom7mkPaiHDKtPCSi8wgPqS1ONFWu4FD9ZPnsqsRMUwoyOK9upb8zOYjf2jmpOcpJgf87VDx_800wxILdwxyIqcg5t8Jb0KYmShZ-0pKmKuw7q2JjNdXOfjZxYBNd12oMiCHGIR1-Er5LQJc_b7aEvBOnFtfDlPbs_aLYK3F8LZZIe4LAa7voK3FHDDsFZd15x3tGMRByF0poFDFS2FUEOA973qF675z3qJ2Z3w8H0R7OU_KBZYob2BwGsd5sPEb7BxT5w4EWjyhzgDx2CKMuViL18TOSH2xKps5jS93TGnhn8DHCZcZQWZvB5Nb39Z1emyi-FyHAL4hhQ=?p=8M3jjTO1XbEe50tko59MTg
+              - generic [ref=f270e6]:
+                - strong [ref=f270e7]: OK웨딩 다이렉트 웨딩페어
+                - generic [ref=f270e8]: 2월21~22일 in 대구그랜드호텔/웨딩홀계약금지원/혼수POWER SALE
+                - generic [ref=f270e10]: http://대구웨딩박람회.kr
+              - generic [ref=f270e12]: 자세히 보기
+            - link "광고 정보" [ref=f270e13] [cursor=pointer]:
+              - /url: https://info.ds.kakao.com/optout.do
+              - img "광고 정보" [ref=f270e14]
+      - link [ref=e1162] [cursor=pointer]:
+        - /url: __CLICK__
+        - img [ref=e1163]
+      - generic [ref=e1164]:
+        - iframe [ref=e1166]:
+          - iframe [ref=f266e4]:
+            - generic [ref=f290e3]:
+              - button [ref=f290e29]:
+                - img [ref=f290e30]
+              - generic [ref=f290e5]:
+                - generic [ref=f290e7]:
+                  - generic [ref=f290e32]:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - button "Pause video":
+                            - img
+                    - button "Unmute video" [ref=f290e34] [cursor=pointer]
+                  - button "재생" [ref=f290e13]:
+                    - img [ref=f290e15] [cursor=pointer]
+                  - img [ref=f290e20]
+                - button "자세히 알아보기" [ref=f290e27] [cursor=pointer]
+        - generic [ref=e1168] [cursor=pointer]: x
+    - contentinfo [ref=e1169]:
+      - generic [ref=e1171]:
+        - generic [ref=e1172]:
+          - generic [ref=e1173]:
+            - term [ref=e1174]: 게임
+            - definition [ref=e1175]:
+              - link "던전앤파이터" [ref=e1176] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=d_fighter_new2
+            - definition [ref=e1177]:
+              - link "메이플스토리" [ref=e1178] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=maplestory_new
+            - definition [ref=e1179]:
+              - link "승리의 여신 니케" [ref=e1180] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=projectnike
+            - definition [ref=e1181]:
+              - link "아이돌마스터" [ref=e1182] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=idolmaster_new1
+            - definition [ref=e1183]:
+              - link "리그 오브 레전드" [ref=e1184] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=leagueoflegends6
+            - definition [ref=e1185]:
+              - link "FC 온라인" [ref=e1186] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=fifaonline
+            - definition [ref=e1187]:
+              - link "사운드 볼텍스" [ref=e1188] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=sdvx
+            - definition [ref=e1189]:
+              - link "로스트아크" [ref=e1190] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=lostark
+            - definition [ref=e1191]:
+              - link "포켓몬스터" [ref=e1192] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=pokemon
+            - definition [ref=e1193]:
+              - link "테일즈런너" [ref=e1194] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=tr
+          - generic [ref=e1195]:
+            - term [ref=e1196]: 연예/방송
+            - definition [ref=e1197]:
+              - link "남자 연예인" [ref=e1198] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=m_entertainer_new1
+            - definition [ref=e1199]:
+              - link "여자 연예인" [ref=e1200] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=w_entertainer
+            - definition [ref=e1201]:
+              - link "방탄소년단" [ref=e1202] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=bts
+            - definition [ref=e1203]:
+              - link "일본 연예" [ref=e1204] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=japan_entertainment
+            - definition [ref=e1205]:
+              - link "윤하" [ref=e1206] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=yunha
+            - definition [ref=e1207]:
+              - link "기타 국내 드라마" [ref=e1208] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=drama_new3
+            - definition [ref=e1209]:
+              - link "나는 솔로" [ref=e1210] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=iamsolo
+            - definition [ref=e1211]:
+              - link "보이즈 2 플래닛" [ref=e1212] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=boysiiplanet
+            - definition [ref=e1213]:
+              - link "걸스플래닛999" [ref=e1214] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=grsgills
+            - definition [ref=e1215]:
+              - link "기타 미국드라마" [ref=e1216] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=f_drama
+          - generic [ref=e1217]:
+            - term [ref=e1218]: 스포츠
+            - definition [ref=e1219]:
+              - link "해외야구" [ref=e1220] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=baseball_ab2
+            - definition [ref=e1221]:
+              - link "국내야구" [ref=e1222] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=baseball_new13
+            - definition [ref=e1223]:
+              - link "한화 이글스" [ref=e1224] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=hanwhaeagles_new
+            - definition [ref=e1225]:
+              - link "LG 트윈스" [ref=e1226] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=lgtwins_new
+            - definition [ref=e1227]:
+              - link "롯데 자이언츠" [ref=e1228] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=giants_new3
+            - definition [ref=e1229]:
+              - link "삼성 라이온즈" [ref=e1230] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=samsunglions_new
+            - definition [ref=e1231]:
+              - link "SSG 랜더스" [ref=e1232] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=skwyverns_new1
+            - definition [ref=e1233]:
+              - link "KIA 타이거즈" [ref=e1234] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=tigers_new2
+            - definition [ref=e1235]:
+              - link "두산 베어스" [ref=e1236] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=doosanbears_new1
+            - definition [ref=e1237]:
+              - link "키움 히어로즈" [ref=e1238] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=sh_new
+          - generic [ref=e1239]:
+            - term [ref=e1240]: 교육/금융/IT
+            - definition [ref=e1241]:
+              - link "대출" [ref=e1242] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=loan_new1
+            - definition [ref=e1243]:
+              - link "부동산" [ref=e1244] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=immovables
+            - definition [ref=e1245]:
+              - link "주식" [ref=e1246] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=neostock
+            - definition [ref=e1247]:
+              - link "컴퓨터 본체" [ref=e1248] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=pridepc_new4
+            - definition [ref=e1249]:
+              - link "스마트폰" [ref=e1250] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=smartphone
+            - definition [ref=e1251]:
+              - link "자격증" [ref=e1252] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=coq
+            - definition [ref=e1253]:
+              - link "학점은행제" [ref=e1254] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=acbs
+            - definition [ref=e1255]:
+              - link "토익" [ref=e1256] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=toeic
+            - definition [ref=e1257]:
+              - link "정치, 사회" [ref=e1258] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=stock_new2
+            - definition [ref=e1259]:
+              - link "의학" [ref=e1260] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=medicalscience
+          - generic [ref=e1261]:
+            - term [ref=e1262]: 여행/음식/생물
+            - definition [ref=e1263]:
+              - link "도시" [ref=e1264] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=city
+            - definition [ref=e1265]:
+              - link "여행-일본" [ref=e1266] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=travel_japan
+            - definition [ref=e1267]:
+              - link "편의점" [ref=e1268] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=cs_new1
+            - definition [ref=e1269]:
+              - link "치킨" [ref=e1270] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=chicken
+            - definition [ref=e1271]:
+              - link "기타음식" [ref=e1272] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=food
+            - definition [ref=e1273]:
+              - link "과자, 빵" [ref=e1274] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=sweets
+            - definition [ref=e1275]:
+              - link "파충류, 양서류" [ref=e1276] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=reptile
+            - definition [ref=e1277]:
+              - link "식물" [ref=e1278] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=tree
+            - definition [ref=e1279]:
+              - link "야옹이" [ref=e1280] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=cat
+            - definition [ref=e1281]:
+              - link "멍멍이" [ref=e1282] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=dog
+          - generic [ref=e1283]:
+            - term [ref=e1284]: 취미/생활
+            - definition [ref=e1285]:
+              - link "인터넷방송" [ref=e1286] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=ib_new2
+            - definition [ref=e1287]:
+              - link "판타지" [ref=e1288] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=fantasy_new2
+            - definition [ref=e1289]:
+              - link "토이" [ref=e1290] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=toy
+            - definition [ref=e1291]:
+              - link "역학" [ref=e1292] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=divination_new1
+            - definition [ref=e1293]:
+              - link "LGBT" [ref=e1294] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=lgbt
+            - definition [ref=e1295]:
+              - link "미스터리" [ref=e1296] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=mystery
+            - definition [ref=e1297]:
+              - link "만화" [ref=e1298] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=comic_new6
+            - definition [ref=e1299]:
+              - link "카툰-연재" [ref=e1300] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=cartoon
+            - definition [ref=e1301]:
+              - link "안경" [ref=e1302] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=fashion_acc
+            - definition [ref=e1303]:
+              - link "향수, 화장품" [ref=e1304] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=cosmetic
+        - generic [ref=e1306]:
+          - link "야간모드" [ref=e1307] [cursor=pointer]:
+            - /url: javascript:;
+            - emphasis [ref=e1308]
+            - text: 야간모드
+          - link "맨위로" [ref=e1309] [cursor=pointer]:
+            - /url: "#top"
+            - emphasis [ref=e1310]
+            - text: 맨위로
+      - generic [ref=e1311]:
+        - link "회사소개" [ref=e1312] [cursor=pointer]:
+          - /url: https://www.dcinside.com/company
+        - link "제휴안내" [ref=e1313] [cursor=pointer]:
+          - /url: https://www.dcinside.com/company#alliance
+        - link "광고안내" [ref=e1314] [cursor=pointer]:
+          - /url: https://nstatic.dcinside.com/dc/dcad/w/index.html
+        - link "이용약관" [ref=e1315] [cursor=pointer]:
+          - /url: https://nstatic.dcinside.com/dc/w/policy/policy_index.html
+        - link "개인정보처리방침" [ref=e1316] [cursor=pointer]:
+          - /url: https://nstatic.dcinside.com/dc/w/policy/privacy_index.html
+        - link "청소년보호정책" [ref=e1317] [cursor=pointer]:
+          - /url: https://nstatic.dcinside.com/dc/w/policy/youth_policy.html
+        - link "마이너 갤러리 운영원칙" [ref=e1318] [cursor=pointer]:
+          - /url: javascript:;
+      - generic [ref=e1319]: Copyright ⓒ 1999 - 2026 dcinside. All rights reserved.
+  - textbox [ref=e1320]

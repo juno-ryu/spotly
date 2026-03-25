@@ -84,7 +84,7 @@ AI가 뽑아준 **맞춤 창업 전략**과
 
 👉 전체 리포트 보기: {리포트 URL}?utm_source=naver_blog&utm_medium=post&utm_campaign={지역}_{업종}
 
-👉 다른 지역/업종 무료 분석: https://spotly-beta.vercel.app?utm_source=naver_blog&utm_medium=post&utm_campaign=main
+👉 다른 지역/업종 무료 분석: https://spotly.website?utm_source=naver_blog&utm_medium=post&utm_campaign=main
 
 ━━━━━━━━━━━━━━
 
@@ -172,10 +172,10 @@ AI가 뽑아준 **맞춤 창업 전략**과
 
 | # | 리포트 | ID | 점수 | 후킹 포인트 |
 |---|--------|-----|------|------------|
-| 1 | 강남역 이자카야 | cmmz2ceq10000jm04pum21y1o | 78 | ✅ 작성 완료 (첫 글) |
-| 2 | 건대입구 카페 | cmmz10a5n0001ld04m4z7ljuy | 64 | 검색량 높음 + "카페 101개" 임팩트 |
-| 3 | 홍대 한식 | cmn1b81no0000jy04gs4wl0fv | 67 | 검색량 최상 + 경쟁F인데 매출A 반전 |
-| 4 | 이태원 카페 | cmn2lfy7j0000ju0416sktfc3 | 59 | 검색량 높음 + "핫플인데 59점?" 반전 |
+| 1 | 강남역 이자카야 | cmmz2ceq10000jm04pum21y1o | 78 | ✅ 작성 완료 (2026.3.23) |
+| 2 | 건대입구 카페 | cmmz10a5n0001ld04m4z7ljuy | 64 | ✅ 작성 완료 (2026.3.23) |
+| 3 | 홍대 한식 | cmn1b81no0000jy04gs4wl0fv | 67 | ✅ 작성 완료 (2026.3.24) |
+| 4 | 이태원 카페 | cmn2lfy7j0000ju0416sktfc3 | 59 | ✅ 작성 완료 (2026.3.24) |
 | 5 | 수유동 한식 | cmmzs68hu0000l504utfjsq64 | 88 | 전체 최고점 후킹 |
 | 6 | 강릉 치킨 | cmmyyzl5z0000jp04w4f9o8fz | 27 | 전체 최저점 "여기서 창업하면 안 됩니다" |
 

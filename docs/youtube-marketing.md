@@ -106,15 +106,50 @@
 | 59 | HhJLp_zJl1o | 2026년 무인창업 아이템 한번에 보기 | - | 영종하늘도시 한식 (C55) | smallcap |
 | 60 | nSJT5mkN0T0 | 음식점 창업 준비 반드시 알아야 할 것 | - | 부산 전포동 일식 (C46) | foodprep |
 
+### 2026-03-25 (5차 — 61~90건)
+
+| # | 영상 ID | 영상 제목 | 채널 | 조회수 | 사용 리포트 | UTM campaign |
+|---|---------|----------|------|--------|-----------|-------------|
+| 61 | Rz5AWitp1Wg | 치킨집 차려봤더니… 폐업률이 창업률보다 높은데 왜 계속 치킨집을 차릴까? | 골라듄다큐 | - | 건대입구역 카페 (B64) | docuit |
+| 62 | 8OukMh87Ia4 | 600만 자영업자 시대, 식당이 '폐업률 1위'를 차지하는 이유 | 다큐시선 | - | 강남역 이자카야 (A78) | docusision |
+| 63 | JOfOnvmlOBU | 은퇴 대신 폐업 / KBS 2025.06.30. | KBS | - | 홍대 한식 (B67) | kbs2025 |
+| 64 | J_5PDsa9olc | 줄폐업중인 편의점 2년 뒤 빚더미에 앉은 충격적인 이유 | - | - | 천호동 로데오 카페 (A80) | conveni |
+| 65 | r6QO0AYeFMU | 역대 최고 폐업률 찍은 대한민국 자영업자 현실 | 다큐시선 | - | 다산역 카페 (B64) | docusision2 |
+| 66 | YES7EjKNiPg | 자영업자 부채 1064조 원! 동대문 공실률 6~14%! 자영업 보고서 | KBS | - | 방이동 먹자골목 한식 (B67) | kbs20250610 |
+| 67 | A6ZXqR9Gbow | 매장수 벌크업에 집착하더니 현재는 줄폐업? 편의점 산업 역성장 | 지식343 | - | 용리단길 카페 (B61) | jisik343 |
+| 68 | 8freNdxbi_0 | 인테리어 비용 800만원? 기존 시설 90% 살려 창업 비용 아끼기 | - | - | 양주 덕계역 카페 (B69) | interior |
+| 69 | cP5HNk4ka5c | 36살 백수가되었다 (1인미용실 창업 그리고 폐업) | - | - | 잠실역 카페 (B69) | hairsalon |
+| 70 | qUyPHV-Dwec | '돈 없어 폐업도 못해' 벼랑 끝 자영업자 | - | - | 종로3가역 한식 (B61) | cantclose |
+| 71 | LnFh297gOOk | 치킨집 사장님이 알려주는 프랜차이즈 치킨집의 적나라한 현실 | 스튜디오 오재나 | 20만 | 천안 두정동 카페 (B66) | studioozn |
+| 72 | xBAuJNQSGng | 무인이라서 시작했는데 무인이 아닌 가게 (10년차 자영업사장) | - | - | 반포동 서래마을 카페 (B70) | unmanned2 |
+| 73 | leZ19Amxd0o | "지원금 받고 폐업할까?"… 자영업 도미노 폐업 | KBS | - | 공덕역 양식 (B66) | kbs2025nov |
+| 74 | A02qdiffs30 | 길어진 불황, 플랫폼과 대기업의 횡포… 자영업자들 | KBS 추적60분 | - | 이천 부발역 카페 (B70) | kbs60min2 |
+| 75 | qLNePEYGsCY | 카페 창업하면 왜 망함? 카페 창업이 점점 더 살아남기 어려운 이유 | 하꼰대 | 1.9만 | 신길동 호프 (B64) | hakkondae |
+| 76 | YhY-v1pCW6s | 무인 카페 창업을 시작하니 보이는 단점들과 현실 | 열심히산다 | 24만 | 일산 웨스턴돔 카페 (C51) | dayfervor2 |
+| 77 | 6ZDrc17NQgk | 무인카페 창업 전에 이 영상이 떴다면 당신은 천운입니다 | 빌드업CEO | 23만 | 가락시장역 호프 (B73) | buildupceo2 |
+| 78 | L1JdtY5WKDo | 프랜차이즈 카페 창업의 현실 \| 빽다방, 메가커피, 컴포즈, 디저트39 | 캎세연 | 85만 | 개화산역 한식 (B65) | cafeseyeon |
+| 79 | Aqnw__aSjeA | 모든 자영업이 망하는 숨겨진 진짜 이유 \| 뒤틀린 시점 | 반지하 유정수 | 24만 | 대전 노은역 한식 (C44) | banjihaceo |
+| 80 | BFPLBLDB8MU | 매장 구하기 전에 이 영상 안 보면 200% 후회 \| 좋은 자리 찾는 노하우 | 맥형TV | 13만 | 이천 창전동 호프 (C50) | macbro2 |
+| 81 | DE0joBGOSmk | 카페창업 현실 ㅣ 망하기 싫으면 이 영상 하나만 10번 보세요 | 커친놈 | 10만 | 영종하늘도시 한식 (C55) | onescoffee |
+| 82 | rf3gYBJ_ZPg | 소형 카페 창업 2개월 후기 | 사군카페인 | 4만 | 금정역 한식 (C40) | saguncafe2 |
+| 83 | 32ShCR5Np-M | 1인 카페 창업은 절대 하지 마세요! 4년차 개인카페 사장의 조언 | 커삼샌뱅 | - | 평택 소사벌 호프 (C52) | cafesandbank |
+| 84 | tzydyfhd4fc | 퇴직금으로 카페 창업하면 망합니다.. 카페 폐업률 1위 시대 | 간단경제한스푼 | 2.1만 | 의정부 민락 카페 (B61) | simplenomics |
+| 85 | lsO_aU5fXuU | 다이소 하루 450만원 팔면 한달에 얼마나 벌까? (11년차 자영업자) | 자영업 다이어리 | - | 구리 전통시장 한식 (C41) | startupdiary2 |
+| 86 | JQZe4IndWX0 | "이러다 부산 자영업 다 망해", 속수무책 폐업에 몰린 사정 / KBS | KBS News | 10만 | 부산 전포동 일식 (C46) | kbs2025oct |
+| 87 | 9BUKCdovUJQ | 초보창업자가 들어가야 할 상권과 입지 | - | - | 송파 법조타운 호프 (C58) | rookie |
+| 88 | TIBhOHefQt8 | 상권분석, A급상가 입지 파악하는 방법! 이 세가지만 기억하세요 | - | - | 간석역 한식 (C53) | aclass |
+| 89 | whpE_19bbn4 | 모르면 후회하는 무인카페 자리 찾는 방법 \| 상권분석, 자영업 현실 | - | - | 송리단길 일식 (C59) | unmanned3 |
+| 90 | EWW7d59GdvE | 카페 창업, 절대 실패하지 않는 최적의 창업 입지를 찾아라! | 구해줘 내 매장 | - | 홍대 한식 (B67) | savemystore |
+
 ### 통계
 
-- **총 댓글 수**: 60건
-- **노출 대상 총 조회수**: 약 3,000만회+
-- **사용된 고유 리포트**: 28개 + 메인링크 2건
-- **검색 키워드**: "상권분석 창업", "창업 상권 분석 입지", "카페 창업 현실", "편의점 하루 100만원", "배달앱 사장님", "치킨집 창업", "국밥집 창업", "식당 창업 비용", "상가 임대", "자영업 폐업", "프랜차이즈 현실", "매출 올리는 법", "무인 창업", "가게 자리", "창업 비용"
-- **영상 유형**: 상권분석 전문 채널 (10건), 뉴스 (15건), 창업 다큐/브이로그 (35건)
+- **총 댓글 수**: 90건
+- **노출 대상 총 조회수**: 약 3,500만회+
+- **사용된 고유 리포트**: 29개 + 메인링크 2건
+- **검색 키워드**: "상권분석 창업", "창업 상권 분석 입지", "카페 창업 현실", "편의점 하루 100만원", "배달앱 사장님", "치킨집 창업", "국밥집 창업", "식당 창업 비용", "상가 임대", "자영업 폐업", "프랜차이즈 현실", "매출 올리는 법", "무인 창업", "가게 자리", "창업 비용", "자영업 창업 현실 폐업", "카페 창업 망한 이유", "상권분석 입지 창업 비용"
+- **영상 유형**: 상권분석 전문 채널 (15건), 뉴스 (20건), 창업 다큐/브이로그 (55건)
 - **계정**: @스팟리 (유튜브 프리미엄)
-- **상태**: 60건 완료 (스팸 필터 리스크로 일시 중단, 추후 재개 가능)
+- **상태**: 90건 완료
 
 ---
 
@@ -176,32 +211,32 @@
 
 | 리포트 | URL | 등급 | 주요 수치 |
 |--------|-----|------|----------|
-| 신길동 호프 | https://spotly-beta.vercel.app/report/cmmz0w66j0000ld049kfq0v02 | B등급 64점 | 경쟁 7개, 월매출 562만, 폐업률 9.1% |
-| 건대입구역 카페 | https://spotly-beta.vercel.app/report/cmmz10a5n0001ld04m4z7ljuy | B등급 64점 | 경쟁 101개, 월매출 2,712만, 폐업률 8.2% |
-| 대전 노은역 한식 | https://spotly-beta.vercel.app/report/cmmz1fkls0000jr04r2haefy6 | C등급 44점 | 경쟁 45개, 배후인구 20,619명 |
-| 이천 창전동 호프 | https://spotly-beta.vercel.app/report/cmmz1rdr20001jr04kat8v7kv | C등급 50점 | 경쟁 21개, 배후인구 15,242명 |
-| 강남역 이자카야 | https://spotly-beta.vercel.app/report/cmmz2ceq10000jm04pum21y1o | A등급 78점 | 경쟁 4개, 월매출 6,056만, 폐업률 6% |
-| 가락시장역 호프 | https://spotly-beta.vercel.app/report/cmmz3jks80000k304jy03ve6h | B등급 73점 | 경쟁 7개, 월매출 1,507만, 폐업률 9.8% |
-| 이천 부발역 카페 | https://spotly-beta.vercel.app/report/cmmz3voyn0000l404odoqmsmi | B등급 70점 | 경쟁 1개, 배후인구 36,743명 |
-| 영종하늘도시 한식 | https://spotly-beta.vercel.app/report/cmmz43i570001l404o0rylz40 | C등급 55점 | 경쟁 0개, 배후인구 28,951명 |
-| 금정역 한식 | https://spotly-beta.vercel.app/report/cmmz4bpsm0002l404c8dz94l5 | C등급 40점 | 경쟁 45개, 배후인구 18,633명 |
-| 일산 웨스턴돔 카페 | https://spotly-beta.vercel.app/report/cmmz4kwiv0003l404sdplclck | C등급 51점 | 경쟁 43개, 배후인구 26,525명 |
-| 양주 덕계역 카페 | https://spotly-beta.vercel.app/report/cmmz4svlp0004l40428aisjrf | B등급 69점 | 경쟁 11개, 배후인구 46,448명 |
-| 평택 소사벌 호프 | https://spotly-beta.vercel.app/report/cmmz5jxvj0000k104y022fbfc | C등급 52점 | 경쟁 0개, 배후인구 19,178명 |
-| 다산역 카페 | https://spotly-beta.vercel.app/report/cmmz5stea0001k104z7ifqipl | B등급 64점 | 경쟁 35개, 배후인구 105,000명 |
-| 의정부 민락 카페 | https://spotly-beta.vercel.app/report/cmmz778rd0001i8048j2gj12m | B등급 61점 | 경쟁 38개, 배후인구 44,761명 |
-| 방이동 먹자골목 한식 | https://spotly-beta.vercel.app/report/cmmz7cghu0002i804n8rvjfle | B등급 67점 | 경쟁 45개, 월매출 6,149만, 폐업률 3.7% |
-| 용리단길 카페 | https://spotly-beta.vercel.app/report/cmmz7hs1n0003i804d7b6tyzd | B등급 61점 | 경쟁 44개, 월매출 508만, 폐업률 2.1% |
-| 구리 전통시장 한식 | https://spotly-beta.vercel.app/report/cmmz7qino0004i80429lud78z | C등급 41점 | 경쟁 45개, 배후인구 16,843명 |
-| 송리단길 일식 | https://spotly-beta.vercel.app/report/cmmz7x1by0005i804o3crk6u4 | C등급 59점 | 경쟁 27개, 월매출 482만, 폐업률 6.7% |
-| 천안 두정동 카페 | https://spotly-beta.vercel.app/report/cmmzq3ac10001js04oul1mocd | B등급 66점 | 경쟁 26개, 배후인구 63,711명 |
-| 부산 전포동 일식 | https://spotly-beta.vercel.app/report/cmmzqbsye0002js04f9864rjr | C등급 46점 | 경쟁 45개, 배후인구 20,340명 |
-| 천호동 로데오 카페 | https://spotly-beta.vercel.app/report/cmmzqi0b20003js04alylk6vq | A등급 80점 | 경쟁 42개, 폐업률 0%, 배후인구 26,294명 |
-| 송파 법조타운 호프 | https://spotly-beta.vercel.app/report/cmmzr4s4d0004js045wjf08ly | C등급 58점 | 경쟁 12개, 폐업률 13.5%, 배후인구 28,687명 |
-| 반포동 서래마을 카페 | https://spotly-beta.vercel.app/report/cmmztjxr20000k004jv14bda4 | B등급 70점 | 경쟁 28개, 유동인구 70만, 폐업률 0% |
-| 종로3가역 한식 | https://spotly-beta.vercel.app/report/cmmztqrnf0000jv04b9zzsv60 | B등급 61점 | 경쟁 45개, 유동인구 594만, 폐업률 3.5% |
-| 개화산역 한식 | https://spotly-beta.vercel.app/report/cmmzu9rcm0000ky04zofxf15l | B등급 65점 | 경쟁 23개, 배후인구 22,761명 |
-| 공덕역 양식 | https://spotly-beta.vercel.app/report/cmmzuh5yn0001ky046hrbnocn | B등급 66점 | 경쟁 13개, 배후인구 28,994명 |
-| 잠실역 카페 | https://spotly-beta.vercel.app/report/cmn1aa1vq0000jp04e1yh3ran | B등급 69점 | 경쟁 45개, 월매출 3,548만, 폐업률 5.9% |
-| 홍대 한식 | https://spotly-beta.vercel.app/report/cmn1b81no0000jy04gs4wl0fv | B등급 67점 | 경쟁 45개, 월매출 2,518만, 폐업률 4.9% |
-| 간석역 한식 | https://spotly-beta.vercel.app/report/cmn1bfual0001jy04bskfichu | C등급 53점 | 경쟁 32개, 배후인구 27,638명 |
+| 신길동 호프 | https://spotly.website/report/cmmz0w66j0000ld049kfq0v02 | B등급 64점 | 경쟁 7개, 월매출 562만, 폐업률 9.1% |
+| 건대입구역 카페 | https://spotly.website/report/cmmz10a5n0001ld04m4z7ljuy | B등급 64점 | 경쟁 101개, 월매출 2,712만, 폐업률 8.2% |
+| 대전 노은역 한식 | https://spotly.website/report/cmmz1fkls0000jr04r2haefy6 | C등급 44점 | 경쟁 45개, 배후인구 20,619명 |
+| 이천 창전동 호프 | https://spotly.website/report/cmmz1rdr20001jr04kat8v7kv | C등급 50점 | 경쟁 21개, 배후인구 15,242명 |
+| 강남역 이자카야 | https://spotly.website/report/cmmz2ceq10000jm04pum21y1o | A등급 78점 | 경쟁 4개, 월매출 6,056만, 폐업률 6% |
+| 가락시장역 호프 | https://spotly.website/report/cmmz3jks80000k304jy03ve6h | B등급 73점 | 경쟁 7개, 월매출 1,507만, 폐업률 9.8% |
+| 이천 부발역 카페 | https://spotly.website/report/cmmz3voyn0000l404odoqmsmi | B등급 70점 | 경쟁 1개, 배후인구 36,743명 |
+| 영종하늘도시 한식 | https://spotly.website/report/cmmz43i570001l404o0rylz40 | C등급 55점 | 경쟁 0개, 배후인구 28,951명 |
+| 금정역 한식 | https://spotly.website/report/cmmz4bpsm0002l404c8dz94l5 | C등급 40점 | 경쟁 45개, 배후인구 18,633명 |
+| 일산 웨스턴돔 카페 | https://spotly.website/report/cmmz4kwiv0003l404sdplclck | C등급 51점 | 경쟁 43개, 배후인구 26,525명 |
+| 양주 덕계역 카페 | https://spotly.website/report/cmmz4svlp0004l40428aisjrf | B등급 69점 | 경쟁 11개, 배후인구 46,448명 |
+| 평택 소사벌 호프 | https://spotly.website/report/cmmz5jxvj0000k104y022fbfc | C등급 52점 | 경쟁 0개, 배후인구 19,178명 |
+| 다산역 카페 | https://spotly.website/report/cmmz5stea0001k104z7ifqipl | B등급 64점 | 경쟁 35개, 배후인구 105,000명 |
+| 의정부 민락 카페 | https://spotly.website/report/cmmz778rd0001i8048j2gj12m | B등급 61점 | 경쟁 38개, 배후인구 44,761명 |
+| 방이동 먹자골목 한식 | https://spotly.website/report/cmmz7cghu0002i804n8rvjfle | B등급 67점 | 경쟁 45개, 월매출 6,149만, 폐업률 3.7% |
+| 용리단길 카페 | https://spotly.website/report/cmmz7hs1n0003i804d7b6tyzd | B등급 61점 | 경쟁 44개, 월매출 508만, 폐업률 2.1% |
+| 구리 전통시장 한식 | https://spotly.website/report/cmmz7qino0004i80429lud78z | C등급 41점 | 경쟁 45개, 배후인구 16,843명 |
+| 송리단길 일식 | https://spotly.website/report/cmmz7x1by0005i804o3crk6u4 | C등급 59점 | 경쟁 27개, 월매출 482만, 폐업률 6.7% |
+| 천안 두정동 카페 | https://spotly.website/report/cmmzq3ac10001js04oul1mocd | B등급 66점 | 경쟁 26개, 배후인구 63,711명 |
+| 부산 전포동 일식 | https://spotly.website/report/cmmzqbsye0002js04f9864rjr | C등급 46점 | 경쟁 45개, 배후인구 20,340명 |
+| 천호동 로데오 카페 | https://spotly.website/report/cmmzqi0b20003js04alylk6vq | A등급 80점 | 경쟁 42개, 폐업률 0%, 배후인구 26,294명 |
+| 송파 법조타운 호프 | https://spotly.website/report/cmmzr4s4d0004js045wjf08ly | C등급 58점 | 경쟁 12개, 폐업률 13.5%, 배후인구 28,687명 |
+| 반포동 서래마을 카페 | https://spotly.website/report/cmmztjxr20000k004jv14bda4 | B등급 70점 | 경쟁 28개, 유동인구 70만, 폐업률 0% |
+| 종로3가역 한식 | https://spotly.website/report/cmmztqrnf0000jv04b9zzsv60 | B등급 61점 | 경쟁 45개, 유동인구 594만, 폐업률 3.5% |
+| 개화산역 한식 | https://spotly.website/report/cmmzu9rcm0000ky04zofxf15l | B등급 65점 | 경쟁 23개, 배후인구 22,761명 |
+| 공덕역 양식 | https://spotly.website/report/cmmzuh5yn0001ky046hrbnocn | B등급 66점 | 경쟁 13개, 배후인구 28,994명 |
+| 잠실역 카페 | https://spotly.website/report/cmn1aa1vq0000jp04e1yh3ran | B등급 69점 | 경쟁 45개, 월매출 3,548만, 폐업률 5.9% |
+| 홍대 한식 | https://spotly.website/report/cmn1b81no0000jy04gs4wl0fv | B등급 67점 | 경쟁 45개, 월매출 2,518만, 폐업률 4.9% |
+| 간석역 한식 | https://spotly.website/report/cmn1bfual0001jy04bskfichu | C등급 53점 | 경쟁 32개, 배후인구 27,638명 |

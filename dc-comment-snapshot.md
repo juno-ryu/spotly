@@ -1,0 +1,1569 @@
+- generic [active] [ref=e1]:
+  - generic:
+    - link "통합검색 바로가기" [ref=e2] [cursor=pointer]:
+      - /url: "#search_wrap"
+      - generic [ref=e3]: 통합검색 바로가기
+    - link "본문영역 바로가기" [ref=e4] [cursor=pointer]:
+      - /url: "#container"
+      - generic [ref=e5]: 본문영역 바로가기
+    - link "페이지 하단 게시물 리스트 바로가기" [ref=e6] [cursor=pointer]:
+      - /url: "#bottom_listwrap"
+      - generic [ref=e7]: 페이지 하단 게시물 리스트 바로가기
+    - link "페이지 하단 로그인영역 바로가기" [ref=e8] [cursor=pointer]:
+      - /url: "#login"
+      - generic [ref=e9]: 페이지 하단 로그인영역 바로가기
+  - generic [ref=e10]:
+    - banner [ref=e11]:
+      - generic [ref=e12]:
+        - heading "디시인사이드 갤러리" [level=1] [ref=e13]:
+          - link "디시인사이드" [ref=e14] [cursor=pointer]:
+            - /url: https://www.dcinside.com/
+            - img "디시인사이드" [ref=e15]
+          - link "갤러리" [ref=e16] [cursor=pointer]:
+            - /url: https://gall.dcinside.com/
+            - img "갤러리" [ref=e17]
+        - search [ref=e19]:
+          - group "통합검색" [ref=e20]:
+            - generic [ref=e21]:
+              - textbox "검색어 입력" [ref=e23]:
+                - /placeholder: 갤러리 & 통합검색
+              - button [ref=e24] [cursor=pointer]
+        - generic [ref=e25]:
+          - list [ref=e26]:
+            - listitem [ref=e27]:
+              - link "마이너갤" [ref=e28] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/m
+            - listitem [ref=e29]:
+              - text: "|"
+              - link "미니갤" [ref=e30] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/n
+            - listitem [ref=e31]:
+              - text: "|"
+              - link "인물갤" [ref=e32] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/p
+            - listitem [ref=e33]:
+              - text: "|"
+              - link "갤로그" [ref=e34] [cursor=pointer]:
+                - /url: https://gallog.dcinside.com
+            - listitem [ref=e35]:
+              - text: "|"
+              - link "디시게임" [ref=e36] [cursor=pointer]:
+                - /url: //h5.dcinside.com/game/main
+            - listitem [ref=e37]:
+              - text: "|"
+              - link "이벤트" [ref=e38] [cursor=pointer]:
+                - /url: https://event.dcinside.com
+            - listitem [ref=e39]:
+              - text: "|"
+              - link "디시콘" [ref=e40] [cursor=pointer]:
+                - /url: https://mall.dcinside.com/?from=A08
+            - listitem [ref=e41]:
+              - link "로그인" [ref=e42] [cursor=pointer]:
+                - /url: https://sign.dcinside.com/login?s_url=https%3A%2F%2Fgall.dcinside.com%2Fboard%2Fview%2F%3Fid%3Dchangup%26no%3D86111&s_key=611
+          - link "야간모드" [ref=e44] [cursor=pointer]:
+            - /url: javascript:;
+            - emphasis [ref=e45]
+            - text: 야간모드
+    - navigation [ref=e47]:
+      - list [ref=e48]:
+        - listitem [ref=e49]:
+          - link "갤러리" [ref=e50] [cursor=pointer]:
+            - /url: https://gall.dcinside.com
+        - listitem [ref=e52]:
+          - link "마이너갤" [ref=e53] [cursor=pointer]:
+            - /url: //gall.dcinside.com/m
+        - listitem [ref=e54]:
+          - link "미니갤" [ref=e55] [cursor=pointer]:
+            - /url: //gall.dcinside.com/n
+        - listitem [ref=e56]:
+          - link "인물갤" [ref=e57] [cursor=pointer]:
+            - /url: //gall.dcinside.com/p
+        - listitem [ref=e58]:
+          - link "갤로그" [ref=e59] [cursor=pointer]:
+            - /url: https://gallog.dcinside.com
+        - listitem [ref=e60]:
+          - button [ref=e61] [cursor=pointer]
+      - generic [ref=e62]:
+        - link "어제 2,530,107개 댓글 등록" [ref=e67] [cursor=pointer]:
+          - /url: https://gall.dcinside.com/board/lists/?id=dclottery
+          - text: 어제
+          - emphasis [ref=e68]: 2,530,107개
+          - text: 댓글 등록
+        - generic [ref=e69]:
+          - text: 총 갤러리 수
+          - emphasis [ref=e70]: 93,208개
+        - link "디시 로터리 응모" [ref=e72] [cursor=pointer]:
+          - /url: https://gall.dcinside.com/board/lists/?id=dclottery
+        - link "어제 951,920개 게시글 등록" [ref=e64] [cursor=pointer]:
+          - /url: https://gall.dcinside.com/board/lists/?id=dclottery
+          - text: 어제
+          - emphasis [ref=e65]: 951,920개
+          - text: 게시글 등록
+    - generic [ref=e74]:
+      - heading "최근 방문" [level=3] [ref=e75]
+      - button [ref=e76] [cursor=pointer]:
+        - emphasis [ref=e77]
+      - button [ref=e78] [cursor=pointer]:
+        - emphasis [ref=e79]
+      - list [ref=e81]:
+        - listitem [ref=e82]:
+          - link "창업" [ref=e83] [cursor=pointer]:
+            - /url: https://gall.dcinside.com/board/lists?id=changup
+          - button [ref=e84] [cursor=pointer]:
+            - emphasis [ref=e85]
+        - listitem [ref=e86]:
+          - link "자영업자" [ref=e87] [cursor=pointer]:
+            - /url: https://gall.dcinside.com/mgallery/board/lists?id=sajang
+          - emphasis [ref=e88]: ⓜ
+          - button [ref=e89] [cursor=pointer]:
+            - emphasis [ref=e90]
+        - listitem [ref=e91]:
+          - link "치킨" [ref=e92] [cursor=pointer]:
+            - /url: https://gall.dcinside.com/board/lists?id=chicken
+          - button [ref=e93] [cursor=pointer]:
+            - emphasis [ref=e94]
+      - button [ref=e95] [cursor=pointer]:
+        - emphasis [ref=e96]
+      - button "전체" [ref=e97] [cursor=pointer]
+    - generic [ref=e98]:
+      - main [ref=e99]:
+        - generic [ref=e100]:
+          - generic [ref=e102]:
+            - heading "창업 갤러리" [level=2] [ref=e104]:
+              - link "창업 갤러리" [ref=e105] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=changup
+            - generic [ref=e106]:
+              - generic [ref=e107]:
+                - button "설정" [ref=e108] [cursor=pointer]
+                - emphasis [ref=e110]
+              - button "|연관 갤러리(0/3)" [ref=e111] [cursor=pointer]:
+                - text: "|연관 갤러리(0/3)"
+                - emphasis [ref=e112]
+              - button "|갤주소 복사" [ref=e113] [cursor=pointer]
+              - button "|이용안내" [ref=e114] [cursor=pointer]
+              - button "|" [ref=e115] [cursor=pointer]:
+                - text: "|"
+                - emphasis [ref=e116]
+          - article [ref=e117]
+          - article [ref=e119]:
+            - generic [ref=e120]:
+              - generic [ref=e122]:
+                - heading "담금주 공방" [level=3] [ref=e123]:
+                  - text: 담금주 공방
+                  - emphasis [ref=e126]
+                - generic:
+                  - generic [ref=e127] [cursor=pointer]:
+                    - generic "창갤러" [ref=e128]:
+                      - emphasis [ref=e129]: 창갤러
+                    - text: (106.101) 2026.03.18 12:51:07
+                  - generic [ref=e130] [cursor=pointer]:
+                    - button "스크랩" [ref=e132]
+                    - text: 조회 205 추천 0
+                    - link "댓글 0" [ref=e134]:
+                      - /url: "#focus_cmt"
+              - generic [ref=e135]:
+                - generic [ref=e136]:
+                  - generic [ref=e137]:
+                    - iframe [ref=e1205]:
+                      - generic [active] [ref=f257e1]:
+                        - link [ref=f257e2] [cursor=pointer]:
+                          - /url: https://krrtb.c.appier.net/xclk?bidobjid=eyizbENQDf6nnc_F7SS-aQ&cid=zHRJAQHlRLKn1s2di0q5kQ&crid=UenF4yqsQImI45GwpDceCg&crpid=HGzh-PwgToCo9JV6CQ-UXA&soid=e3zJ&partner_id=0UYgRUHiPHmWy&bx=Cylxwnu_7qw970IV7PuQoPMP2rwP7qo-uY79uqa13b7EUj7E3bI9wmOWu1x1c8sRuqaVK4lNZLM12qu-uYOPuqa1U8Squ1x1U8A121uVo4u-uYOPJ1u_uqGxKqGsKqZ9o4lO&ui=CylNZLTE3HlewmOBcmggHDiE34u_ujlo203Mcjiqt0Nr3IoRrR-Po8fzwiG1K4lYc8Myuqa1oquxKq6mKquV71QVoqd_2qGxujR&consent=1&ddhh=oqGWoM&flanding_rdr=
+                          - img [ref=f257e3]
+                        - button [ref=f257e5] [cursor=pointer]
+                    - generic [ref=e139]:
+                      - paragraph
+                      - generic [ref=e140]:
+                        - generic [ref=e141]: 동생이 친구랑 둘이서 한다는데 서울에서
+                        - generic [ref=e142]: 줘패야하나?
+                      - paragraph
+                      - generic [ref=e144]:
+                        - img "AI 이미지1(acol drink)" [ref=e149]
+                        - generic [ref=e150]:
+                          - generic [ref=e151]:
+                            - generic [ref=e152]: 프롬프트
+                            - generic [ref=e154]: acol drink
+                          - generic [ref=e156]:
+                            - text: 네거티브
+                            - text: 프롬프트
+                          - generic [ref=e159]:
+                            - generic [ref=e160]: 샘플링
+                            - generic [ref=e161]: DPM++ 2M
+                      - paragraph
+                      - generic [ref=e162]: "- dc official App"
+                  - iframe [ref=e1207]:
+                    - insertion [ref=f258e2]:
+                      - iframe [ref=f258e5]:
+                        - iframe [ref=f263e4]:
+                          - generic [ref=f264e2] [cursor=pointer]:
+                            - link [ref=f264e4]:
+                              - /url: https://privacy.as.criteo.com/adchoices?cppv=3&cpp=DfQ5bf3Ri5mGTE55cJbzAH2-XWZn3C8peaPFgzn0G9KDUp-t7o-49O_9cwjNZfOef5QpidA0KPjzgJx7wh8r95QnvTQYrobYd5ChYSec11lIiq3EMYgQAB44g4bRkxVV70uEk5MQFY8RHjYxpL0R1snKrhQ
+                              - img [ref=f264e5]
+                            - img [ref=f264e7]
+                            - generic [ref=f264e8]:
+                              - link [ref=f264e9]:
+                                - /url: https://cat.jp2.as.criteo.com/delivery/ck.php?cppv=3&cpp=Iq0SneoHgjkLRka_SINoNmmihg32ocMB7Jatxtb21BDh91r7bP1_jEfhkVwlnIRy-zEM6uljJnn-p7LoUFFnOCgCqYPTzcI488Vx4MahGL3AsIAgd8wk3gDnmEJxZVPA2ZwsoSNSwVstSMqOB_Yv1IzUNgCVITYV0GL8XU2eBOFRXjNkdRh26x6VIkM0ZKOnVDYUiFmQjB3nmn2gpX0OxEpuaJEGWt5Gh6jatIqeUvTaYmC8LKy8NTnCm7-fhxBcdfawcDO8Cv6nKp2vhh1ggoQIJNVZWc9ug9XkGxd0ZEfdi6WF0EvDvpLPrOtzG1bvF8MXYad1AKDDT4EzrDni65v5cMdaFLe436lHvXc7speymxAE8kupcj053aailhLaG56W9ZD5IESF3miqJrtuJFaEnQXVhXZo7goCCWgYa5whMeXwacAwmaPVGVbK1ie3BmzmJbYgJRZ9zsdLC_RcnPRTpYBeKOLk5CYFS9JqDZPbhOh0OAK9-s5OHw8PpIvJDisgHrZNXCzljRttXeiXMNhw5doDP91mDfd0u-gpzhDWlPpBpMMgLcF82SG10ozoimGz6t5m1c0WZl8Ixvl-xTyvH839Zm229pljk93ikAhctvqevFUYw7QbHGEhPESjpTH1wKSwM_jdTSxCBarWQ6QAziU&maxdest=https%3A%2F%2Fwww.adobe.com%2Fkr%2Fcreativecloud%2Froc%2Fdesign%2Fall-in-one.html%3Fsdid%3DDD5B16W3%26mv%3Ddisplay%26mv2%3Ddisplay%26utm_source%3Dcriteo%26utm_medium%3Ddisplay%26utm_campaign%3DCRI_FY26CC_PSP_PSP_KR_DSK_ST%2826.03.14-%29%26utm_id%3D674964%26cto_pld%3D6g5PuiK_AQDbwsICmz7a9A
+                                - img [ref=f264e12]
+                              - link [ref=f264e13]:
+                                - /url: https://cat.jp2.as.criteo.com/delivery/ck.php?cppv=3&cpp=EzkH6uoHgjkLRka_SINoNmmihg32ocMB7Jatxtb21BDh91r7bP1_jEfhkVwlnIRy-zEM6uljJnn-p7LoUFFnOCgCqYPTzcI488Vx4MahGL3AsIAgd8wk3gDnmEJxZVPA2ZwsoSNSwVstSMqOB_Yv1IzUNgCVITYV0GL8XU2eBOFRXjNkdRh26x6VIkM0ZKOnVDYUiFmQjB3nmn2gpX0OxEpuaJEGWt5Gh6jatIqeUvTaYmC8LKy8NTnCm7-fhxBcdfawcDO8Cv6nKp2vhh1ggoQIJNVZWc9ug9XkGxd0ZEfdi6WF0EvDvpLPrOtzG1bvF8MXYad1AKDDT4EzrDni65v5cMdaFLe436lHvXc7speymxAE8kupcj053aailhLaG56W9ZD5IESF3miqJrtuJFaEnQXVhXZo7goCCWgYa5whMeXwacAwmaPVGVbK1ie3BmzmJbYgJRZ9zsdLC_RcnPRTpYBeKOLk5CYFS9JqDZPbhOh0UCY3bvH-WDz-iHinF144Sy215Z8FSqkIDXK8nn8lR3lRLiDtJD3r7lNYFOqjwrsu7CK2f9zgYSJZ_O3g6iSMPbtjZu39Fho4prCFmc4q8pjmWCxRa4_HXz9WVVRIg-BJ_Ko62X19Jx8z3LP0K6Lq80aAX050O4yw3N4ATCWrDDc&maxdest=https%3A%2F%2Fwww.adobe.com%2Fkr%2Fcreativecloud%2Froc%2Fdesign%2Fall-in-one.html%3Fsdid%3DDD5B16W3%26mv%3Ddisplay%26mv2%3Ddisplay%26utm_source%3Dcriteo%26utm_medium%3Ddisplay%26utm_campaign%3DCRI_FY26CC_PSP_PSP_KR_DSK_ST%2826.03.14-%29%26utm_id%3D674964%26cto_pld%3DZHH9fiK_AQDXDKTCFBGbBw
+                - generic [ref=e165]:
+                  - generic [ref=e166]:
+                    - generic [ref=e167]:
+                      - generic [ref=e168]:
+                        - paragraph [ref=e169]: "0"
+                        - paragraph [ref=e170]:
+                          - img "고정닉" [ref=e172]
+                          - text: "0"
+                      - button [ref=e173] [cursor=pointer]:
+                        - emphasis [ref=e174]
+                    - generic [ref=e175]:
+                      - button [ref=e176] [cursor=pointer]:
+                        - emphasis [ref=e177]
+                      - paragraph [ref=e179]: "0"
+                  - generic [ref=e180]:
+                    - button "실베추" [ref=e181] [cursor=pointer]:
+                      - emphasis [ref=e182]
+                      - text: 실베추
+                    - button "공유" [ref=e183] [cursor=pointer]:
+                      - emphasis [ref=e184]
+                      - text: 공유
+                    - button "스크랩" [ref=e185] [cursor=pointer]:
+                      - emphasis [ref=e186]
+                      - text: 스크랩
+                    - button "신고" [ref=e187] [cursor=pointer]:
+                      - emphasis [ref=e188]
+                      - text: 신고
+                - iframe [ref=e1210]:
+                  - insertion [ref=f259e2]:
+                    - iframe [ref=f259e5]:
+                      - generic [ref=f262e3]:
+                        - strong: 광고 링크
+                        - link "얼굴잡는CCTV 이지피스 CCTV, 풀HD, 48시간내 AS완벽처리, 품질보증 2년, 공중파TV 광고 http://www.egpis.co.kr 바로가기" [ref=f262e4] [cursor=pointer]:
+                          - /url: https://ka.ad.daum.net/click/http%3A%2F%2Fwww.egpis.co.kr%2Fmall%2F%3Futm_source%3Dkakao%26utm_medium%3Dkeyword%26utm_campaign%3DPREMIUM_LINK%26k_campaign%3D4182410686055%26k_adgroup%3D9092457%26k_media%3DPREMIUM_LINK_CONTENT%26k_creative%3D312648126230597632%26k_creativelink%3D312649416122798080%26k_rank%3D1%26kclid%3DMscDNcpM3IP82vZinHV4kiJSewkvxiiRddeK9pVC9l5P1t89YnE7t4wJHv78grduOZ2y5ijgcAq2cuPMRtlnty60yS9DMBzBaRu6elME6ic/Tpn9jrMaHHPsWmxn2b6D508TjBk7Xae5wCvzXYbBMww_2t0rIFgx7Aq0UI1dQrvZ0tGQgibaOpDM1JAjfRgrP5pp-S3P4OIMom-37NmckxS9NorguJsFfAIwibEYDW-9m9thXzmHGc_hlI6RZGJam4PXEHLepffvZp0pcDuoY2VC38q3Jr05muVTCwrOcgQWWOLxqTRltAoiSUiIIVJAfL9pPhVDzJYEJTwR6-7fnTEumfa1YRD-3yPUSBcg4hqDXzxoOgtld0EU5JoOOCfe5BvuPx2RtNom7mkPaiHDKtPCSi8wgPqS1ONFWu4FD9ZPnsqsRMUwoyOK9upb8zOYjf2jmpOcpJgf87VDx_800wxILdwxyIqcg5t8Jb0KYmShZ-0pKmKuwaWuJDdcXebmYggWdogn4pvfcSRAiOY4668tavjjb07eay5LKzlca9KTNeP9GZLLaYPocxWtqt_iQjeTpFVavIByq3dKVnIAjsMCV3vFAxTxqv69Cqq-myfqgM_z7GFdso56dERXsP7JkD5wqc_ZYLY0EOVnUC2kwCoPxmacO6sKMU5PIRizh5Nw8jj-s2qHsRh0dyNDfwSZpxhNYHlZyvO_kI1b?p=OsMW_5NMFBqmUvsKjWbpeIwncUmU4zGvreXWbKwO68U
+                          - generic [ref=f262e6]:
+                            - strong [ref=f262e7]: 얼굴잡는CCTV 이지피스
+                            - generic [ref=f262e8]: CCTV, 풀HD, 48시간내 AS완벽처리, 품질보증 2년, 공중파TV 광고
+                            - generic [ref=f262e9]: http://www.egpis.co.kr
+                          - generic [ref=f262e10]: 바로가기
+                        - link "광고 정보" [ref=f262e11] [cursor=pointer]:
+                          - /url: https://info.ds.kakao.com/optout.do
+                          - img "광고 정보" [ref=f262e12]
+            - generic [ref=e189]:
+              - generic [ref=e191]:
+                - generic [ref=e192]:
+                  - text: 전체 댓글
+                  - emphasis [ref=e193]: "0"
+                  - text: 개
+                  - generic [ref=e194]:
+                    - generic [ref=e195]:
+                      - radio "등록순" [checked] [ref=e196] [cursor=pointer]
+                      - emphasis [ref=e197]
+                      - text: 등록순
+                    - generic [ref=e198]:
+                      - radio "최신순" [ref=e199] [cursor=pointer]
+                      - emphasis [ref=e200]
+                      - text: 최신순
+                    - generic [ref=e201]:
+                      - radio "답글순" [ref=e202] [cursor=pointer]
+                      - emphasis [ref=e203]
+                      - text: 답글순
+                - generic [ref=e204]:
+                  - link "본문 보기" [ref=e205] [cursor=pointer]:
+                    - /url: "#container"
+                  - button "댓글닫기" [ref=e206] [cursor=pointer]:
+                    - text: 댓글닫기
+                    - emphasis [ref=e207]
+                  - button "새로고침" [ref=e208] [cursor=pointer]
+              - generic [ref=e209]:
+                - generic [ref=e210]:
+                  - generic [ref=e211]:
+                    - generic [ref=e213]:
+                      - paragraph [ref=e214]:
+                        - text: 창갤러는 갤러리에서 권장하는 비회원 전용
+                        - text: 갤닉네임입니다. (삭제 시 닉네임 등록 가능)
+                      - button [ref=e215] [cursor=pointer]
+                    - textbox [ref=e216]: 창갤러
+                    - button [ref=e217] [cursor=pointer]
+                  - textbox "비밀번호" [ref=e219]: "6041"
+                - generic [ref=e220]:
+                  - generic [ref=e221]:
+                    - generic [ref=e222]:
+                      - text: 타인의 권리를 침해하거나 명예를 훼손하는 댓글은 운영원칙 및 관련 법률에 제재를 받을 수 있습니다.
+                      - text: Shift+Enter 키를 동시에 누르면 줄바꿈이 됩니다.
+                    - textbox [ref=e223]: 서울이면 입지가 중요함 ㅇㅇ 무료 입지분석 사이트 하나 있는데 주소+업종 넣으면 경쟁업체 수, 배후인구, 유동인구 다 나옴. 담금주면 특수업종이라 상권 데이터가 직접 안 나올 수 있는데 카페나 주점으로 돌려보면 동네 수요 파악에 도움됨 spotly.website
+                  - generic [ref=e224]:
+                    - generic [ref=e225]:
+                      - button "디시콘" [ref=e226] [cursor=pointer]:
+                        - emphasis [ref=e227]
+                        - text: 디시콘
+                      - button [ref=e228] [cursor=pointer]:
+                        - emphasis [ref=e229]
+                    - generic [ref=e230]:
+                      - button "등록" [ref=e231] [cursor=pointer]
+                      - button "등록+추천" [ref=e232] [cursor=pointer]
+            - generic [ref=e233]:
+              - generic [ref=e234]:
+                - button "전체글" [ref=e235] [cursor=pointer]
+                - button "개념글" [ref=e236] [cursor=pointer]
+              - generic [ref=e237]:
+                - button "수정" [ref=e238] [cursor=pointer]
+                - button "삭제" [ref=e239] [cursor=pointer]
+                - button "글쓰기" [ref=e240] [cursor=pointer]
+          - article [ref=e241]:
+            - generic [ref=e242]:
+              - article [ref=e244]:
+                - table "갤러리 리스트" [ref=e246]:
+                  - caption: 갤러리 리스트
+                  - rowgroup [ref=e254]:
+                    - row "번호 제목 글쓴이 작성일 조회 추천" [ref=e255]:
+                      - columnheader "번호" [ref=e256]
+                      - columnheader "제목" [ref=e257]
+                      - columnheader "글쓴이" [ref=e258]
+                      - columnheader "작성일" [ref=e259]
+                      - columnheader "조회" [ref=e260]
+                      - columnheader "추천" [ref=e261]
+                  - rowgroup [ref=e262]:
+                    - row "설문 예능과 잘 맞지 않는 것 같은 스타는? 운영자 26/03/16 - -" [ref=e263]:
+                      - cell "설문" [ref=e264]
+                      - cell "예능과 잘 맞지 않는 것 같은 스타는?" [ref=e265]:
+                        - link "예능과 잘 맞지 않는 것 같은 스타는?" [ref=e266] [cursor=pointer]:
+                          - /url: javascript:;
+                          - emphasis [ref=e267]
+                          - text: 예능과 잘 맞지 않는 것 같은 스타는?
+                      - cell "운영자" [ref=e268] [cursor=pointer]
+                      - cell "26/03/16" [ref=e269]
+                      - cell "-" [ref=e270]
+                      - cell "-" [ref=e271]
+                    - row "AD 생동성·임상시험 비교 귀찮으면 그냥 '플랜메디' ㄱㄱ 운영자 26/02/03 - -" [ref=e272]:
+                      - cell "AD" [ref=e273]
+                      - cell "생동성·임상시험 비교 귀찮으면 그냥 '플랜메디' ㄱㄱ" [ref=e274]:
+                        - link "생동성·임상시험 비교 귀찮으면 그냥 '플랜메디' ㄱㄱ" [ref=e275] [cursor=pointer]:
+                          - /url: https://addc.dcinside.com/NetInsight/click/dcinside/adver/adver@text?ads_id=23684&creative_id=98911&click_id=97211
+                          - emphasis [ref=e276]
+                          - text: 생동성·임상시험 비교 귀찮으면 그냥 '플랜메디' ㄱㄱ
+                      - cell "운영자" [ref=e277] [cursor=pointer]
+                      - cell "26/02/03" [ref=e278]
+                      - cell "-" [ref=e279]
+                      - cell "-" [ref=e280]
+                    - row "AD 상반기 코레일 1800명 확정, 이번에 못붙으면 답없다 운영자 26/02/27 - -" [ref=e281]:
+                      - cell "AD" [ref=e282]
+                      - cell "상반기 코레일 1800명 확정, 이번에 못붙으면 답없다" [ref=e283]:
+                        - link "상반기 코레일 1800명 확정, 이번에 못붙으면 답없다" [ref=e284] [cursor=pointer]:
+                          - /url: https://addc.dcinside.com/NetInsight/click/dcinside/adver/adver@text?ads_id=24312&creative_id=99593&click_id=97930
+                          - emphasis [ref=e285]
+                          - text: 상반기 코레일 1800명 확정, 이번에 못붙으면 답없다
+                      - cell "운영자" [ref=e286] [cursor=pointer]
+                      - cell "26/02/27" [ref=e287]
+                      - cell "-" [ref=e288]
+                      - cell "-" [ref=e289]
+                    - row "AD 보험상담은 디시공식설계사에게 받으세요! 운영자 24/08/28 - -" [ref=e290]:
+                      - cell "AD" [ref=e291]
+                      - cell "보험상담은 디시공식설계사에게 받으세요!" [ref=e292]:
+                        - link "보험상담은 디시공식설계사에게 받으세요!" [ref=e293] [cursor=pointer]:
+                          - /url: http://addc.dcinside.com/NetInsight/click/dcinside/adver/adver@text?ads_id=20358&creative_id=86845&click_id=84204
+                          - emphasis [ref=e294]
+                          - text: 보험상담은 디시공식설계사에게 받으세요!
+                      - cell "운영자" [ref=e295] [cursor=pointer]
+                      - cell "24/08/28" [ref=e296]
+                      - cell "-" [ref=e297]
+                      - cell "-" [ref=e298]
+                    - row "공지 창업 갤러리 이용 안내 [61] 운영자 05.09.05 51766 10" [ref=e299]:
+                      - cell "공지" [ref=e300]
+                      - cell "창업 갤러리 이용 안내 [61]" [ref=e301]:
+                        - link "창업 갤러리 이용 안내" [ref=e302] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=1&page=1
+                          - emphasis [ref=e303]
+                          - generic [ref=e304]: 창업 갤러리 이용 안내
+                        - link "[61]" [ref=e305] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=1&t=cv
+                      - cell "운영자" [ref=e306] [cursor=pointer]:
+                        - generic [ref=e308]: 운영자
+                      - cell "05.09.05" [ref=e309]
+                      - cell "51766" [ref=e310]
+                      - cell "10" [ref=e311]
+                    - row "86116 현대 정주영 회장이 현 시대에서 태어난다면 창갤러 (117.111) 12:40 13 0" [ref=e312]:
+                      - cell "86116" [ref=e313]
+                      - cell "현대 정주영 회장이 현 시대에서 태어난다면" [ref=e314]:
+                        - link "현대 정주영 회장이 현 시대에서 태어난다면" [ref=e315] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86116&page=1
+                          - emphasis [ref=e316]
+                          - text: 현대 정주영 회장이 현 시대에서 태어난다면
+                      - cell "창갤러 (117.111)" [ref=e317] [cursor=pointer]:
+                        - generic "창갤러" [ref=e318]:
+                          - emphasis [ref=e319]: 창갤러
+                        - text: (117.111)
+                      - cell "12:40" [ref=e320]
+                      - cell "13" [ref=e321]
+                      - cell "0" [ref=e322]
+                    - row "86115 법인 설립 전 필수 사항 정리 [3] 창갤러 (218.39) 03.20 126 2" [ref=e323]:
+                      - cell "86115" [ref=e324]
+                      - cell "법인 설립 전 필수 사항 정리 [3]" [ref=e325]:
+                        - link "법인 설립 전 필수 사항 정리" [ref=e326] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86115&page=1
+                          - emphasis [ref=e327]
+                          - text: 법인 설립 전 필수 사항 정리
+                        - link "[3]" [ref=e328] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86115&t=cv
+                      - cell "창갤러 (218.39)" [ref=e329] [cursor=pointer]:
+                        - generic "창갤러" [ref=e330]:
+                          - emphasis [ref=e331]: 창갤러
+                        - text: (218.39)
+                      - cell "03.20" [ref=e332]
+                      - cell "126" [ref=e333]
+                      - cell "2" [ref=e334]
+                    - row "86114 프렌차이즈 할려고 생각중인데 [1] 창갤러 (211.206) 03.20 71 0" [ref=e335]:
+                      - cell "86114" [ref=e336]
+                      - cell "프렌차이즈 할려고 생각중인데 [1]" [ref=e337]:
+                        - link "프렌차이즈 할려고 생각중인데" [ref=e338] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86114&page=1
+                          - emphasis [ref=e339]
+                          - text: 프렌차이즈 할려고 생각중인데
+                        - link "[1]" [ref=e340] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86114&t=cv
+                      - cell "창갤러 (211.206)" [ref=e341] [cursor=pointer]:
+                        - generic "창갤러" [ref=e342]:
+                          - emphasis [ref=e343]: 창갤러
+                        - text: (211.206)
+                      - cell "03.20" [ref=e344]
+                      - cell "71" [ref=e345]
+                      - cell "0" [ref=e346]
+                    - row "86113 투자자들은 수익 얼마나 원하나요? [3] 창갤러 (222.109) 03.20 55 0" [ref=e347]:
+                      - cell "86113" [ref=e348]
+                      - cell "투자자들은 수익 얼마나 원하나요? [3]" [ref=e349]:
+                        - link "투자자들은 수익 얼마나 원하나요?" [ref=e350] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86113&page=1
+                          - emphasis [ref=e351]
+                          - text: 투자자들은 수익 얼마나 원하나요?
+                        - link "[3]" [ref=e352] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86113&t=cv
+                      - cell "창갤러 (222.109)" [ref=e353] [cursor=pointer]:
+                        - generic "창갤러" [ref=e354]:
+                          - emphasis [ref=e355]: 창갤러
+                        - text: (222.109)
+                      - cell "03.20" [ref=e356]
+                      - cell "55" [ref=e357]
+                      - cell "0" [ref=e358]
+                    - row "담금주 공방 창갤러 (106.101) 03.18 205 0" [ref=e359]:
+                      - cell [ref=e360]
+                      - cell "담금주 공방" [ref=e362]:
+                        - link "담금주 공방" [ref=e363] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86111&page=1
+                          - emphasis [ref=e364]
+                          - text: 담금주 공방
+                      - cell "창갤러 (106.101)" [ref=e365] [cursor=pointer]:
+                        - generic "창갤러" [ref=e366]:
+                          - emphasis [ref=e367]: 창갤러
+                        - text: (106.101)
+                      - cell "03.18" [ref=e368]
+                      - cell "205" [ref=e369]
+                      - cell "0" [ref=e370]
+                    - row "86105 형들 창업준비할때 상권 분석이런거 해 ? [3] 창갤러 (220.86) 03.15 225 0" [ref=e371]:
+                      - cell "86105" [ref=e372]
+                      - cell "형들 창업준비할때 상권 분석이런거 해 ? [3]" [ref=e373]:
+                        - link "형들 창업준비할때 상권 분석이런거 해 ?" [ref=e374] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86105&page=1
+                          - emphasis [ref=e375]
+                          - text: 형들 창업준비할때 상권 분석이런거 해 ?
+                        - link "[3]" [ref=e376] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86105&t=cv
+                      - cell "창갤러 (220.86)" [ref=e377] [cursor=pointer]:
+                        - generic "창갤러" [ref=e378]:
+                          - emphasis [ref=e379]: 창갤러
+                        - text: (220.86)
+                      - cell "03.15" [ref=e380]
+                      - cell "225" [ref=e381]
+                      - cell "0" [ref=e382]
+                    - row "86104 시드 10억으로 창업 추천좀 [3] 창갤러 (221.145) 03.15 183 0" [ref=e383]:
+                      - cell "86104" [ref=e384]
+                      - cell "시드 10억으로 창업 추천좀 [3]" [ref=e385]:
+                        - link "시드 10억으로 창업 추천좀" [ref=e386] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86104&page=1
+                          - emphasis [ref=e387]
+                          - text: 시드 10억으로 창업 추천좀
+                        - link "[3]" [ref=e388] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86104&t=cv
+                      - cell "창갤러 (221.145)" [ref=e389] [cursor=pointer]:
+                        - generic "창갤러" [ref=e390]:
+                          - emphasis [ref=e391]: 창갤러
+                        - text: (221.145)
+                      - cell "03.15" [ref=e392]
+                      - cell "183" [ref=e393]
+                      - cell "0" [ref=e394]
+                    - row "86103 지역에 포화상태인 업종에서 창업해본사람 있음?? [6] 창갤러 (115.142) 03.13 355 0" [ref=e395]:
+                      - cell "86103" [ref=e396]
+                      - cell "지역에 포화상태인 업종에서 창업해본사람 있음?? [6]" [ref=e397]:
+                        - link "지역에 포화상태인 업종에서 창업해본사람 있음??" [ref=e398] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86103&page=1
+                          - emphasis [ref=e399]
+                          - text: 지역에 포화상태인 업종에서 창업해본사람 있음??
+                        - link "[6]" [ref=e400] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86103&t=cv
+                      - cell "창갤러 (115.142)" [ref=e401] [cursor=pointer]:
+                        - generic "창갤러" [ref=e402]:
+                          - emphasis [ref=e403]: 창갤러
+                        - text: (115.142)
+                      - cell "03.13" [ref=e404]
+                      - cell "355" [ref=e405]
+                      - cell "0" [ref=e406]
+                    - row "86102 한국은 잘되면 개나소나 다따라해서 문제임 ㅇㅇ (223.39) 03.13 186 7" [ref=e407]:
+                      - cell "86102" [ref=e408]
+                      - cell "한국은 잘되면 개나소나 다따라해서 문제임" [ref=e409]:
+                        - link "한국은 잘되면 개나소나 다따라해서 문제임" [ref=e410] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86102&page=1
+                          - emphasis [ref=e411]
+                          - text: 한국은 잘되면 개나소나 다따라해서 문제임
+                      - cell "ㅇㅇ (223.39)" [ref=e412] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e413]:
+                          - emphasis [ref=e414]: ㅇㅇ
+                        - text: (223.39)
+                      - cell "03.13" [ref=e415]
+                      - cell "186" [ref=e416]
+                      - cell "7" [ref=e417]
+                    - row "86101 얘들아 고딩때로 돌아간다면 뭐할거임? [5] 창갤러 (117.111) 03.13 211 3" [ref=e418]:
+                      - cell "86101" [ref=e419]
+                      - cell "얘들아 고딩때로 돌아간다면 뭐할거임? [5]" [ref=e420]:
+                        - link "얘들아 고딩때로 돌아간다면 뭐할거임?" [ref=e421] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86101&page=1
+                          - emphasis [ref=e422]
+                          - text: 얘들아 고딩때로 돌아간다면 뭐할거임?
+                        - link "[5]" [ref=e423] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86101&t=cv
+                      - cell "창갤러 (117.111)" [ref=e424] [cursor=pointer]:
+                        - generic "창갤러" [ref=e425]:
+                          - emphasis [ref=e426]: 창갤러
+                        - text: (117.111)
+                      - cell "03.13" [ref=e427]
+                      - cell "211" [ref=e428]
+                      - cell "3" [ref=e429]
+                    - row "86099 일본 제품 한국에서 팔라면 창갤러 (1.245) 03.12 339 0" [ref=e430]:
+                      - cell "86099" [ref=e431]
+                      - cell "일본 제품 한국에서 팔라면" [ref=e432]:
+                        - link "일본 제품 한국에서 팔라면" [ref=e433] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86099&page=1
+                          - emphasis [ref=e434]
+                          - text: 일본 제품 한국에서 팔라면
+                      - cell "창갤러 (1.245)" [ref=e435] [cursor=pointer]:
+                        - generic "창갤러" [ref=e436]:
+                          - emphasis [ref=e437]: 창갤러
+                        - text: (1.245)
+                      - cell "03.12" [ref=e438]
+                      - cell "339" [ref=e439]
+                      - cell "0" [ref=e440]
+                    - row "86097 진지하게 개쩌는 사업은 이거임 [3] 국결러 (49.109) 03.12 390 2" [ref=e441]:
+                      - cell "86097" [ref=e442]
+                      - cell "진지하게 개쩌는 사업은 이거임 [3]" [ref=e443]:
+                        - link "진지하게 개쩌는 사업은 이거임" [ref=e444] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86097&page=1
+                          - emphasis [ref=e445]
+                          - text: 진지하게 개쩌는 사업은 이거임
+                        - link "[3]" [ref=e446] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86097&t=cv
+                      - cell "국결러 (49.109)" [ref=e447] [cursor=pointer]:
+                        - generic "국결러" [ref=e448]:
+                          - emphasis [ref=e449]: 국결러
+                        - text: (49.109)
+                      - cell "03.12" [ref=e450]
+                      - cell "390" [ref=e451]
+                      - cell "2" [ref=e452]
+                    - row "86095 포스 추천 좀 많은 거 안바람 [1] 창갤러 (202.133) 03.11 418 0" [ref=e453]:
+                      - cell "86095" [ref=e454]
+                      - cell "포스 추천 좀 많은 거 안바람 [1]" [ref=e455]:
+                        - link "포스 추천 좀 많은 거 안바람" [ref=e456] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86095&page=1
+                          - emphasis [ref=e457]
+                          - text: 포스 추천 좀 많은 거 안바람
+                        - link "[1]" [ref=e458] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86095&t=cv
+                      - cell "창갤러 (202.133)" [ref=e459] [cursor=pointer]:
+                        - generic "창갤러" [ref=e460]:
+                          - emphasis [ref=e461]: 창갤러
+                        - text: (202.133)
+                      - cell "03.11" [ref=e462]
+                      - cell "418" [ref=e463]
+                      - cell "0" [ref=e464]
+                    - row "86092 무인 매장 권리금 산정할 때 창갤러 (218.55) 03.10 360 0" [ref=e465]:
+                      - cell "86092" [ref=e466]
+                      - cell "무인 매장 권리금 산정할 때" [ref=e467]:
+                        - link "무인 매장 권리금 산정할 때" [ref=e468] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86092&page=1
+                          - emphasis [ref=e469]
+                          - text: 무인 매장 권리금 산정할 때
+                      - cell "창갤러 (218.55)" [ref=e470] [cursor=pointer]:
+                        - generic "창갤러" [ref=e471]:
+                          - emphasis [ref=e472]: 창갤러
+                        - text: (218.55)
+                      - cell "03.10" [ref=e473]
+                      - cell "360" [ref=e474]
+                      - cell "0" [ref=e475]
+                    - row "86091 여기 앱 개발해서 창업하는 사람들도 많나? [1] 거북이업 (210.183) 03.10 252 0" [ref=e476]:
+                      - cell "86091" [ref=e477]
+                      - cell "여기 앱 개발해서 창업하는 사람들도 많나? [1]" [ref=e478]:
+                        - link "여기 앱 개발해서 창업하는 사람들도 많나?" [ref=e479] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86091&page=1
+                          - emphasis [ref=e480]
+                          - text: 여기 앱 개발해서 창업하는 사람들도 많나?
+                        - link "[1]" [ref=e481] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86091&t=cv
+                      - cell "거북이업 (210.183)" [ref=e482] [cursor=pointer]:
+                        - generic "거북이업" [ref=e483]:
+                          - emphasis [ref=e484]: 거북이업
+                        - text: (210.183)
+                      - cell "03.10" [ref=e485]
+                      - cell "252" [ref=e486]
+                      - cell "0" [ref=e487]
+                    - row "86086 창업 지원금으로 AI 학습용 물리서버 맞추는건 어려우려나 ㅇㅇ (211.217) 03.09 142 0" [ref=e488]:
+                      - cell "86086" [ref=e489]
+                      - cell "창업 지원금으로 AI 학습용 물리서버 맞추는건 어려우려나" [ref=e490]:
+                        - link "창업 지원금으로 AI 학습용 물리서버 맞추는건 어려우려나" [ref=e491] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86086&page=1
+                          - emphasis [ref=e492]
+                          - text: 창업 지원금으로 AI 학습용 물리서버 맞추는건 어려우려나
+                      - cell "ㅇㅇ (211.217)" [ref=e493] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e494]:
+                          - emphasis [ref=e495]: ㅇㅇ
+                        - text: (211.217)
+                      - cell "03.09" [ref=e496]
+                      - cell "142" [ref=e497]
+                      - cell "0" [ref=e498]
+                    - row "86085 가게하나 해서 걍 나혼자 밥먹고 살정도만 벌어도 갠찮은데 [2] 딸기장사 갤로그로 이동합니다. 03.09 274 1" [ref=e499]:
+                      - cell "86085" [ref=e500]
+                      - cell "가게하나 해서 걍 나혼자 밥먹고 살정도만 벌어도 갠찮은데 [2]" [ref=e501]:
+                        - link "가게하나 해서 걍 나혼자 밥먹고 살정도만 벌어도 갠찮은데" [ref=e502] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86085&page=1
+                          - emphasis [ref=e503]
+                          - text: 가게하나 해서 걍 나혼자 밥먹고 살정도만 벌어도 갠찮은데
+                        - link "[2]" [ref=e504] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86085&t=cv
+                      - cell "딸기장사 갤로그로 이동합니다." [ref=e505] [cursor=pointer]:
+                        - generic "딸기장사" [ref=e506]:
+                          - emphasis [ref=e507]: 딸기장사
+                        - img "갤로그로 이동합니다." [ref=e509]
+                      - cell "03.09" [ref=e510]
+                      - cell "274" [ref=e511]
+                      - cell "1" [ref=e512]
+                    - row "86084 초보사장 특) [1] 창갤러 (106.101) 03.08 560 0" [ref=e513]:
+                      - cell "86084" [ref=e514]
+                      - cell "초보사장 특) [1]" [ref=e515]:
+                        - link "초보사장 특)" [ref=e516] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86084&page=1
+                          - emphasis [ref=e517]
+                          - text: 초보사장 특)
+                        - link "[1]" [ref=e518] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86084&t=cv
+                      - cell "창갤러 (106.101)" [ref=e519] [cursor=pointer]:
+                        - generic "창갤러" [ref=e520]:
+                          - emphasis [ref=e521]: 창갤러
+                        - text: (106.101)
+                      - cell "03.08" [ref=e522]
+                      - cell "560" [ref=e523]
+                      - cell "0" [ref=e524]
+                    - row "86081 아무리 신박한 시스템이어도 음식점은 예창패 선정 불가능? [1] ㅇㅇ 갤로그로 이동합니다. 03.06 308 0" [ref=e525]:
+                      - cell "86081" [ref=e526]
+                      - cell "아무리 신박한 시스템이어도 음식점은 예창패 선정 불가능? [1]" [ref=e527]:
+                        - link "아무리 신박한 시스템이어도 음식점은 예창패 선정 불가능?" [ref=e528] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86081&page=1
+                          - emphasis [ref=e529]
+                          - text: 아무리 신박한 시스템이어도 음식점은 예창패 선정 불가능?
+                        - link "[1]" [ref=e530] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86081&t=cv
+                      - cell "ㅇㅇ 갤로그로 이동합니다." [ref=e531] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e532]:
+                          - emphasis [ref=e533]: ㅇㅇ
+                        - img "갤로그로 이동합니다." [ref=e535]
+                      - cell "03.06" [ref=e536]
+                      - cell "308" [ref=e537]
+                      - cell "0" [ref=e538]
+                    - row "86080 민물매운탕과 추어탕을 같이 팔면 어떨것같나요??? [1] 사롱 갤로그로 이동합니다. 03.05 423 1" [ref=e539]:
+                      - cell "86080" [ref=e540]
+                      - cell "민물매운탕과 추어탕을 같이 팔면 어떨것같나요??? [1]" [ref=e541]:
+                        - link "민물매운탕과 추어탕을 같이 팔면 어떨것같나요???" [ref=e542] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86080&page=1
+                          - emphasis [ref=e543]
+                          - text: 민물매운탕과 추어탕을 같이 팔면 어떨것같나요???
+                        - link "[1]" [ref=e544] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86080&t=cv
+                      - cell "사롱 갤로그로 이동합니다." [ref=e545] [cursor=pointer]:
+                        - generic "사롱" [ref=e546]:
+                          - emphasis [ref=e547]: 사롱
+                        - img "갤로그로 이동합니다." [ref=e549]
+                      - cell "03.05" [ref=e550]
+                      - cell "423" [ref=e551]
+                      - cell "1" [ref=e552]
+                    - row "86079 결국 본질에 미친놈들이 이기지 ㅇㅇ (223.39) 03.05 205 2" [ref=e553]:
+                      - cell "86079" [ref=e554]
+                      - cell "결국 본질에 미친놈들이 이기지" [ref=e555]:
+                        - link "결국 본질에 미친놈들이 이기지" [ref=e556] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86079&page=1
+                          - emphasis [ref=e557]
+                          - text: 결국 본질에 미친놈들이 이기지
+                      - cell "ㅇㅇ (223.39)" [ref=e558] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e559]:
+                          - emphasis [ref=e560]: ㅇㅇ
+                        - text: (223.39)
+                      - cell "03.05" [ref=e561]
+                      - cell "205" [ref=e562]
+                      - cell "2" [ref=e563]
+                    - row "86075 단독주택을 상가처럼 [1] 창갤러 (182.226) 03.04 392 0" [ref=e564]:
+                      - cell "86075" [ref=e565]
+                      - cell "단독주택을 상가처럼 [1]" [ref=e566]:
+                        - link "단독주택을 상가처럼" [ref=e567] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86075&page=1
+                          - emphasis [ref=e568]
+                          - text: 단독주택을 상가처럼
+                        - link "[1]" [ref=e569] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86075&t=cv
+                      - cell "창갤러 (182.226)" [ref=e570] [cursor=pointer]:
+                        - generic "창갤러" [ref=e571]:
+                          - emphasis [ref=e572]: 창갤러
+                        - text: (182.226)
+                      - cell "03.04" [ref=e573]
+                      - cell "392" [ref=e574]
+                      - cell "0" [ref=e575]
+                    - row "86071 일본에서 창업 하고싶은데 [1] ㅇㅇ (220.121) 03.03 324 0" [ref=e576]:
+                      - cell "86071" [ref=e577]
+                      - cell "일본에서 창업 하고싶은데 [1]" [ref=e578]:
+                        - link "일본에서 창업 하고싶은데" [ref=e579] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86071&page=1
+                          - emphasis [ref=e580]
+                          - text: 일본에서 창업 하고싶은데
+                        - link "[1]" [ref=e581] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86071&t=cv
+                      - cell "ㅇㅇ (220.121)" [ref=e582] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e583]:
+                          - emphasis [ref=e584]: ㅇㅇ
+                        - text: (220.121)
+                      - cell "03.03" [ref=e585]
+                      - cell "324" [ref=e586]
+                      - cell "0" [ref=e587]
+                    - row "86070 창업 광고 거르는 방법 창갤러 (223.33) 03.03 165 0" [ref=e588]:
+                      - cell "86070" [ref=e589]
+                      - cell "창업 광고 거르는 방법" [ref=e590]:
+                        - link "창업 광고 거르는 방법" [ref=e591] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86070&page=1
+                          - emphasis [ref=e592]
+                          - text: 창업 광고 거르는 방법
+                      - cell "창갤러 (223.33)" [ref=e593] [cursor=pointer]:
+                        - generic "창갤러" [ref=e594]:
+                          - emphasis [ref=e595]: 창갤러
+                        - text: (223.33)
+                      - cell "03.03" [ref=e596]
+                      - cell "165" [ref=e597]
+                      - cell "0" [ref=e598]
+                    - row "86068 사장들 수요일에 하나씩 받는거 있냐? 창갤러 (116.127) 03.03 106 0" [ref=e599]:
+                      - cell "86068" [ref=e600]
+                      - cell "사장들 수요일에 하나씩 받는거 있냐?" [ref=e601]:
+                        - link "사장들 수요일에 하나씩 받는거 있냐?" [ref=e602] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86068&page=1
+                          - emphasis [ref=e603]
+                          - text: 사장들 수요일에 하나씩 받는거 있냐?
+                      - cell "창갤러 (116.127)" [ref=e604] [cursor=pointer]:
+                        - generic "창갤러" [ref=e605]:
+                          - emphasis [ref=e606]: 창갤러
+                        - text: (116.127)
+                      - cell "03.03" [ref=e607]
+                      - cell "106" [ref=e608]
+                      - cell "0" [ref=e609]
+                    - row "86065 내가 강릉사는데 [1] 창갤러 (112.167) 03.03 162 1" [ref=e610]:
+                      - cell "86065" [ref=e611]
+                      - cell "내가 강릉사는데 [1]" [ref=e612]:
+                        - link "내가 강릉사는데" [ref=e613] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86065&page=1
+                          - emphasis [ref=e614]
+                          - text: 내가 강릉사는데
+                        - link "[1]" [ref=e615] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86065&t=cv
+                      - cell "창갤러 (112.167)" [ref=e616] [cursor=pointer]:
+                        - generic "창갤러" [ref=e617]:
+                          - emphasis [ref=e618]: 창갤러
+                        - text: (112.167)
+                      - cell "03.03" [ref=e619]
+                      - cell "162" [ref=e620]
+                      - cell "1" [ref=e621]
+                    - row "86064 결국 남들이 안하는걸 해야됨 [5] 창갤러 (112.167) 03.03 551 1" [ref=e622]:
+                      - cell "86064" [ref=e623]
+                      - cell "결국 남들이 안하는걸 해야됨 [5]" [ref=e624]:
+                        - link "결국 남들이 안하는걸 해야됨" [ref=e625] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86064&page=1
+                          - emphasis [ref=e626]
+                          - text: 결국 남들이 안하는걸 해야됨
+                        - link "[5]" [ref=e627] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86064&t=cv
+                      - cell "창갤러 (112.167)" [ref=e628] [cursor=pointer]:
+                        - generic "창갤러" [ref=e629]:
+                          - emphasis [ref=e630]: 창갤러
+                        - text: (112.167)
+                      - cell "03.03" [ref=e631]
+                      - cell "551" [ref=e632]
+                      - cell "1" [ref=e633]
+                    - row "86063 창업 아이디어 준다. 음악앱에 댓글 [2] 창갤러 (112.167) 03.03 286 1" [ref=e634]:
+                      - cell "86063" [ref=e635]
+                      - cell "창업 아이디어 준다. 음악앱에 댓글 [2]" [ref=e636]:
+                        - link "창업 아이디어 준다. 음악앱에 댓글" [ref=e637] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86063&page=1
+                          - emphasis [ref=e638]
+                          - text: 창업 아이디어 준다. 음악앱에 댓글
+                        - link "[2]" [ref=e639] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86063&t=cv
+                      - cell "창갤러 (112.167)" [ref=e640] [cursor=pointer]:
+                        - generic "창갤러" [ref=e641]:
+                          - emphasis [ref=e642]: 창갤러
+                        - text: (112.167)
+                      - cell "03.03" [ref=e643]
+                      - cell "286" [ref=e644]
+                      - cell "1" [ref=e645]
+                    - row "86061 30대 남자 3억으로 대구나 수도권에 창업할만한거 있을까... [2] ㅇㅇ (124.57) 03.02 296 0" [ref=e646]:
+                      - cell "86061" [ref=e647]
+                      - cell "30대 남자 3억으로 대구나 수도권에 창업할만한거 있을까... [2]" [ref=e648]:
+                        - link "30대 남자 3억으로 대구나 수도권에 창업할만한거 있을까..." [ref=e649] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86061&page=1
+                          - emphasis [ref=e650]
+                          - text: 30대 남자 3억으로 대구나 수도권에 창업할만한거 있을까...
+                        - link "[2]" [ref=e651] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86061&t=cv
+                      - cell "ㅇㅇ (124.57)" [ref=e652] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e653]:
+                          - emphasis [ref=e654]: ㅇㅇ
+                        - text: (124.57)
+                      - cell "03.02" [ref=e655]
+                      - cell "296" [ref=e656]
+                      - cell "0" [ref=e657]
+                    - row "86054 제품디자인 필요하면 이제 수백만원 안쓰고 이거 쓰면 될듯 창갤러 (182.209) 02.28 142 1" [ref=e658]:
+                      - cell "86054" [ref=e659]
+                      - cell "제품디자인 필요하면 이제 수백만원 안쓰고 이거 쓰면 될듯" [ref=e660]:
+                        - link "제품디자인 필요하면 이제 수백만원 안쓰고 이거 쓰면 될듯" [ref=e661] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86054&page=1
+                          - emphasis [ref=e662]
+                          - text: 제품디자인 필요하면 이제 수백만원 안쓰고 이거 쓰면 될듯
+                      - cell "창갤러 (182.209)" [ref=e663] [cursor=pointer]:
+                        - generic "창갤러" [ref=e664]:
+                          - emphasis [ref=e665]: 창갤러
+                        - text: (182.209)
+                      - cell "02.28" [ref=e666]
+                      - cell "142" [ref=e667]
+                      - cell "1" [ref=e668]
+                    - row "86052 ai 시대 창업이니 뭐니 말하는데 솔직히 [4] 창갤러 (121.144) 02.25 851 1" [ref=e669]:
+                      - cell "86052" [ref=e670]
+                      - cell "ai 시대 창업이니 뭐니 말하는데 솔직히 [4]" [ref=e671]:
+                        - link "ai 시대 창업이니 뭐니 말하는데 솔직히" [ref=e672] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86052&page=1
+                          - emphasis [ref=e673]
+                          - text: ai 시대 창업이니 뭐니 말하는데 솔직히
+                        - link "[4]" [ref=e674] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86052&t=cv
+                      - cell "창갤러 (121.144)" [ref=e675] [cursor=pointer]:
+                        - generic "창갤러" [ref=e676]:
+                          - emphasis [ref=e677]: 창갤러
+                        - text: (121.144)
+                      - cell "02.25" [ref=e678]
+                      - cell "851" [ref=e679]
+                      - cell "1" [ref=e680]
+                    - row "86051 1인창업자. 불안해서 앱만들었음. [2] 불안곰 갤로그로 이동합니다. 02.25 513 1" [ref=e681]:
+                      - cell "86051" [ref=e682]
+                      - cell "1인창업자. 불안해서 앱만들었음. [2]" [ref=e683]:
+                        - link "1인창업자. 불안해서 앱만들었음." [ref=e684] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86051&page=1
+                          - emphasis [ref=e685]
+                          - text: 1인창업자. 불안해서 앱만들었음.
+                        - link "[2]" [ref=e686] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86051&t=cv
+                      - cell "불안곰 갤로그로 이동합니다." [ref=e687] [cursor=pointer]:
+                        - generic "불안곰" [ref=e688]:
+                          - emphasis [ref=e689]: 불안곰
+                        - img "갤로그로 이동합니다." [ref=e691]
+                      - cell "02.25" [ref=e692]
+                      - cell "513" [ref=e693]
+                      - cell "1" [ref=e694]
+                    - row "86045 울산사는데 컨설팅창업 어떤거같음? [4] ㅇㅇ (182.227) 02.24 356 2" [ref=e695]:
+                      - cell "86045" [ref=e696]
+                      - cell "울산사는데 컨설팅창업 어떤거같음? [4]" [ref=e697]:
+                        - link "울산사는데 컨설팅창업 어떤거같음?" [ref=e698] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86045&page=1
+                          - emphasis [ref=e699]
+                          - text: 울산사는데 컨설팅창업 어떤거같음?
+                        - link "[4]" [ref=e700] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86045&t=cv
+                      - cell "ㅇㅇ (182.227)" [ref=e701] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e702]:
+                          - emphasis [ref=e703]: ㅇㅇ
+                        - text: (182.227)
+                      - cell "02.24" [ref=e704]
+                      - cell "356" [ref=e705]
+                      - cell "2" [ref=e706]
+                    - row "86044 창업하려는데 뭐부터 해야 되나요? [1] 창갤러 (112.148) 02.24 379 0" [ref=e707]:
+                      - cell "86044" [ref=e708]
+                      - cell "창업하려는데 뭐부터 해야 되나요? [1]" [ref=e709]:
+                        - link "창업하려는데 뭐부터 해야 되나요?" [ref=e710] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86044&page=1
+                          - emphasis [ref=e711]
+                          - text: 창업하려는데 뭐부터 해야 되나요?
+                        - link "[1]" [ref=e712] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86044&t=cv
+                      - cell "창갤러 (112.148)" [ref=e713] [cursor=pointer]:
+                        - generic "창갤러" [ref=e714]:
+                          - emphasis [ref=e715]: 창갤러
+                        - text: (112.148)
+                      - cell "02.24" [ref=e716]
+                      - cell "379" [ref=e717]
+                      - cell "0" [ref=e718]
+                    - row "86040 앞으로 청소사업이 될수도 있음 [4] 창갤러 (222.101) 02.21 1216 6" [ref=e719]:
+                      - cell "86040" [ref=e720]
+                      - cell "앞으로 청소사업이 될수도 있음 [4]" [ref=e721]:
+                        - link "앞으로 청소사업이 될수도 있음" [ref=e722] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86040&page=1
+                          - emphasis [ref=e723]
+                          - text: 앞으로 청소사업이 될수도 있음
+                        - link "[4]" [ref=e724] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86040&t=cv
+                      - cell "창갤러 (222.101)" [ref=e725] [cursor=pointer]:
+                        - generic "창갤러" [ref=e726]:
+                          - emphasis [ref=e727]: 창갤러
+                        - text: (222.101)
+                      - cell "02.21" [ref=e728]
+                      - cell "1216" [ref=e729]
+                      - cell "6" [ref=e730]
+                    - row "86039 청소업체 창업 비추... [1] ㅇㅇ (118.235) 02.21 658 1" [ref=e731]:
+                      - cell "86039" [ref=e732]
+                      - cell "청소업체 창업 비추... [1]" [ref=e733]:
+                        - link "청소업체 창업 비추..." [ref=e734] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86039&page=1
+                          - emphasis [ref=e735]
+                          - text: 청소업체 창업 비추...
+                        - link "[1]" [ref=e736] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86039&t=cv
+                      - cell "ㅇㅇ (118.235)" [ref=e737] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e738]:
+                          - emphasis [ref=e739]: ㅇㅇ
+                        - text: (118.235)
+                      - cell "02.21" [ref=e740]
+                      - cell "658" [ref=e741]
+                      - cell "1" [ref=e742]
+                    - row "86036 고객 문의 들어오는 거 바로 확인하는 방법 있음? [1] 텐치 갤로그로 이동합니다. 02.20 174 0" [ref=e743]:
+                      - cell "86036" [ref=e744]
+                      - cell "고객 문의 들어오는 거 바로 확인하는 방법 있음? [1]" [ref=e745]:
+                        - link "고객 문의 들어오는 거 바로 확인하는 방법 있음?" [ref=e746] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86036&page=1
+                          - emphasis [ref=e747]
+                          - text: 고객 문의 들어오는 거 바로 확인하는 방법 있음?
+                        - link "[1]" [ref=e748] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86036&t=cv
+                      - cell "텐치 갤로그로 이동합니다." [ref=e749] [cursor=pointer]:
+                        - generic "텐치" [ref=e750]:
+                          - emphasis [ref=e751]: 텐치
+                        - img "갤로그로 이동합니다." [ref=e753]
+                      - cell "02.20" [ref=e754]
+                      - cell "174" [ref=e755]
+                      - cell "0" [ref=e756]
+                    - row "86030 형들 창업 하기전에 입지분석같은거 어떻게 해 ? [2] 창갤러 (220.86) 02.16 563 0" [ref=e757]:
+                      - cell "86030" [ref=e758]
+                      - cell "형들 창업 하기전에 입지분석같은거 어떻게 해 ? [2]" [ref=e759]:
+                        - link "형들 창업 하기전에 입지분석같은거 어떻게 해 ?" [ref=e760] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86030&page=1
+                          - emphasis [ref=e761]
+                          - text: 형들 창업 하기전에 입지분석같은거 어떻게 해 ?
+                        - link "[2]" [ref=e762] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86030&t=cv
+                      - cell "창갤러 (220.86)" [ref=e763] [cursor=pointer]:
+                        - generic "창갤러" [ref=e764]:
+                          - emphasis [ref=e765]: 창갤러
+                        - text: (220.86)
+                      - cell "02.16" [ref=e766]
+                      - cell "563" [ref=e767]
+                      - cell "0" [ref=e768]
+                    - row "86028 아이디어 팝니다 [4] 창갤러 (222.101) 02.16 664 0" [ref=e769]:
+                      - cell "86028" [ref=e770]
+                      - cell "아이디어 팝니다 [4]" [ref=e771]:
+                        - link "아이디어 팝니다" [ref=e772] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86028&page=1
+                          - emphasis [ref=e773]
+                          - text: 아이디어 팝니다
+                        - link "[4]" [ref=e774] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86028&t=cv
+                      - cell "창갤러 (222.101)" [ref=e775] [cursor=pointer]:
+                        - generic "창갤러" [ref=e776]:
+                          - emphasis [ref=e777]: 창갤러
+                        - text: (222.101)
+                      - cell "02.16" [ref=e778]
+                      - cell "664" [ref=e779]
+                      - cell "0" [ref=e780]
+                    - row "86027 솔직히 빚내서 창업하는거 이해안됨 [2] 참외 갤로그로 이동합니다. 02.16 388 0" [ref=e781]:
+                      - cell "86027" [ref=e782]
+                      - cell "솔직히 빚내서 창업하는거 이해안됨 [2]" [ref=e783]:
+                        - link "솔직히 빚내서 창업하는거 이해안됨" [ref=e784] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86027&page=1
+                          - emphasis [ref=e785]
+                          - text: 솔직히 빚내서 창업하는거 이해안됨
+                        - link "[2]" [ref=e786] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86027&t=cv
+                      - cell "참외 갤로그로 이동합니다." [ref=e787] [cursor=pointer]:
+                        - generic "참외" [ref=e788]:
+                          - emphasis [ref=e789]: 참외
+                        - img "갤로그로 이동합니다." [ref=e791]
+                      - cell "02.16" [ref=e792]
+                      - cell "388" [ref=e793]
+                      - cell "0" [ref=e794]
+                    - row "86026 창업아이템은 있는데 한번 말아먹어서 돈이 없네 창갤러 (222.101) 02.15 354 4" [ref=e795]:
+                      - cell "86026" [ref=e796]
+                      - cell "창업아이템은 있는데 한번 말아먹어서 돈이 없네" [ref=e797]:
+                        - link "창업아이템은 있는데 한번 말아먹어서 돈이 없네" [ref=e798] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86026&page=1
+                          - emphasis [ref=e799]
+                          - text: 창업아이템은 있는데 한번 말아먹어서 돈이 없네
+                      - cell "창갤러 (222.101)" [ref=e800] [cursor=pointer]:
+                        - generic "창갤러" [ref=e801]:
+                          - emphasis [ref=e802]: 창갤러
+                        - text: (222.101)
+                      - cell "02.15" [ref=e803]
+                      - cell "354" [ref=e804]
+                      - cell "4" [ref=e805]
+                    - row "86025 카지노 싸이트 영업 [4] 찡뽕이 (223.39) 02.15 424 0" [ref=e806]:
+                      - cell "86025" [ref=e807]
+                      - cell "카지노 싸이트 영업 [4]" [ref=e808]:
+                        - link "카지노 싸이트 영업" [ref=e809] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86025&page=1
+                          - emphasis [ref=e810]
+                          - text: 카지노 싸이트 영업
+                        - link "[4]" [ref=e811] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86025&t=cv
+                      - cell "찡뽕이 (223.39)" [ref=e812] [cursor=pointer]:
+                        - generic "찡뽕이" [ref=e813]:
+                          - emphasis [ref=e814]: 찡뽕이
+                        - text: (223.39)
+                      - cell "02.15" [ref=e815]
+                      - cell "424" [ref=e816]
+                      - cell "0" [ref=e817]
+                    - row "86016 시발 법인 통장 하나 까는게 뭐이리 어렵누 ㅇㅇ (223.38) 02.13 241 1" [ref=e818]:
+                      - cell "86016" [ref=e819]
+                      - cell "시발 법인 통장 하나 까는게 뭐이리 어렵누" [ref=e820]:
+                        - link "시발 법인 통장 하나 까는게 뭐이리 어렵누" [ref=e821] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86016&page=1
+                          - emphasis [ref=e822]
+                          - text: 시발 법인 통장 하나 까는게 뭐이리 어렵누
+                      - cell "ㅇㅇ (223.38)" [ref=e823] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e824]:
+                          - emphasis [ref=e825]: ㅇㅇ
+                        - text: (223.38)
+                      - cell "02.13" [ref=e826]
+                      - cell "241" [ref=e827]
+                      - cell "1" [ref=e828]
+                    - row "86012 밑에 천하와플 개처웃기노 ㅋㅋㅋ ㅇㅇ (112.170) 02.12 215 1" [ref=e829]:
+                      - cell "86012" [ref=e830]
+                      - cell "밑에 천하와플 개처웃기노 ㅋㅋㅋ" [ref=e831]:
+                        - link "밑에 천하와플 개처웃기노 ㅋㅋㅋ" [ref=e832] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86012&page=1
+                          - emphasis [ref=e833]
+                          - text: 밑에 천하와플 개처웃기노 ㅋㅋㅋ
+                      - cell "ㅇㅇ (112.170)" [ref=e834] [cursor=pointer]:
+                        - generic "ㅇㅇ" [ref=e835]:
+                          - emphasis [ref=e836]: ㅇㅇ
+                        - text: (112.170)
+                      - cell "02.12" [ref=e837]
+                      - cell "215" [ref=e838]
+                      - cell "1" [ref=e839]
+                    - row "86010 37살 2억밖에 없다 망한인생같다. [4] 창갤러 (211.229) 02.11 973 0" [ref=e840]:
+                      - cell "86010" [ref=e841]
+                      - cell "37살 2억밖에 없다 망한인생같다. [4]" [ref=e842]:
+                        - link "37살 2억밖에 없다 망한인생같다." [ref=e843] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86010&page=1
+                          - emphasis [ref=e844]
+                          - text: 37살 2억밖에 없다 망한인생같다.
+                        - link "[4]" [ref=e845] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86010&t=cv
+                      - cell "창갤러 (211.229)" [ref=e846] [cursor=pointer]:
+                        - generic "창갤러" [ref=e847]:
+                          - emphasis [ref=e848]: 창갤러
+                        - text: (211.229)
+                      - cell "02.11" [ref=e849]
+                      - cell "973" [ref=e850]
+                      - cell "0" [ref=e851]
+                    - row "86009 20대 고민 좀 [4] 창갤러 (118.235) 02.10 845 0" [ref=e852]:
+                      - cell "86009" [ref=e853]
+                      - cell "20대 고민 좀 [4]" [ref=e854]:
+                        - link "20대 고민 좀" [ref=e855] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86009&page=1
+                          - emphasis [ref=e856]
+                          - text: 20대 고민 좀
+                        - link "[4]" [ref=e857] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86009&t=cv
+                      - cell "창갤러 (118.235)" [ref=e858] [cursor=pointer]:
+                        - generic "창갤러" [ref=e859]:
+                          - emphasis [ref=e860]: 창갤러
+                        - text: (118.235)
+                      - cell "02.10" [ref=e861]
+                      - cell "845" [ref=e862]
+                      - cell "0" [ref=e863]
+                    - row "86006 형님들 포스 뭐 써야합니까 [1] 창갤러 (211.42) 02.10 500 0" [ref=e864]:
+                      - cell "86006" [ref=e865]
+                      - cell "형님들 포스 뭐 써야합니까 [1]" [ref=e866]:
+                        - link "형님들 포스 뭐 써야합니까" [ref=e867] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86006&page=1
+                          - emphasis [ref=e868]
+                          - text: 형님들 포스 뭐 써야합니까
+                        - link "[1]" [ref=e869] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86006&t=cv
+                      - cell "창갤러 (211.42)" [ref=e870] [cursor=pointer]:
+                        - generic "창갤러" [ref=e871]:
+                          - emphasis [ref=e872]: 창갤러
+                        - text: (211.42)
+                      - cell "02.10" [ref=e873]
+                      - cell "500" [ref=e874]
+                      - cell "0" [ref=e875]
+                    - row "86005 정부지원금/현물 입력하는거 질문좀 ㅠ [1] 창갤러 (115.138) 02.10 209 1" [ref=e876]:
+                      - cell "86005" [ref=e877]
+                      - cell "정부지원금/현물 입력하는거 질문좀 ㅠ [1]" [ref=e878]:
+                        - link "정부지원금/현물 입력하는거 질문좀 ㅠ" [ref=e879] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86005&page=1
+                          - emphasis [ref=e880]
+                          - text: 정부지원금/현물 입력하는거 질문좀 ㅠ
+                        - link "[1]" [ref=e881] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86005&t=cv
+                      - cell "창갤러 (115.138)" [ref=e882] [cursor=pointer]:
+                        - generic "창갤러" [ref=e883]:
+                          - emphasis [ref=e884]: 창갤러
+                        - text: (115.138)
+                      - cell "02.10" [ref=e885]
+                      - cell "209" [ref=e886]
+                      - cell "1" [ref=e887]
+                    - row "86003 창업 vs 투자 뭐가 더 힘드냐 [1] 창갤러 (116.127) 02.10 398 0" [ref=e888]:
+                      - cell "86003" [ref=e889]
+                      - cell "창업 vs 투자 뭐가 더 힘드냐 [1]" [ref=e890]:
+                        - link "창업 vs 투자 뭐가 더 힘드냐" [ref=e891] [cursor=pointer]:
+                          - /url: /board/view/?id=changup&no=86003&page=1
+                          - emphasis [ref=e892]
+                          - text: 창업 vs 투자 뭐가 더 힘드냐
+                        - link "[1]" [ref=e893] [cursor=pointer]:
+                          - /url: http://gall.dcinside.com/board/view/?id=changup&no=86003&t=cv
+                      - cell "창갤러 (116.127)" [ref=e894] [cursor=pointer]:
+                        - generic "창갤러" [ref=e895]:
+                          - emphasis [ref=e896]: 창갤러
+                        - text: (116.127)
+                      - cell "02.10" [ref=e897]
+                      - cell "398" [ref=e898]
+                      - cell "0" [ref=e899]
+                - generic [ref=e900]:
+                  - generic [ref=e901]:
+                    - button "전체글" [ref=e902] [cursor=pointer]
+                    - button "개념글" [ref=e903] [cursor=pointer]
+                  - button "글쓰기" [ref=e905] [cursor=pointer]
+                - generic [ref=e906]:
+                  - generic [ref=e907]:
+                    - emphasis [ref=e908]: "1"
+                    - link "2" [ref=e909] [cursor=pointer]:
+                      - /url: /board/lists/?id=changup&page=2
+                    - link "3" [ref=e910] [cursor=pointer]:
+                      - /url: /board/lists/?id=changup&page=3
+                    - link "4" [ref=e911] [cursor=pointer]:
+                      - /url: /board/lists/?id=changup&page=4
+                    - link "5" [ref=e912] [cursor=pointer]:
+                      - /url: /board/lists/?id=changup&page=5
+                    - link "6" [ref=e913] [cursor=pointer]:
+                      - /url: /board/lists/?id=changup&page=6
+                    - link "7" [ref=e914] [cursor=pointer]:
+                      - /url: /board/lists/?id=changup&page=7
+                    - link "8" [ref=e915] [cursor=pointer]:
+                      - /url: /board/lists/?id=changup&page=8
+                    - link "9" [ref=e916] [cursor=pointer]:
+                      - /url: /board/lists/?id=changup&page=9
+                    - link "10" [ref=e917] [cursor=pointer]:
+                      - /url: /board/lists/?id=changup&page=10
+                    - link "11" [ref=e918] [cursor=pointer]:
+                      - /url: /board/lists/?id=changup&page=11
+                    - link "12" [ref=e919] [cursor=pointer]:
+                      - /url: /board/lists/?id=changup&page=12
+                    - link "13" [ref=e920] [cursor=pointer]:
+                      - /url: /board/lists/?id=changup&page=13
+                    - link "14" [ref=e921] [cursor=pointer]:
+                      - /url: /board/lists/?id=changup&page=14
+                    - link "15" [ref=e922] [cursor=pointer]:
+                      - /url: /board/lists/?id=changup&page=15
+                    - link "다음" [ref=e923] [cursor=pointer]:
+                      - /url: /board/lists/?id=changup&page=16
+                    - link "끝" [ref=e924] [cursor=pointer]:
+                      - /url: /board/lists/?id=changup&page=754
+                  - button "페이지 이동" [ref=e926] [cursor=pointer]: 페이지 이동
+                  - text: /
+                - group "갤러리 내부 검색" [ref=e929]:
+                  - generic [ref=e930]:
+                    - generic [ref=e932] [cursor=pointer]:
+                      - text: 제목+내용
+                      - emphasis [ref=e934]
+                    - generic [ref=e935]:
+                      - textbox "검색어 입력" [ref=e937]
+                      - button [ref=e938] [cursor=pointer]
+              - generic [ref=e940]:
+                - generic [ref=e941]:
+                  - strong [ref=e943] [cursor=pointer]: 로그인해 주세요.
+                  - generic [ref=e944]:
+                    - link "즐겨찾기" [ref=e946] [cursor=pointer]:
+                      - /url: javascript:;
+                    - generic [ref=e947]: "|스크랩"
+                    - generic [ref=e948]:
+                      - text: "|"
+                      - link "알림" [ref=e949] [cursor=pointer]:
+                        - /url: javascript:;
+                        - emphasis [ref=e950]
+                        - text: 알림
+                  - text: "| | | |"
+                - insertion [ref=e1211]:
+                  - iframe [ref=e1214]:
+                    - generic [ref=f255e3]:
+                      - link "크리테오의 광고입니다 굿리치" [ref=f255e4] [cursor=pointer]:
+                        - /url: https://cat.jp2.as.criteo.com/delivery/ckn.php?cppv=3&cpp=yQ9gq1HZ1afJ-0_GjRJQKH1O1RSICnQGXH9q9RlM2UXqVioGiRFWrSriIbFZaeW12q8_hCy9HZ7dZzxQwfKRAvgEWV02ugTZ7mHXDuV6WD5JvRHb2ttDCWUESw44D7Gw2eGZZJnT8cccoa2T3xH4qgJ_FWhwnj6x68pAxPDyjUO1oItR8KIB4UtrtkQ7wAwcPtDaghjqvrqW1TmzZOhlSSXU71U3nrh5CwfykYwsXyUb2sxjdtWc0x7u4UpTB677JDrLS8kJ3ihAs_I8T3lp69G8aUcxFfKVo6xwA1F6y9oUkphH-iH-Ws-wWFAoClD7AaJafPe7gtVNouXXSEaSqShbDwRKCpcOzsY8QCPmAIYyn7s1rNn3KwfRqnfJ75i1T-IaikYZTzeMse6g28oG62sRi5yqazeSFXhjLO897przLmWEWjckDBjhNsO6w8jW-E-8UZggvncAIiVX11zZp326zv_kFHKimOjjVrIyhb1V2xCyGHYSGEp_C-UFeRy-UWe4QVr4uF1LklZeNbhyG1sFi9PkGjkuUv7fzGAjaniFS2yMQGaze6MtTdBCXBg8Qk1YGQPACMlNYqpADPCA4Cbp_0k&maxdest=https%3A%2F%2Fnews.wec.co.kr%2Fgoodrich%2Fpc%3Fboard_id%3D109%26site_id%3D10%26page_cd%3Dcriteo_pc_sil3%26utm_source%3Dcriteo%26utm_medium%3Ddisplay%26utm_campaign%3D%25EA%25B5%25BF%25EB%25A6%25AC%25EC%25B9%2598-%25EC%258B%25A4%25EB%25B9%2584-pc-sil1%26utm_id%3D477915%26cto_pld%3DhyM01nPCAQA4iB5QRkk4sg
+                        - img "크리테오의 광고입니다" [ref=f255e6]
+                        - generic [ref=f255e8]: 굿리치
+                      - link "크리테오의 광고입니다 크리테오의 광고입니다 “월 만원대” 실손보험 최적가 비교! \"할인… “보험료 절감 기회!” 암·실손·치매·연금·상해보험까지 통합 비교하고 최적 조건… 바로가기" [ref=f255e9] [cursor=pointer]:
+                        - /url: https://cat.jp2.as.criteo.com/delivery/ckn.php?cppv=3&cpp=yQ9gq1HZ1afJ-0_GjRJQKH1O1RSICnQGXH9q9RlM2UXqVioGiRFWrSriIbFZaeW12q8_hCy9HZ7dZzxQwfKRAvgEWV02ugTZ7mHXDuV6WD5JvRHb2ttDCWUESw44D7Gw2eGZZJnT8cccoa2T3xH4qgJ_FWhwnj6x68pAxPDyjUO1oItR8KIB4UtrtkQ7wAwcPtDaghjqvrqW1TmzZOhlSSXU71U3nrh5CwfykYwsXyUb2sxjdtWc0x7u4UpTB677JDrLS8kJ3ihAs_I8T3lp69G8aUcxFfKVo6xwA1F6y9oUkphH-iH-Ws-wWFAoClD7AaJafPe7gtVNouXXSEaSqShbDwRKCpcOzsY8QCPmAIYyn7s1rNn3KwfRqnfJ75i1T-IaikYZTzeMse6g28oG62sRi5yqazeSFXhjLO897przLmWEWjckDBjhNsO6w8jW-E-8UZggvncAIiVX11zZp326zv_kFHKimOjjVrIyhb1V2xCyGHYSGEp_C-UFeRy-UWe4QVr4uF1LklZeNbhyG1sFi9PkGjkuUv7fzGAjaniFS2yMQGaze6MtTdBCXBg8Qk1YGQPACMlNYqpADPCA4Cbp_0k&maxdest=https%3A%2F%2Fnews.wec.co.kr%2Fgoodrich%2Fpc%3Fboard_id%3D109%26site_id%3D10%26page_cd%3Dcriteo_pc_sil3%26utm_source%3Dcriteo%26utm_medium%3Ddisplay%26utm_campaign%3D%25EA%25B5%25BF%25EB%25A6%25AC%25EC%25B9%2598-%25EC%258B%25A4%25EB%25B9%2584-pc-sil1%26utm_id%3D477915%26cto_pld%3DhyM01nPCAQA4iB5QRkk4sg
+                        - img "크리테오의 광고입니다" [ref=f255e12]
+                        - img "크리테오의 광고입니다" [ref=f255e17]
+                        - generic [ref=f255e18]:
+                          - strong [ref=f255e19]: “월 만원대” 실손보험 최적가 비교! "할인…
+                          - generic [ref=f255e20]: “보험료 절감 기회!” 암·실손·치매·연금·상해보험까지 통합 비교하고 최적 조건…
+                        - generic [ref=f255e21]: 바로가기
+                      - link "광고 정보" [ref=f255e23] [cursor=pointer]:
+                        - /url: https://privacy.as.criteo.com/adchoices?cppv=3&cpp=57akMqhk3C4Sdvrevin3dkuxysbnu7yLFEaaCJh4ZYsLBjV3_fZYpQyn01YfzAaKmpTFRkdm4WurmnD-ommE4qZviV6CQNTq6Dol-VHNLzRlZPi7lNMU-a1UPbxqsLcKSL-g7drAZwK-UXMtUEI5-WnklIM
+                        - generic [ref=f255e24]: 광고 정보
+                - article [ref=e952]:
+                  - generic [ref=e953]:
+                    - generic [ref=e954]:
+                      - heading "실시간 베스트" [level=3] [ref=e955]:
+                        - link "실시간 베스트" [ref=e956] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/lists?id=dcbest
+                      - generic [ref=e957]:
+                        - generic [ref=e958]:
+                          - strong [ref=e959]: "1"
+                          - text: /8
+                        - button [ref=e960] [cursor=pointer]:
+                          - emphasis [ref=e961]
+                        - button [ref=e962] [cursor=pointer]:
+                          - emphasis [ref=e963]
+                    - generic [ref=e964]:
+                      - generic [ref=e965]:
+                        - link "이란 전쟁 종료? 트럼프 \"5가지 전쟁 목표 달성 임박\"…" [ref=e967] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/view/?id=dcbest&no=414713
+                          - strong [ref=e970]: 이란 전쟁 종료? 트럼프 "5가지 전쟁 목표 달성 임박"…
+                        - link "스압) NPB 유니폼 모은것들" [ref=e972] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/view/?id=dcbest&no=414665
+                          - strong [ref=e975]: 스압) NPB 유니폼 모은것들
+                      - list [ref=e976]:
+                        - listitem [ref=e977]:
+                          - link "싱글벙글 국방비 지출이 큰 나라 Top 10" [ref=e978] [cursor=pointer]:
+                            - /url: https://gall.dcinside.com/board/view/?id=dcbest&no=414580
+                        - listitem [ref=e979]:
+                          - link "여자축구 ‘벤치 규정’ 바꾼 FIFA… 여성 지도자 없으면 못 뛴다" [ref=e980] [cursor=pointer]:
+                            - /url: https://gall.dcinside.com/board/view/?id=dcbest&no=414588
+                        - listitem [ref=e981]:
+                          - link "혐주의) [요리대회] 밀웜 두쫀쿠" [ref=e982] [cursor=pointer]:
+                            - /url: https://gall.dcinside.com/board/view/?id=dcbest&no=414584
+                        - listitem [ref=e983]:
+                          - link "우리은행 홍보하러 간 김선태 근황" [ref=e984] [cursor=pointer]:
+                            - /url: https://gall.dcinside.com/board/view/?id=dcbest&no=414686
+                        - listitem [ref=e985]:
+                          - link "싱글벙글 애완두꺼비의 일상" [ref=e986] [cursor=pointer]:
+                            - /url: https://gall.dcinside.com/board/view/?id=dcbest&no=414671
+                - article [ref=e987]:
+                  - generic [ref=e988]:
+                    - generic [ref=e989]:
+                      - heading "디시미디어" [level=3] [ref=e990]:
+                        - link "디시미디어" [ref=e991] [cursor=pointer]:
+                          - /url: javascript:mediaTabMove('media');
+                      - heading "| 디시이슈" [level=3] [ref=e992]:
+                        - text: "|"
+                        - link "디시이슈" [ref=e993] [cursor=pointer]:
+                          - /url: javascript:mediaTabMove('issue');
+                      - generic [ref=e994]:
+                        - generic [ref=e995]:
+                          - strong [ref=e996]: "1"
+                          - text: /4
+                        - button [ref=e997] [cursor=pointer]:
+                          - emphasis [ref=e998]
+                        - button [ref=e999] [cursor=pointer]:
+                          - emphasis [ref=e1000]
+                    - generic [ref=e1001]:
+                      - generic [ref=e1002]:
+                        - link "\"다 닳았을 때 갈면 되는 거 아니었나?\"... 운전자들 대부분이 몰랐다 '타이어 수명'의 비밀" [ref=e1004] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/autonology/438
+                          - strong [ref=e1007]: "\"다 닳았을 때 갈면 되는 거 아니었나?\"... 운전자들 대부분이 몰랐다 '타이어 수명'의 비밀"
+                        - link "\"작년 연봉 1위 248억…\" 재계 총수 회장님 건보료 고지서의 비밀은" [ref=e1009] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/nanammedia/17592
+                          - strong [ref=e1012]: "\"작년 연봉 1위 248억…\" 재계 총수 회장님 건보료 고지서의 비밀은"
+                      - list [ref=e1013]:
+                        - listitem [ref=e1014]:
+                          - link "\"기름 값만 오른게 아니었다\"...정부의 잇단 대책에도 '비명'" [ref=e1015] [cursor=pointer]:
+                            - /url: https://gall.dcinside.com/thewithcar/2593
+                        - listitem [ref=e1016]:
+                          - link "\"전생에 나라 구했다\" 김병세, 15살 연하 아내 7년 만에 공개" [ref=e1017] [cursor=pointer]:
+                            - /url: https://gall.dcinside.com/indinews/6212
+                        - listitem [ref=e1018]:
+                          - link "개그우먼 꿈 위해 안정된 직장 내려놓은 중학교 교사 출신 배우" [ref=e1019] [cursor=pointer]:
+                            - /url: https://gall.dcinside.com/metakr/2566
+                - article [ref=e1020]:
+                  - generic [ref=e1021]:
+                    - generic [ref=e1022]:
+                      - heading "개념글 [ 피겨스케이팅 ]" [level=3] [ref=e1023]:
+                        - link "개념글 [ 피겨스케이팅 ]" [ref=e1024] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/view/?id=figureskating_new&no=4588750
+                          - text: 개념글
+                          - generic [ref=e1025]:
+                            - text: "["
+                            - emphasis [ref=e1026]: 피겨스케이팅
+                            - text: "]"
+                      - generic [ref=e1027]:
+                        - generic [ref=e1028]:
+                          - strong [ref=e1029]: "1"
+                          - text: /25
+                        - button [ref=e1030] [cursor=pointer]:
+                          - emphasis [ref=e1031]
+                        - button [ref=e1032] [cursor=pointer]:
+                          - emphasis [ref=e1033]
+                    - list [ref=e1034]:
+                      - listitem [ref=e1035]:
+                        - link "트루 xx기 진짜 미친거아니긔?" [ref=e1036] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/view/?id=figureskating_new&no=4588750
+                      - listitem [ref=e1037]:
+                        - link "말깅이는 커여운데" [ref=e1038] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/view/?id=figureskating_new&no=4586264
+                      - listitem [ref=e1039]:
+                        - link "연느 쌀국에서 반응온거 맞는데" [ref=e1040] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/view/?id=figureskating_new&no=4585399
+                      - listitem [ref=e1041]:
+                        - link "수성구 범4만3 부촌이 아니라 수성동 외곽이시잖아요" [ref=e1042] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/view/?id=figureskating_new&no=4585347
+                      - listitem [ref=e1043]:
+                        - link "외퀴들도 다 알아" [ref=e1044] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/view/?id=figureskating_new&no=4585094
+                      - listitem [ref=e1045]:
+                        - link "둥이 유튜브 장문댓글" [ref=e1046] [cursor=pointer]:
+                          - /url: https://gall.dcinside.com/board/view/?id=figureskating_new&no=4583904
+      - insertion [ref=e1215]:
+        - iframe [ref=e1218]:
+          - generic [ref=f256e3]:
+            - link "2.21~22 대구웨딩박람회 대구그랜드호텔/웨딩홀/스드메/허니문/혼수할인/고객리뷰 대만족/ 믿고맡기는OK웨딩 http://대구웨딩박람회.kr 자세히 보기" [ref=f256e4] [cursor=pointer]:
+              - /url: https://ka.ad.daum.net/click/http%3A%2F%2F%EB%8C%80%EA%B5%AC%EC%9B%A8%EB%94%A9%EB%B0%95%EB%9E%8C%ED%9A%8C.kr%3Futm_source%3Dkakao%26utm_medium%3Dkeyword%26utm_campaign%3DPREMIUM_LINK%26k_campaign%3D309648908443467777%26k_adgroup%3D309649052510900225%26k_media%3DPREMIUM_LINK_CONTENT%26k_creative%3D802947767347724289%26k_creativelink%3D802947767419027456%26k_rank%3D1%26kclid%3DtmWJQgP1mqlL4OsNPEzBFKctB2vUbPMNC-0iJlFRPK6NvEwpa6PlIw6L61ZtCOaHTSoMQkBiCOnn3yAvm9QDYMGewtKP4dgykKsdBq2uKmg/Tpn9jrMaHHPsWmxn2b6D509DiRo8DfO-xyvzWo2TMwxngd0rIVhtvArmVoMORLaEg4bK0XTaMa2M6ZAjfRgrP5pp-S3P4OIMom-37NmckxS9Noqws8oDeAAzirFHXW3pm9tgCDmHQs_gkY6cM2UDytyMESGI_6HvZp0pcDuoY2VC38q3Jr05muVTCwrOcgQWBuXz9GJk71wiREiMclJAK-xoPk8XysAEdjsQtuSKkzF9yqDlYRD-3yPUSBcg4hqDXzxoOgtld0EU5JoOOCfe5BvuPx2RtNom7mkPaiHDKtPCSi8wgPqS1ONFWu4FD9ZPnsqsRMUwoyOK9upb8zOYjf2jmpOcpJgf87VDx_800wxILdwxyIqcg5t8Jb0KYmShZ-0pKmKuw7-2IzddW-HnbQ4af4Eu65LccSRAiOY4668tavjjb07eay5LKzlca9KTNeP9GZLLaYPocxWtqt_iQjeTpFVcvIF2oHZGWgAY_8IUGTDDKx3fsv-8RuSvkS72jp7w-WpXhah_dFhC6-bLlyJ-6MTQc6M2NMllSja-ljINxXiAPONnKlsWcE7i0vE4tiCBpWq6hjlQXyJ3UC3y03FCcXNa1-O8m-NvFwfz5yZMkEk4YBns?p=P98IWGV2vhQXVjhKL-paaWH0tSgNtIBnqMgMaGBtlVM
+              - generic [ref=f256e6]:
+                - strong [ref=f256e7]: 2.21~22 대구웨딩박람회
+                - generic [ref=f256e8]: 대구그랜드호텔/웨딩홀/스드메/허니문/혼수할인/고객리뷰 대만족/ 믿고맡기는OK웨딩
+                - generic [ref=f256e10]: http://대구웨딩박람회.kr
+              - generic [ref=f256e12]: 자세히 보기
+            - link "광고 정보" [ref=f256e13] [cursor=pointer]:
+              - /url: https://info.ds.kakao.com/optout.do
+              - img "광고 정보" [ref=f256e14]
+      - link [ref=e1050] [cursor=pointer]:
+        - /url: __CLICK__
+        - img [ref=e1051]
+    - contentinfo [ref=e1052]:
+      - generic [ref=e1054]:
+        - generic [ref=e1055]:
+          - generic [ref=e1056]:
+            - term [ref=e1057]: 게임
+            - definition [ref=e1058]:
+              - link "던전앤파이터" [ref=e1059] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=d_fighter_new2
+            - definition [ref=e1060]:
+              - link "메이플스토리" [ref=e1061] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=maplestory_new
+            - definition [ref=e1062]:
+              - link "승리의 여신 니케" [ref=e1063] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=projectnike
+            - definition [ref=e1064]:
+              - link "아이돌마스터" [ref=e1065] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=idolmaster_new1
+            - definition [ref=e1066]:
+              - link "리그 오브 레전드" [ref=e1067] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=leagueoflegends6
+            - definition [ref=e1068]:
+              - link "FC 온라인" [ref=e1069] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=fifaonline
+            - definition [ref=e1070]:
+              - link "사운드 볼텍스" [ref=e1071] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=sdvx
+            - definition [ref=e1072]:
+              - link "로스트아크" [ref=e1073] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=lostark
+            - definition [ref=e1074]:
+              - link "포켓몬스터" [ref=e1075] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=pokemon
+            - definition [ref=e1076]:
+              - link "테일즈런너" [ref=e1077] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=tr
+          - generic [ref=e1078]:
+            - term [ref=e1079]: 연예/방송
+            - definition [ref=e1080]:
+              - link "남자 연예인" [ref=e1081] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=m_entertainer_new1
+            - definition [ref=e1082]:
+              - link "여자 연예인" [ref=e1083] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=w_entertainer
+            - definition [ref=e1084]:
+              - link "방탄소년단" [ref=e1085] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=bts
+            - definition [ref=e1086]:
+              - link "일본 연예" [ref=e1087] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=japan_entertainment
+            - definition [ref=e1088]:
+              - link "윤하" [ref=e1089] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=yunha
+            - definition [ref=e1090]:
+              - link "기타 국내 드라마" [ref=e1091] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=drama_new3
+            - definition [ref=e1092]:
+              - link "나는 솔로" [ref=e1093] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=iamsolo
+            - definition [ref=e1094]:
+              - link "보이즈 2 플래닛" [ref=e1095] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=boysiiplanet
+            - definition [ref=e1096]:
+              - link "걸스플래닛999" [ref=e1097] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=grsgills
+            - definition [ref=e1098]:
+              - link "기타 미국드라마" [ref=e1099] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=f_drama
+          - generic [ref=e1100]:
+            - term [ref=e1101]: 스포츠
+            - definition [ref=e1102]:
+              - link "해외야구" [ref=e1103] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=baseball_ab2
+            - definition [ref=e1104]:
+              - link "국내야구" [ref=e1105] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=baseball_new13
+            - definition [ref=e1106]:
+              - link "한화 이글스" [ref=e1107] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=hanwhaeagles_new
+            - definition [ref=e1108]:
+              - link "LG 트윈스" [ref=e1109] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=lgtwins_new
+            - definition [ref=e1110]:
+              - link "롯데 자이언츠" [ref=e1111] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=giants_new3
+            - definition [ref=e1112]:
+              - link "삼성 라이온즈" [ref=e1113] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=samsunglions_new
+            - definition [ref=e1114]:
+              - link "SSG 랜더스" [ref=e1115] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=skwyverns_new1
+            - definition [ref=e1116]:
+              - link "KIA 타이거즈" [ref=e1117] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=tigers_new2
+            - definition [ref=e1118]:
+              - link "두산 베어스" [ref=e1119] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=doosanbears_new1
+            - definition [ref=e1120]:
+              - link "키움 히어로즈" [ref=e1121] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=sh_new
+          - generic [ref=e1122]:
+            - term [ref=e1123]: 교육/금융/IT
+            - definition [ref=e1124]:
+              - link "대출" [ref=e1125] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=loan_new1
+            - definition [ref=e1126]:
+              - link "부동산" [ref=e1127] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=immovables
+            - definition [ref=e1128]:
+              - link "주식" [ref=e1129] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=neostock
+            - definition [ref=e1130]:
+              - link "컴퓨터 본체" [ref=e1131] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=pridepc_new4
+            - definition [ref=e1132]:
+              - link "스마트폰" [ref=e1133] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=smartphone
+            - definition [ref=e1134]:
+              - link "자격증" [ref=e1135] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=coq
+            - definition [ref=e1136]:
+              - link "학점은행제" [ref=e1137] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=acbs
+            - definition [ref=e1138]:
+              - link "토익" [ref=e1139] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=toeic
+            - definition [ref=e1140]:
+              - link "정치, 사회" [ref=e1141] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=stock_new2
+            - definition [ref=e1142]:
+              - link "의학" [ref=e1143] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=medicalscience
+          - generic [ref=e1144]:
+            - term [ref=e1145]: 여행/음식/생물
+            - definition [ref=e1146]:
+              - link "도시" [ref=e1147] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=city
+            - definition [ref=e1148]:
+              - link "여행-일본" [ref=e1149] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=travel_japan
+            - definition [ref=e1150]:
+              - link "편의점" [ref=e1151] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=cs_new1
+            - definition [ref=e1152]:
+              - link "치킨" [ref=e1153] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=chicken
+            - definition [ref=e1154]:
+              - link "기타음식" [ref=e1155] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=food
+            - definition [ref=e1156]:
+              - link "과자, 빵" [ref=e1157] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=sweets
+            - definition [ref=e1158]:
+              - link "파충류, 양서류" [ref=e1159] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=reptile
+            - definition [ref=e1160]:
+              - link "식물" [ref=e1161] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=tree
+            - definition [ref=e1162]:
+              - link "야옹이" [ref=e1163] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=cat
+            - definition [ref=e1164]:
+              - link "멍멍이" [ref=e1165] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=dog
+          - generic [ref=e1166]:
+            - term [ref=e1167]: 취미/생활
+            - definition [ref=e1168]:
+              - link "인터넷방송" [ref=e1169] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=ib_new2
+            - definition [ref=e1170]:
+              - link "판타지" [ref=e1171] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=fantasy_new2
+            - definition [ref=e1172]:
+              - link "토이" [ref=e1173] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=toy
+            - definition [ref=e1174]:
+              - link "역학" [ref=e1175] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=divination_new1
+            - definition [ref=e1176]:
+              - link "LGBT" [ref=e1177] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=lgbt
+            - definition [ref=e1178]:
+              - link "미스터리" [ref=e1179] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=mystery
+            - definition [ref=e1180]:
+              - link "만화" [ref=e1181] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=comic_new6
+            - definition [ref=e1182]:
+              - link "카툰-연재" [ref=e1183] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=cartoon
+            - definition [ref=e1184]:
+              - link "안경" [ref=e1185] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=fashion_acc
+            - definition [ref=e1186]:
+              - link "향수, 화장품" [ref=e1187] [cursor=pointer]:
+                - /url: https://gall.dcinside.com/board/lists/?id=cosmetic
+        - generic [ref=e1189]:
+          - link "야간모드" [ref=e1190] [cursor=pointer]:
+            - /url: javascript:;
+            - emphasis [ref=e1191]
+            - text: 야간모드
+          - link "맨위로" [ref=e1192] [cursor=pointer]:
+            - /url: "#top"
+            - emphasis [ref=e1193]
+            - text: 맨위로
+      - generic [ref=e1194]:
+        - link "회사소개" [ref=e1195] [cursor=pointer]:
+          - /url: https://www.dcinside.com/company
+        - link "제휴안내" [ref=e1196] [cursor=pointer]:
+          - /url: https://www.dcinside.com/company#alliance
+        - link "광고안내" [ref=e1197] [cursor=pointer]:
+          - /url: https://nstatic.dcinside.com/dc/dcad/w/index.html
+        - link "이용약관" [ref=e1198] [cursor=pointer]:
+          - /url: https://nstatic.dcinside.com/dc/w/policy/policy_index.html
+        - link "개인정보처리방침" [ref=e1199] [cursor=pointer]:
+          - /url: https://nstatic.dcinside.com/dc/w/policy/privacy_index.html
+        - link "청소년보호정책" [ref=e1200] [cursor=pointer]:
+          - /url: https://nstatic.dcinside.com/dc/w/policy/youth_policy.html
+      - generic [ref=e1201]: Copyright ⓒ 1999 - 2026 dcinside. All rights reserved.
+  - textbox [ref=e1202]
