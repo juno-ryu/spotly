@@ -62,6 +62,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
+        <meta name="naver-site-verification" content="02173bee5e02f871aa99c016935e404ff82cbfed" />
         <link rel="preconnect" href="https://k.kakaocdn.net" />
         <link rel="dns-prefetch" href="https://k.kakaocdn.net" />
         {/* 구조화 데이터 — SoftwareApplication 스키마 */}
