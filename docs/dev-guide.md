@@ -55,6 +55,7 @@ Claude AI 리포트 (haiku-4-5)
 | 6 | 학교 | DB 직접 쿼리 | Redis 불필요 | — | 전국 |
 | 7 | 대학교 | `KAKAO_REST_API_KEY` | ❌ 없음 | — | 전국 |
 | 8 | 병의원 | `KAKAO_REST_API_KEY` | ❌ 없음 | — | 전국 |
+| 9 | 상가정보 (소상공인) | `DATA_GO_KR_API_KEY` | ❌ 없음 | — | 전국 |
 
 ### SKIP 결정 (재구현 금지 — 사유 확정됨)
 

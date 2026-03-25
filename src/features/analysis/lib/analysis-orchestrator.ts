@@ -6,6 +6,7 @@ import { fetchBusAnalysis, type BusAnalysis } from "@/server/data-sources/bus/ad
 import { fetchSchoolAnalysis, type SchoolAnalysis } from "@/server/data-sources/school/adapter";
 import { fetchUniversityAnalysis, type UniversityAnalysis } from "@/server/data-sources/university/adapter";
 import { fetchMedicalAnalysis, type MedicalAnalysis } from "@/server/data-sources/medical/adapter";
+import { fetchSbizAnalysis, type SbizAnalysis } from "@/server/data-sources/sbiz/adapter";
 import { analyzeCompetition, type CompetitionAnalysis, analyzePopulation, type PopulationAnalysis } from "./scoring";
 import { analyzeVitality, type VitalityAnalysis } from "./scoring/vitality";
 
@@ -39,6 +40,8 @@ export interface AnalysisResult {
   university: UniversityAnalysis | null;
   /** 의료시설 접근성 분석 (전국, 없으면 null) */
   medical: MedicalAnalysis | null;
+  /** 소상공인 상가정보 — 경쟁업체 보조 검증용 (전국, 없으면 null) */
+  sbiz: SbizAnalysis | null;
 }
 
 export type { KakaoPlace, KakaoPlacesRaw };
@@ -59,8 +62,8 @@ export async function runAnalysis(params: {
   const isSeoul = params.regionCode.startsWith("11");
 
 
-  // 데이터 수집 — 카카오 Places + 서울 골목상권(서울만) + KOSIS 인구(전국) + 지하철(전국) + 버스(전국) + 학교(전국) + 대학교(전국) + 의료(전국)
-  const [placesRaw, vitalityData, populationData, subwayData, busData, schoolData, universityData, medicalData] = await Promise.all([
+  // 데이터 수집 — 카카오 Places + 서울 골목상권(서울만) + KOSIS 인구(전국) + 지하철(전국) + 버스(전국) + 학교(전국) + 대학교(전국) + 의료(전국) + 상가정보(전국)
+  const [placesRaw, vitalityData, populationData, subwayData, busData, schoolData, universityData, medicalData, sbizData] = await Promise.all([
     fetchKakaoPlaces({
       keyword: params.industryKeyword || params.industryName,
       latitude: params.latitude,
@@ -134,6 +137,18 @@ export async function runAnalysis(params: {
       console.warn("[오케스트레이터] 의료시설 접근성 분석 실패:", err);
       return null;
     }),
+    // 소상공인 상가정보 — 카카오 Places와 역할 중복으로 비활성화 (코드는 sbiz/ 에 보존)
+    // 향후 재활성화 시 주석 해제
+    // fetchSbizAnalysis({
+    //   latitude: params.latitude,
+    //   longitude: params.longitude,
+    //   radius: params.radius,
+    //   industryCode: params.industryCode,
+    // }).catch((err) => {
+    //   console.warn("[오케스트레이터] 상가정보 조회 실패:", err);
+    //   return null;
+    // }),
+    Promise.resolve(null),
   ]);
 
   // 경쟁 분석 (하드코딩 프랜차이즈 목록 기반, 외부 API 호출 없음)
@@ -174,5 +189,6 @@ export async function runAnalysis(params: {
     school: schoolData,
     university: universityData,
     medical: medicalData,
+    sbiz: sbizData,
   };
 }
