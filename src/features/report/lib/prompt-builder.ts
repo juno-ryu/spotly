@@ -53,6 +53,7 @@ export const ANALYSIS_SYSTEM_PROMPT = `<role>
 
 <output_rules>
 반드시 유효한 JSON만 응답해. 한국어로 작성. 마크다운(**, ##) 금지. 맥락에 맞는 이모지는 적절히 사용 가능.
+한 단어 안에 한글과 영문을 섞지 마(예: "프리미um" ❌ → "프리미엄" ✅). 외래어는 반드시 완전한 한글 표기로.
 </output_rules>`;
 
 /** 분석 데이터 → 사용자 메시지 조립 */
@@ -125,7 +126,7 @@ export function buildAnalysisPrompt(params: {
   "verdict": "추천|조건부 추천|주의|비추천",
   "analysisScope": "반경 ${radiusLabel} 기준 이 분석의 범위와 의미 한 줄",
   "summary": "종합 의견 50자 이내",
-  "competitorCount": { "direct": 수, "indirect": 수, "franchise": 수, "interpretation": "한 줄 해석" },
+  "competitorCount": { "direct": 수, "indirect": 수, "franchise": 수, "interpretation": "한 줄 해석", "densityPercent": 0~100 경쟁 밀집도(밀집도·프랜차이즈·지역특성 종합 판단), "densityLabel": "밀집도 한 줄 해석" },
   "competitionGrade": { "grade": "A~F", "score": 0~100, "label": "등급 해석", "rationale": "근거+수치" },
   "revenueEstimate": { "monthlyPerStoreMaan": 만원수, "peakTimeSlot": "시간대", "mainAgeGroup": "연령대", "storeCount": 수, "interpretation": "해석" } 또는 null,
   "revenueEstimateUnavailableReason": "사유" 또는 null,
@@ -133,7 +134,7 @@ export function buildAnalysisPrompt(params: {
   "riskWarnings": [{ "title": "제목", "detail": "수치 포함 내용", "severity": "위험|경고|주의" }],
   "strategy": { "positioning": "1~2문장", "actionItems": ["구체적 행동 3~5개"], "targetCustomer": "타겟", "recommendedHours": "시간대 또는 null" },
   "locationAdvice": { "currentAssessment": "현 입지 총평 (다른 위치 추천 금지)", "suggestions": [{ "direction": "방향", "rationale": "근거" }] },
-  "populationInsight": { "headline": "핵심 한 줄", "body": "2~3문장" } 또는 null,
+  "populationInsight": { "headline": "핵심 한 줄", "body": "2~3문장", "exteriorDependencyPercent": 0~100 외부수요의존도(유동인구/배후인구 비율·상권유형·교통 종합 판단), "exteriorDependencyLabel": "의존도 한 줄 해석" } 또는 null,
   "infrastructureInsight": { "headline": "핵심 한 줄", "body": "2~3문장" } 또는 null,
   "detailedAnalysis": "3~5문단 상세 분석. 반드시 데이터 수치를 인용하고, 교차 분석하고, 반경·장소 맥락을 반영해줘."
 }`;

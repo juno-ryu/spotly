@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { BackButton } from "@/components/back-button";
 import { RegionSelector } from "@/features/onboarding/components/region-selector";
 import { useWizardStore } from "@/features/analysis/stores/wizard-store";
 import { useWizardGuard } from "@/features/analysis/hooks/use-wizard-guard";
@@ -47,7 +46,6 @@ export default function RegionPage() {
 
   return (
     <>
-      {/* <BackButton /> */}
       <RegionSelector
         selectedIndustry={industryProp}
         onNext={handleNext}

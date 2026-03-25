@@ -6,6 +6,9 @@ export const SITE_CONFIG = {
   ogImage: "https://spotly-beta.vercel.app/api/og",
 } as const;
 
+/** 브랜드 메인 색상 (violet-600) */
+export const BRAND_COLOR = "#7c3aed";
+
 /** 하이라이트 텍스트 그라데이션 (violet-600 → indigo-500) */
 export const GRADIENT_TEXT_STYLE = {
   background: "linear-gradient(to right, #7c3aed, #6366f1)",

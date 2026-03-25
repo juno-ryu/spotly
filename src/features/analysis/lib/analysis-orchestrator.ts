@@ -58,11 +58,6 @@ export async function runAnalysis(params: {
 }): Promise<AnalysisResult> {
   const isSeoul = params.regionCode.startsWith("11");
 
-  console.log(`\n${"─".repeat(55)}`);
-  console.log(
-    `[분석 시작] ${params.industryName} | ${params.dongName ?? `${params.latitude.toFixed(4)},${params.longitude.toFixed(4)}`} | 반경 ${params.radius}m`,
-  );
-  console.log(`${"─".repeat(55)}`);
 
   // 데이터 수집 — 카카오 Places + 서울 골목상권(서울만) + KOSIS 인구(전국) + 지하철(전국) + 버스(전국) + 학교(전국) + 대학교(전국) + 의료(전국)
   const [placesRaw, vitalityData, populationData, subwayData, busData, schoolData, universityData, medicalData] = await Promise.all([
@@ -160,7 +155,6 @@ export async function runAnalysis(params: {
   // 인구 분석 (전국)
   const populationAnalysis = populationData ? analyzePopulation(populationData) : null;
 
-  console.log(`${"─".repeat(55)}\n`);
 
   return {
     places: placesRaw,

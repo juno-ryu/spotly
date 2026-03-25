@@ -11,6 +11,10 @@ export const aiReportSchema = z.object({
     indirect: z.number(),
     franchise: z.number(),
     interpretation: z.string(),
+    /** 경쟁 밀집도 (0~100, AI가 맥락 판단하여 산출) */
+    densityPercent: z.number().optional(),
+    /** 밀집도 한 줄 해석 */
+    densityLabel: z.string().optional(),
   }).optional(),
 
   competitionGrade: z.object({
@@ -66,6 +70,10 @@ export const aiReportSchema = z.object({
   populationInsight: z.object({
     headline: z.string(),
     body: z.string(),
+    /** 외부 수요 의존도 (0~100, AI가 유동인구/배후인구 비율 등을 종합 판단) */
+    exteriorDependencyPercent: z.number().optional(),
+    /** 외부 의존도 한 줄 해석 */
+    exteriorDependencyLabel: z.string().optional(),
   }).nullable().optional(),
 
   infrastructureInsight: z.object({

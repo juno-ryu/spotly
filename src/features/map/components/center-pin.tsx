@@ -1,5 +1,7 @@
 "use client";
 
+import { BRAND_COLOR } from "@/constants/site";
+
 interface CenterPinProps {
   /** 지도 드래그 중 여부 (핀 애니메이션) */
   isMoving: boolean;
@@ -25,7 +27,7 @@ export function CenterPin({ isMoving }: CenterPinProps) {
         >
           <path
             d="M18 0C8.06 0 0 8.06 0 18c0 12.6 18 30 18 30s18-17.4 18-30C36 8.06 27.94 0 18 0z"
-            fill="#7c3aed"
+            fill={BRAND_COLOR}
           />
           <circle cx="18" cy="18" r="8" fill="white" />
         </svg>

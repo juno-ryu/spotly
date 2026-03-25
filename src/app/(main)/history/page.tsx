@@ -10,7 +10,6 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 import { prisma } from "@/server/db/prisma";
-import { BackButton } from "@/components/back-button";
 import { createSupabaseServer } from "@/server/supabase/server";
 import dayjs from "dayjs";
 
@@ -34,7 +33,6 @@ export default async function HistoryPage() {
 
   return (
     <div className="space-y-4 px-6 pt-16 pb-6">
-      {/* <BackButton /> */}
       <h1 className="text-2xl font-bold">AI 리포트 이력</h1>
 
       {reports.length === 0 ? (

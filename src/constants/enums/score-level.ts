@@ -13,7 +13,7 @@ export type ScoreLevel = (typeof ScoreLevel)[keyof typeof ScoreLevel];
 
 /** 점수에 해당하는 등급 반환 */
 export function getScoreLevel(score: number): ScoreLevel {
-  if (score >= 80) return ScoreLevel.EXCELLENT;
+  if (score >= 75) return ScoreLevel.EXCELLENT;
   if (score >= 60) return ScoreLevel.GOOD;
   if (score >= 40) return ScoreLevel.CAUTION;
   return ScoreLevel.POOR;

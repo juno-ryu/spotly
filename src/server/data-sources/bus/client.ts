@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { cachedFetch, CACHE_TTL } from "@/server/cache/redis";
+import { getDistanceMeters } from "@/lib/geo-utils";
 
 /** TAGO BusSttnInfoInqireService 베이스 URL */
 const BASE_URL = "http://apis.data.go.kr/1613000/BusSttnInfoInqireService";
@@ -238,23 +239,6 @@ export interface BusStationWithRoutes {
   routeCount: number;
 }
 
-/** Haversine 거리 계산 (미터) */
-function haversineMeters(
-  lat1: number,
-  lng1: number,
-  lat2: number,
-  lng2: number,
-): number {
-  const R = 6_371_000;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLng = ((lng2 - lng1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLng / 2) ** 2;
-  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-}
 
 /**
  * 위경도 기준 인근 정류소 + 각 정류소 경유 노선 수 조회.
@@ -303,7 +287,7 @@ export async function fetchNearbyBusStations(params: {
           .filter(Boolean)
           .sort();
         const routeIds = routes.map((r) => r.routeid).filter(Boolean);
-        const distance = haversineMeters(lat, lng, stn.gpslati, stn.gpslong);
+        const distance = Math.round(getDistanceMeters(lat, lng, stn.gpslati, stn.gpslong));
 
         return {
           nodeId: stn.nodeid,
@@ -521,7 +505,7 @@ export async function fetchSeoulNearbyBusStations(params: {
         const routeNames = stn.arsId
           ? await getSeoulRouteByStation(stn.arsId).catch(() => [] as string[])
           : [];
-        const distance = haversineMeters(lat, lng, stn.gpsY, stn.gpsX);
+        const distance = Math.round(getDistanceMeters(lat, lng, stn.gpsY, stn.gpsX));
 
         return {
           nodeId: stn.arsId,

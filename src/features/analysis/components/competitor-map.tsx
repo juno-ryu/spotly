@@ -32,7 +32,18 @@ interface CompetitorMapProps {
   medical?: MedicalAnalysis | null;
 }
 
-const MARKER_COLOR = "#7c3aed";
+import { BRAND_COLOR } from "@/constants/site";
+
+const MARKER_COLOR = BRAND_COLOR;
+
+/** 인프라 마커 색상 팔레트 */
+const INFRA_COLORS = {
+  subway: { pin: "#2563eb", text: "#1e3a8a", bg: "#eff6ff", border: "#93c5fd", dist: "#3b82f6" },
+  bus: { pin: "#ea580c", text: "#7c2d12", bg: "#fff7ed", border: "#fdba74", dist: "#ea580c" },
+  school: { pin: "#16a34a", text: "#14532d", bg: "#f0fdf4", border: "#86efac", dist: "#16a34a" },
+  university: { pin: "#4f46e5", text: "#1e1b4b", bg: "#eef2ff", border: "#a5b4fc", dist: "#4f46e5" },
+  medical: { pin: "#dc2626", text: "#7f1d1d", bg: "#fef2f2", border: "#fca5a5", dist: "#dc2626" },
+} as const;
 
 /**
  * 카카오 스타일 물방울 핀 마커 (CustomOverlay용)
@@ -140,16 +151,16 @@ export const CompetitorMap = memo(function CompetitorMap({
       center,
       radius,
       strokeWeight: 2,
-      strokeColor: "#7c3aed",
+      strokeColor: MARKER_COLOR,
       strokeOpacity: 0.6,
       strokeStyle: "solid",
-      fillColor: "#7c3aed",
+      fillColor: MARKER_COLOR,
       fillOpacity: 0.1,
     });
     circle.setMap(map);
 
     /* 중심 마커 (선택 위치) — 보라색 핀 */
-    const centerMarkerEl = createPinMarker("📍", "#7c3aed", 40);
+    const centerMarkerEl = createPinMarker("📍", MARKER_COLOR, 40);
     const centerOverlay = new kakao.maps.CustomOverlay({
       content: centerMarkerEl,
       position: center,
@@ -292,7 +303,7 @@ export const CompetitorMap = memo(function CompetitorMap({
         );
 
         // 이모지 핀 마커 (CustomOverlay)
-        const pinEl = createPinMarker("🚇", "#2563eb", 30);
+        const pinEl = createPinMarker("🚇", INFRA_COLORS.subway.pin, 30);
 
         // 역 정보 팝업 오버레이
         const overlayContent = document.createElement("div");
@@ -301,10 +312,10 @@ export const CompetitorMap = memo(function CompetitorMap({
           padding: "8px 12px",
           fontSize: "13px",
           minWidth: "120px",
-          color: "#1e3a8a",
-          background: "#eff6ff",
+          color: INFRA_COLORS.subway.text,
+          background: INFRA_COLORS.subway.bg,
           borderRadius: "8px",
-          border: "1px solid #93c5fd",
+          border: `1px solid ${INFRA_COLORS.subway.border}`,
           boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
           transform: "translateY(-100%)",
           marginBottom: "12px",
@@ -315,7 +326,7 @@ export const CompetitorMap = memo(function CompetitorMap({
         nameEl.style.marginBottom = "2px";
         nameEl.textContent = station.name;
         const distEl = document.createElement("span");
-        Object.assign(distEl.style, { color: "#3b82f6", fontSize: "12px" });
+        Object.assign(distEl.style, { color: INFRA_COLORS.subway.dist, fontSize: "12px" });
         distEl.textContent = `도보 ${Math.round(station.distance)}m`;
         const arrow = document.createElement("div");
         Object.assign(arrow.style, {
@@ -327,7 +338,7 @@ export const CompetitorMap = memo(function CompetitorMap({
           height: "0",
           borderLeft: "8px solid transparent",
           borderRight: "8px solid transparent",
-          borderTop: "8px solid #eff6ff",
+          borderTop: `8px solid ${INFRA_COLORS.subway.bg}`,
         });
         wrapper.append(nameEl, distEl, arrow);
         overlayContent.appendChild(wrapper);
@@ -371,7 +382,7 @@ export const CompetitorMap = memo(function CompetitorMap({
 
         const stopPosition = new kakao.maps.LatLng(stop.latitude, stop.longitude);
 
-        const pinEl = createPinMarker("🚌", "#ea580c", 30);
+        const pinEl = createPinMarker("🚌", INFRA_COLORS.bus.pin, 30);
 
         const overlayContent = document.createElement("div");
         const wrapper = document.createElement("div");
@@ -379,10 +390,10 @@ export const CompetitorMap = memo(function CompetitorMap({
           padding: "8px 12px",
           fontSize: "13px",
           minWidth: "120px",
-          color: "#7c2d12",
-          background: "#fff7ed",
+          color: INFRA_COLORS.bus.text,
+          background: INFRA_COLORS.bus.bg,
           borderRadius: "8px",
-          border: "1px solid #fdba74",
+          border: `1px solid ${INFRA_COLORS.bus.border}`,
           boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
           transform: "translateY(-100%)",
           marginBottom: "12px",
@@ -393,7 +404,7 @@ export const CompetitorMap = memo(function CompetitorMap({
         nameEl.style.marginBottom = "2px";
         nameEl.textContent = stop.name;
         const distEl = document.createElement("span");
-        Object.assign(distEl.style, { color: "#ea580c", fontSize: "12px" });
+        Object.assign(distEl.style, { color: INFRA_COLORS.bus.dist, fontSize: "12px" });
         distEl.textContent = `도보 ${Math.round(stop.distance)}m`;
         const arrow = document.createElement("div");
         Object.assign(arrow.style, {
@@ -405,7 +416,7 @@ export const CompetitorMap = memo(function CompetitorMap({
           height: "0",
           borderLeft: "8px solid transparent",
           borderRight: "8px solid transparent",
-          borderTop: "8px solid #fff7ed",
+          borderTop: `8px solid ${INFRA_COLORS.bus.bg}`,
         });
         wrapper.append(nameEl, distEl, arrow);
         overlayContent.appendChild(wrapper);
@@ -446,7 +457,7 @@ export const CompetitorMap = memo(function CompetitorMap({
         if (!isInRadius(s.lat, s.lng)) return;
         const schoolPosition = new kakao.maps.LatLng(s.lat, s.lng);
 
-        const pinEl = createPinMarker("🏫", "#16a34a", 30);
+        const pinEl = createPinMarker("🏫", INFRA_COLORS.school.pin, 30);
 
         const overlayContent = document.createElement("div");
         const wrapper = document.createElement("div");
@@ -454,10 +465,10 @@ export const CompetitorMap = memo(function CompetitorMap({
           padding: "8px 12px",
           fontSize: "13px",
           minWidth: "120px",
-          color: "#14532d",
-          background: "#f0fdf4",
+          color: INFRA_COLORS.school.text,
+          background: INFRA_COLORS.school.bg,
           borderRadius: "8px",
-          border: "1px solid #86efac",
+          border: `1px solid ${INFRA_COLORS.school.border}`,
           boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
           transform: "translateY(-100%)",
           marginBottom: "12px",
@@ -468,7 +479,7 @@ export const CompetitorMap = memo(function CompetitorMap({
         nameEl.style.marginBottom = "2px";
         nameEl.textContent = s.name;
         const distEl = document.createElement("span");
-        Object.assign(distEl.style, { color: "#16a34a", fontSize: "12px" });
+        Object.assign(distEl.style, { color: INFRA_COLORS.school.dist, fontSize: "12px" });
         distEl.textContent = `${s.level} · 도보 ${s.distanceMeters}m`;
         const arrow = document.createElement("div");
         Object.assign(arrow.style, {
@@ -480,7 +491,7 @@ export const CompetitorMap = memo(function CompetitorMap({
           height: "0",
           borderLeft: "8px solid transparent",
           borderRight: "8px solid transparent",
-          borderTop: "8px solid #f0fdf4",
+          borderTop: `8px solid ${INFRA_COLORS.school.bg}`,
         });
         wrapper.append(nameEl, distEl, arrow);
         overlayContent.appendChild(wrapper);
@@ -521,7 +532,7 @@ export const CompetitorMap = memo(function CompetitorMap({
         if (!isInRadius(u.latitude, u.longitude)) return;
         const univPosition = new kakao.maps.LatLng(u.latitude, u.longitude);
 
-        const pinEl = createPinMarker("🎓", "#4f46e5", 30);
+        const pinEl = createPinMarker("🎓", INFRA_COLORS.university.pin, 30);
 
         const overlayContent = document.createElement("div");
         const wrapper = document.createElement("div");
@@ -529,10 +540,10 @@ export const CompetitorMap = memo(function CompetitorMap({
           padding: "8px 12px",
           fontSize: "13px",
           minWidth: "120px",
-          color: "#1e1b4b",
-          background: "#eef2ff",
+          color: INFRA_COLORS.university.text,
+          background: INFRA_COLORS.university.bg,
           borderRadius: "8px",
-          border: "1px solid #a5b4fc",
+          border: `1px solid ${INFRA_COLORS.university.border}`,
           boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
           transform: "translateY(-100%)",
           marginBottom: "12px",
@@ -543,7 +554,7 @@ export const CompetitorMap = memo(function CompetitorMap({
         nameEl.style.marginBottom = "2px";
         nameEl.textContent = u.name;
         const distEl = document.createElement("span");
-        Object.assign(distEl.style, { color: "#4f46e5", fontSize: "12px" });
+        Object.assign(distEl.style, { color: INFRA_COLORS.university.dist, fontSize: "12px" });
         distEl.textContent = `도보 ${u.distanceMeters}m`;
         const arrow = document.createElement("div");
         Object.assign(arrow.style, {
@@ -555,7 +566,7 @@ export const CompetitorMap = memo(function CompetitorMap({
           height: "0",
           borderLeft: "8px solid transparent",
           borderRight: "8px solid transparent",
-          borderTop: "8px solid #eef2ff",
+          borderTop: `8px solid ${INFRA_COLORS.university.bg}`,
         });
         wrapper.append(nameEl, distEl, arrow);
         overlayContent.appendChild(wrapper);
@@ -598,7 +609,7 @@ export const CompetitorMap = memo(function CompetitorMap({
         if (!isInRadius(h.latitude, h.longitude)) return;
         const hospitalPosition = new kakao.maps.LatLng(h.latitude, h.longitude);
 
-        const pinEl = createPinMarker("🏥", "#dc2626", 30);
+        const pinEl = createPinMarker("🏥", INFRA_COLORS.medical.pin, 30);
 
         const overlayContent = document.createElement("div");
         const wrapper = document.createElement("div");
@@ -606,10 +617,10 @@ export const CompetitorMap = memo(function CompetitorMap({
           padding: "8px 12px",
           fontSize: "13px",
           minWidth: "120px",
-          color: "#7f1d1d",
-          background: "#fef2f2",
+          color: INFRA_COLORS.medical.text,
+          background: INFRA_COLORS.medical.bg,
           borderRadius: "8px",
-          border: "1px solid #fca5a5",
+          border: `1px solid ${INFRA_COLORS.medical.border}`,
           boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
           transform: "translateY(-100%)",
           marginBottom: "12px",
@@ -620,7 +631,7 @@ export const CompetitorMap = memo(function CompetitorMap({
         nameEl.style.marginBottom = "2px";
         nameEl.textContent = h.name;
         const distEl = document.createElement("span");
-        Object.assign(distEl.style, { color: "#dc2626", fontSize: "12px" });
+        Object.assign(distEl.style, { color: INFRA_COLORS.medical.dist, fontSize: "12px" });
         distEl.textContent = `${h.category} · 도보 ${h.distanceMeters}m`;
         const arrow = document.createElement("div");
         Object.assign(arrow.style, {
@@ -632,7 +643,7 @@ export const CompetitorMap = memo(function CompetitorMap({
           height: "0",
           borderLeft: "8px solid transparent",
           borderRight: "8px solid transparent",
-          borderTop: "8px solid #fef2f2",
+          borderTop: `8px solid ${INFRA_COLORS.medical.bg}`,
         });
         wrapper.append(nameEl, distEl, arrow);
         overlayContent.appendChild(wrapper);

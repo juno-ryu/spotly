@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
 import dynamic from "next/dynamic";
+import { BRAND_COLOR } from "@/constants/site";
 
 const CompetitorMap = dynamic(() => import("./competitor-map").then(m => m.CompetitorMap), { ssr: false });
 import { AuthRequiredModal } from "@/features/auth/components/auth-required-modal";
@@ -97,8 +98,8 @@ const SourceTicker = memo(function SourceTicker({
 /** 헤더 — 하이라이트 텍스트 */
 /** 지도 마커 범례 (이모지 + 색상) */
 const MAP_LEGENDS = [
-  { emoji: "📍", color: "#7c3aed", label: "내 위치", pin: true },
-  { emoji: "", color: "#7c3aed", label: "동종업체", pin: false },
+  { emoji: "📍", color: BRAND_COLOR, label: "내 위치", pin: true },
+  { emoji: "", color: BRAND_COLOR, label: "동종업체", pin: false },
   { emoji: "🚇", color: "#2563eb", label: "지하철", pin: true },
   { emoji: "🚌", color: "#ea580c", label: "버스", pin: true },
   { emoji: "🏫", color: "#16a34a", label: "학교", pin: true },

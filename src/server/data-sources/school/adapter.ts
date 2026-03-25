@@ -1,4 +1,5 @@
 import { prisma } from "@/server/db/prisma";
+import { getDistanceMeters } from "@/lib/geo-utils";
 
 /** 반경 내 학교 단일 항목 */
 export interface SchoolItem {
@@ -24,29 +25,6 @@ export interface SchoolAnalysis {
   schools: SchoolItem[];
 }
 
-/** 도(degree) → 라디안 변환 */
-function toRad(deg: number): number {
-  return (deg * Math.PI) / 180;
-}
-
-/**
- * Haversine 공식으로 두 좌표 간 거리(미터) 계산
- * 지구 반경 6371km 기준
- */
-function haversineMeters(
-  lat1: number,
-  lng1: number,
-  lat2: number,
-  lng2: number,
-): number {
-  const R = 6371000;
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
 
 /**
  * 좌표 기준 반경 내 학교 분석.
@@ -64,7 +42,7 @@ export async function fetchSchoolAnalysis(params: {
 
   // bounding box pre-filter — 인덱스 활용
   const latDelta = radius / 111_000;
-  const lngDelta = radius / (111_000 * Math.cos(toRad(latitude)));
+  const lngDelta = radius / (111_000 * Math.cos((latitude * Math.PI) / 180));
 
   const candidates = await prisma.school.findMany({
     where: {
@@ -81,7 +59,7 @@ export async function fetchSchoolAnalysis(params: {
         name: s.name,
         level: s.level as SchoolItem["level"],
         distanceMeters: Math.round(
-          haversineMeters(latitude, longitude, s.lat, s.lng),
+          getDistanceMeters(latitude, longitude, s.lat, s.lng),
         ),
         address: s.address,
         lat: s.lat,

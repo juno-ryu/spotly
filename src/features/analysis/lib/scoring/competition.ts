@@ -268,9 +268,8 @@ export function analyzeCompetition(params: {
   // V-09: 프랜차이즈 0% 차별화 — 충분한 표본에서 프랜차이즈 없음 = 독립 상권
   // totalCount >= 10이고 franchiseRatio=0이면 독립 상권으로 판단 → 45점
   if (totalCount >= 10 && franchiseRatio === 0) {
-    const ratio = densityPerMeter / densityBaseline;
-    const densityScore = Math.round(100 / (1 + Math.exp(-4 * (ratio - 1))));
-    const adjustedScore = Math.round(densityScore * 0.75 + 45 * 0.25);
+    const recomputedDensity = Math.round(100 / (1 + Math.exp(-4 * (densityPerMeter / densityBaseline - 1))));
+    const adjustedScore = Math.round(recomputedDensity * 0.75 + 45 * 0.25);
     const { grade, gradeLabel } = scoreToGrade(adjustedScore);
     competitionScore = { score: adjustedScore, grade, gradeLabel };
   }

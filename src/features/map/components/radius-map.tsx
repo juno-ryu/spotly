@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback } from "react";
 import { useKakaoMap } from "./kakao-map-provider";
+import { BRAND_COLOR } from "@/constants/site";
 // ── 드래그 반경 조절 비활성화 (추후 재활성화 시 주석 해제) ──────────────────
 // import {
 //   getDistanceMeters,
@@ -91,7 +92,7 @@ export function RadiusMap({
     // 중심 고정 모드(onCenterChanged 없음)일 때 고정 마커 표시
     if (!onCenterChangedRef.current) {
       const pinSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="48" viewBox="0 0 36 48" fill="none">
-        <path d="M18 0C8.06 0 0 8.06 0 18c0 12.6 18 30 18 30s18-17.4 18-30C36 8.06 27.94 0 18 0z" fill="#7c3aed"/>
+        <path d="M18 0C8.06 0 0 8.06 0 18c0 12.6 18 30 18 30s18-17.4 18-30C36 8.06 27.94 0 18 0z" fill="${BRAND_COLOR}"/>
         <circle cx="18" cy="18" r="8" fill="white"/>
       </svg>`;
       new kakao.maps.Marker({
@@ -110,9 +111,9 @@ export function RadiusMap({
       center,
       radius: radiusRef.current,
       strokeWeight: 2,
-      strokeColor: "#7c3aed",
+      strokeColor: BRAND_COLOR,
       strokeOpacity: 0.6,
-      fillColor: "#7c3aed",
+      fillColor: BRAND_COLOR,
       fillOpacity: 0.12,
     });
     circle.setMap(map);
@@ -274,7 +275,7 @@ export function RadiusMap({
 
     if (places.length === 0) return;
 
-    const MARKER_COLOR = "#7c3aed";
+    const MARKER_COLOR = BRAND_COLOR;
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><circle cx="10" cy="10" r="8" fill="${MARKER_COLOR}" stroke="white" stroke-width="2"/></svg>`;
     const markerImage = new kakao.maps.MarkerImage(
       `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`,

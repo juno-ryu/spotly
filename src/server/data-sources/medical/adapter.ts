@@ -1,5 +1,6 @@
 import { searchByCategory, searchByKeyword } from "@/server/data-sources/kakao/client";
 import { MEDICAL_SEARCH_RADIUS } from "@/features/analysis/lib/constants";
+import { getDistanceMeters } from "@/lib/geo-utils";
 
 /** 의료시설 종별 */
 export type MedicalCategory = "종합병원" | "병원" | "의원" | "기타";
@@ -28,19 +29,6 @@ export interface MedicalAnalysis {
   searchRadius: number;
 }
 
-/** Kakao category_name → 종별 분류 */
-// Kakao distance 필드가 "0"을 반환하는 경우가 있으므로 좌표로 직접 계산
-function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 6_371_000;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLng = ((lng2 - lng1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
 
 /** category_name + place_name으로 상급병원 여부 판별
  * - 종합병원: category_name에 "종합병원" 포함 (서울아산병원 등)
@@ -85,7 +73,7 @@ export async function fetchMedicalAnalysis(params: {
   const hospitals: HospitalItem[] = allDocs
     .map((doc) => ({
       name: doc.place_name,
-      distanceMeters: Math.round(haversineMeters(latitude, longitude, parseFloat(doc.y), parseFloat(doc.x))),
+      distanceMeters: Math.round(getDistanceMeters(latitude, longitude, parseFloat(doc.y), parseFloat(doc.x))),
       category: classifyMedical(doc.category_name, doc.place_name),
       latitude: parseFloat(doc.y),
       longitude: parseFloat(doc.x),

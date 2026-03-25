@@ -4,6 +4,7 @@ import {
   getScoreLevel,
   SCORE_LEVEL_LABEL,
 } from "@/constants/enums/score-level";
+import { BRAND_COLOR } from "@/constants/site";
 
 interface ScoreGaugeProps {
   score: number;
@@ -25,7 +26,7 @@ const SCORE_STYLES: Record<ScoreThreshold, {
     desc: "창업하기 좋은 입지에요",
   },
   good: {
-    stroke: "#7c3aed",
+    stroke: BRAND_COLOR,
     text: "text-violet-600",
     bg: "bg-violet-50 text-violet-700 dark:bg-violet-950/30 dark:text-violet-400",
     desc: "조건부로 추천할 수 있어요",
@@ -45,7 +46,7 @@ const SCORE_STYLES: Record<ScoreThreshold, {
 };
 
 function getScoreThreshold(score: number): ScoreThreshold {
-  if (score >= 80) return "excellent";
+  if (score >= 75) return "excellent";
   if (score >= 60) return "good";
   if (score >= 40) return "warning";
   return "danger";

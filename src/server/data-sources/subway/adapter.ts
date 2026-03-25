@@ -1,5 +1,6 @@
 import { searchByKeyword } from "@/server/data-sources/kakao/client";
 import type { Coordinate } from "@/server/data-sources/types";
+import { getDistanceMeters } from "@/lib/geo-utils";
 import {
   aggregateMonthlyTraffic,
   getBusanSubwayTraffic,
@@ -15,23 +16,7 @@ import {
 /** 역세권 판정 반경 (미터) */
 const STATION_RADIUS = 500;
 
-/** 두 좌표 간 거리 계산 (미터, 정수 반환) */
-function haversineMeters(
-  lat1: number,
-  lng1: number,
-  lat2: number,
-  lng2: number,
-): number {
-  const R = 6_371_000;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLng = ((lng2 - lng1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLng / 2) ** 2;
-  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-}
+
 
 /** 역세권 분석 결과 */
 export interface SubwayAnalysis {
@@ -145,12 +130,12 @@ export async function fetchSubwayAnalysis(params: {
   const sorted = subwayPlaces
     .map((p) => ({
       name: p.place_name,
-      distance: haversineMeters(
+      distance: Math.round(getDistanceMeters(
         coordinate.latitude,
         coordinate.longitude,
         parseFloat(p.y),
         parseFloat(p.x),
-      ),
+      )),
       latitude: parseFloat(p.y),
       longitude: parseFloat(p.x),
     }))

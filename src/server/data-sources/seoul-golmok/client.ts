@@ -1,8 +1,7 @@
 import { z } from "zod";
-import { hasApiKey, env } from "@/lib/env";
+import { hasApiKey } from "@/lib/env";
 import { cachedFetch, redis } from "@/server/cache/redis";
-
-const SEOUL_API_BASE = "http://openapi.seoul.go.kr:8088";
+import { fetchSeoulPage, fetchSeoulAllPages } from "@/server/data-sources/seoul-common";
 
 
 /** 캐시 TTL (초) */
@@ -173,15 +172,7 @@ export type GolmokChangeIndex = z.infer<typeof golmokChangeIndexSchema>;
 
 // ─── 공통 타입 ───
 
-interface SeoulApiSuccessBody<T> {
-  list_total_count: number;
-  RESULT: { CODE: string; MESSAGE: string };
-  row: T[];
-}
-
-interface SeoulApiErrorBody {
-  RESULT: { CODE: string; MESSAGE: string };
-}
+// SeoulApiSuccessBody, SeoulApiErrorBody → seoul-common.ts로 통합
 
 export interface TrdarArea {
   trdarCd: string;
@@ -207,110 +198,7 @@ function getRecentQuarterCode(): string {
  * 서울시 Open API 단일 페이지 호출.
  * URL: /{KEY}/json/{서비스명}/{시작}/{끝}/{조건1}/{조건2}/...
  */
-async function fetchPage<T>(
-  serviceName: string,
-  start: number,
-  end: number,
-  conditions: string[] = [],
-): Promise<{ rows: T[]; totalCount: number }> {
-  const key = env.SEOUL_OPEN_API_KEY!;
-  const condPath = conditions.length > 0 ? `/${conditions.join("/")}` : "";
-  const url = `${SEOUL_API_BASE}/${key}/json/${serviceName}/${start}/${end}${condPath}`;
-
-  const label = `${serviceName}/${start}~${end}${condPath}`;
-  console.log(`[서울 API 호출] ${label}`);
-  const t0 = Date.now();
-
-  // 10초 타임아웃 (서울시 API 간헐적 지연 대비)
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10_000);
-
-  let res: Response;
-  try {
-    res = await fetch(url, { signal: controller.signal });
-  } catch (err) {
-    if (err instanceof DOMException && err.name === "AbortError") {
-      throw new Error(`[서울 API] ${label}: 10초 타임아웃 초과`);
-    }
-    throw err;
-  } finally {
-    clearTimeout(timeout);
-  }
-  if (!res.ok) throw new Error(`[서울 API] ${label}: HTTP ${res.status}`);
-
-  const text = await res.text();
-
-  // XML 에러 응답 (인증키 오류 등)
-  if (text.startsWith("<")) {
-    const code = text.match(/<CODE>([^<]+)<\/CODE>/)?.[1] ?? "UNKNOWN";
-    if (code === "INFO-200") return { rows: [], totalCount: 0 };
-    const msg = text.match(/<MESSAGE><!\[CDATA\[([^\]]+)\]\]><\/MESSAGE>/)?.[1] ?? "XML 에러";
-    throw new Error(`[서울 API] ${label}: ${code} ${msg}`);
-  }
-
-  const data = JSON.parse(text);
-  const svc = data[serviceName] as SeoulApiSuccessBody<T> | undefined;
-
-  if (!svc) {
-    const err = data as SeoulApiErrorBody;
-    if (err.RESULT?.CODE === "INFO-200") return { rows: [], totalCount: 0 };
-    throw new Error(`[서울 API] ${label}: ${err.RESULT?.MESSAGE ?? "알 수 없는 응답"}`);
-  }
-
-  if (svc.RESULT.CODE !== "INFO-000") {
-    if (svc.RESULT.CODE === "INFO-200") return { rows: [], totalCount: 0 };
-    throw new Error(`[서울 API] ${label}: ${svc.RESULT.MESSAGE}`);
-  }
-
-  console.log(`[서울 API 응답] ${label} → ${svc.row.length}건 / 전체 ${svc.list_total_count}건 (${Date.now() - t0}ms)`);
-  return { rows: svc.row, totalCount: svc.list_total_count };
-}
-
-/**
- * 1000건 제한 우회: 전체 페이지 병렬 호출.
- * 소량 데이터(상권영역 1,650건, 변화지표 1,650건)에만 사용.
- * 대량 데이터(매출 21K, 점포 76K)는 캐시와 함께 사용.
- */
-async function fetchAllPages<T>(
-  serviceName: string,
-  conditions: string[] = [],
-): Promise<T[]> {
-  const first = await fetchPage<T>(serviceName, 1, 1000, conditions);
-  if (first.totalCount <= 1000) return first.rows;
-
-  const pageCount = Math.ceil(first.totalCount / 1000);
-  console.log(`[서울 API 페이지네이션] ${serviceName} 총 ${first.totalCount.toLocaleString()}건 → ${pageCount}페이지 병렬호출`);
-
-  let failedPages = 0;
-  const promises = Array.from({ length: pageCount - 1 }, (_, i) => {
-    const s = (i + 1) * 1000 + 1;
-    const e = Math.min((i + 2) * 1000, first.totalCount);
-    return fetchPage<T>(serviceName, s, e, conditions)
-      .then((r) => r.rows)
-      .catch((err) => {
-        failedPages++;
-        console.warn(`[서울 API 페이지네이션] ${serviceName} 페이지 ${i + 2}/${pageCount} 실패: ${err instanceof Error ? err.message : String(err)}`);
-        return [] as T[];
-      });
-  });
-
-  const rest = await Promise.all(promises);
-
-  // 전체 페이지의 30% 이상 실패 시 데이터 신뢰성 부족으로 throw
-  const failRate = failedPages / pageCount;
-  if (failRate >= 0.3) {
-    throw new Error(
-      `[서울 API] ${serviceName}: ${pageCount}페이지 중 ${failedPages}페이지 실패 (${Math.round(failRate * 100)}%) — 데이터 신뢰성 부족`,
-    );
-  }
-  if (failedPages > 0) {
-    console.warn(`[서울 API 페이지네이션] ${serviceName}: ${failedPages}/${pageCount}페이지 실패 — 부분 데이터로 진행`);
-  }
-
-  const all = [first.rows, ...rest].flat();
-  console.log(`[서울 API 페이지네이션] ${serviceName} 완료: ${all.length.toLocaleString()}건`);
-  return all;
-}
+// fetchSeoulPage / fetchSeoulAllPages → seoul-common.ts로 통합
 
 // ─── 업종 키워드 매칭 ───
 
@@ -439,7 +327,7 @@ async function getAllTrdarAreas(): Promise<TrdarRawRow[]> {
   return cachedFetch(
     "seoul:TbgisTrdarRelm:all",
     TTL.QUARTER,
-    () => fetchAllPages<TrdarRawRow>("TbgisTrdarRelm"),
+    () => fetchSeoulAllPages<TrdarRawRow>("TbgisTrdarRelm"),
   );
 }
 
@@ -534,7 +422,7 @@ export async function getStoreStatus(params: {
   if (misses.length > 0) {
     const fetchResults = await Promise.all(
       misses.map((m) =>
-        fetchPage<GolmokStore>("VwsmTrdarStorQq", 1, 1000, [qc, m.cd])
+        fetchSeoulPage<GolmokStore>("VwsmTrdarStorQq", 1, 1000, [qc, m.cd])
           .then((r) => {
             const parsed = z.array(golmokStoreSchema).parse(r.rows);
             // 상권별 캐싱 (fire-and-forget)
@@ -582,7 +470,7 @@ export async function getChangeIndex(params: {
   const all = await cachedFetch(
     `seoul:VwsmTrdarIxQq:${qc}`,
     TTL.QUARTER,
-    () => fetchAllPages<GolmokChangeIndex>("VwsmTrdarIxQq", [qc])
+    () => fetchSeoulAllPages<GolmokChangeIndex>("VwsmTrdarIxQq", [qc])
       .then((rows) => z.array(golmokChangeIndexSchema).parse(rows)),
   );
 
@@ -609,7 +497,7 @@ export async function getFloatingPopulation(params: {
   const all = await cachedFetch(
     `seoul:VwsmTrdarFlpopQq:${qc}`,
     TTL.QUARTER,
-    () => fetchAllPages<GolmokFloatingPop>("VwsmTrdarFlpopQq", [qc])
+    () => fetchSeoulAllPages<GolmokFloatingPop>("VwsmTrdarFlpopQq", [qc])
       .then((rows) => z.array(golmokFloatingPopSchema).parse(rows)),
   );
 
@@ -679,7 +567,7 @@ export async function getResidentPopulation(params: {
     `[서울 상주인구] 캐시 히트 ${hitCount}/${params.trdarCodes.length}개 → 전체 fetch 시작`,
   );
 
-  const allRows = await fetchAllPages<GolmokResidentPop>(
+  const allRows = await fetchSeoulAllPages<GolmokResidentPop>(
     "VwsmTrdarRepopQq",
     [qc],
   ).then((rows) => z.array(golmokResidentPopSchema).parse(rows));
@@ -789,7 +677,7 @@ export async function getEstimatedSales(params: {
     `[서울 매출] 캐시 히트 ${hitCount}/${params.trdarCodes.length}개 → 전체 fetch 시작`,
   );
 
-  const allSales = await fetchAllPages<GolmokSales>("VwsmTrdarSelngQq", [qc])
+  const allSales = await fetchSeoulAllPages<GolmokSales>("VwsmTrdarSelngQq", [qc])
     .then((rows) => z.array(golmokSalesSchema).parse(rows));
 
   // 4단계: 전체 상권코드 분할 캐싱 + 전체 fetch 완료 마커 저장

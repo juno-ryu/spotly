@@ -7,7 +7,6 @@ export const metadata: Metadata = {
   description: "입력하신 주소와 업종을 기반으로 창업 입지를 분석하고 있습니다. AI가 공공데이터를 종합해 100점 만점 리포트를 생성해드려요.",
   robots: { index: false },
 };
-import { BackButton } from "@/components/back-button";
 import { AnalysisResult } from "@/features/analysis/components/analysis-result";
 import { AnalysisResultSkeleton } from "@/features/analysis/components/analysis-result-skeleton";
 import { executeAnalysis, type AnalyzeParams } from "@/features/analysis/actions";
@@ -49,7 +48,6 @@ export default async function AnalyzePage({
 
   return (
     <>
-      {/* <BackButton /> */}
       <Suspense fallback={<AnalysisResultSkeleton />}>
         <AnalysisLoader params={params} />
       </Suspense>

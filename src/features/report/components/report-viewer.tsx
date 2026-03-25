@@ -12,10 +12,15 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useState, useEffect } from "react";
+
 import {
   RadialBarChart,
   RadialBar,
   PolarAngleAxis,
+  RadarChart,
+  Radar,
+  PolarGrid,
   BarChart,
   Bar,
   XAxis,
@@ -24,6 +29,13 @@ import {
 } from "recharts";
 import type { AiReport } from "../schema";
 import type { ScoreBreakdown } from "@/features/analysis/schema";
+import { GRADE_HEX, GRADE_BG } from "@/features/analysis/lib/grade";
+import { ScoreMetricCards } from "./score-metric-cards";
+import { RiskWarningsList } from "./risk-warnings-list";
+import { PopulationInsightCard } from "./population-insight-card";
+import { InfrastructureInsightCard } from "./infrastructure-insight-card";
+import { DetailedAnalysisTabs } from "./detailed-analysis-tabs";
+import { CompetitionChart } from "./competition-chart";
 
 interface ReportViewerProps {
   report: AiReport;
@@ -32,69 +44,95 @@ interface ReportViewerProps {
   scoreDetail?: ScoreBreakdown;
 }
 
-/** 등급 → 색상 hex (프로젝트 컬러 체계) */
-const GRADE_COLOR: Record<string, string> = {
-  A: "#10b981",
-  B: "#8b5cf6",
-  C: "#f59e0b",
-  D: "#f97316",
-  F: "#ef4444",
-};
-
-/** 등급별 Badge 색상 클래스 */
-const GRADE_BADGE_CLASS: Record<string, string> = {
-  A: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800",
-  B: "bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-950/40 dark:text-violet-400 dark:border-violet-800",
-  C: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-800",
-  D: "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-400 dark:border-orange-800",
-  F: "bg-red-100 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-400 dark:border-red-800",
-};
-
 export function ReportViewer({
   report,
   totalScore = 0,
   scoreGrade = "C",
   scoreDetail,
 }: ReportViewerProps) {
-  const gradeColor = GRADE_COLOR[scoreGrade] ?? "#6b7280";
-  const competitionColor = GRADE_COLOR[report.competitionGrade?.grade ?? "C"] ?? "#6b7280";
+  const gradeColor = GRADE_HEX[scoreGrade as keyof typeof GRADE_HEX] ?? "#6b7280";
+
+  /** SSR hydration 에러 방지 — Recharts SVG ID 불일치 우회 */
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+
+  /** RadarChart 데이터 — scoreDetail에서 활성화된 지표만 추출 */
+  const radarData = scoreDetail
+    ? [
+        scoreDetail.competition
+          ? { subject: "경쟁", score: scoreDetail.competition.score }
+          : null,
+        scoreDetail.vitality
+          ? { subject: "활력", score: scoreDetail.vitality.score }
+          : null,
+        scoreDetail.population
+          ? { subject: "인구", score: scoreDetail.population.score }
+          : null,
+        scoreDetail.survival
+          ? { subject: "생존", score: scoreDetail.survival.score }
+          : null,
+        scoreDetail.infraAccess
+          ? { subject: "인프라", score: scoreDetail.infraAccess.score }
+          : null,
+      ].filter((d): d is { subject: string; score: number } => d !== null)
+    : [];
+
+  const showRadar = radarData.length >= 2;
 
   return (
-    <div className="space-y-6 px-2">
+    <div className="space-y-6 px-2 pt-4">
       {/* ── 종합 판단 ── */}
-      <div className="px-4 mt-4">
-        <div className="flex items-start gap-5">
-          {/* 종합 점수 Radial Chart */}
-          <div className="relative h-[100px] w-[100px] shrink-0">
-            <ChartContainer
-              config={{ score: { label: "종합", color: gradeColor } } satisfies ChartConfig}
-              className="h-full w-full"
-            >
-              <RadialBarChart
-                data={[{ score: totalScore, fill: gradeColor }]}
-                startAngle={90}
-                endAngle={-270}
-                innerRadius={35}
-                outerRadius={48}
-              >
-                <PolarAngleAxis type="number" domain={[0, 100]} tick={false} axisLine={false} />
-                <RadialBar dataKey="score" cornerRadius={10} background={{ fill: "hsl(var(--muted))" }} />
-              </RadialBarChart>
-            </ChartContainer>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-lg font-black" style={{ color: gradeColor }}>
-                {scoreGrade}
-              </span>
-              <span className="text-[9px] text-muted-foreground">{totalScore}/100</span>
+      <div className="px-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          {/* 차트: 도넛 + 레이더 (모바일: 가로 나란히, 데스크톱: 가로 나란히) */}
+          <div className="flex items-center justify-center gap-2 shrink-0">
+            {/* 종합 점수 Radial Chart */}
+            <div className="relative h-[140px] w-[140px] shrink-0">
+              {mounted ? (
+                <ChartContainer
+                  config={{ score: { label: "종합", color: gradeColor } } satisfies ChartConfig}
+                  className="h-full w-full"
+                >
+                  <RadialBarChart
+                    data={[{ score: totalScore, fill: gradeColor }]}
+                    startAngle={90}
+                    endAngle={-270}
+                    innerRadius={48}
+                    outerRadius={65}
+                  >
+                    <PolarAngleAxis type="number" domain={[0, 100]} tick={false} axisLine={false} />
+                    <RadialBar dataKey="score" cornerRadius={10} background={{ fill: "hsl(var(--muted))" }} />
+                  </RadialBarChart>
+                </ChartContainer>
+              ) : null}
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-2xl font-black" style={{ color: gradeColor }}>
+                  {scoreGrade}
+                </span>
+                <span className="text-xs text-muted-foreground">{totalScore}/100</span>
+              </div>
             </div>
+
+            {/* 지표 레이더 차트 — 180px 고정 */}
+            {mounted && showRadar && (
+              <div className="flex items-center justify-center shrink-0 w-[180px] h-[180px]">
+                <RadarChart width={180} height={180} data={radarData} cx="50%" cy="50%" outerRadius={55}>
+                  <PolarGrid stroke="#d1d5db" />
+                  <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: "#6b7280" }} />
+                  <Radar dataKey="score" fill={gradeColor} fillOpacity={0.25} stroke={gradeColor} strokeWidth={1.5} />
+                </RadarChart>
+              </div>
+            )}
           </div>
-          {/* 텍스트 */}
-          <div className="space-y-1.5 pt-2">
-            <div className="flex items-start gap-2">
+
+          {/* 텍스트 — 모바일: 차트 아래, 데스크톱: 차트 옆 */}
+          <div className="space-y-1.5 flex-1 min-w-0">
+            <div className="flex items-start gap-2 flex-wrap">
               <span className="text-xs text-muted-foreground">종합평가</span>
               <Badge
                 variant="outline"
-                className={`text-[10px] px-1.5 py-0 ${GRADE_BADGE_CLASS[scoreGrade] ?? ""}`}
+                className={`text-[10px] px-1.5 py-0 ${GRADE_BG[scoreGrade as keyof typeof GRADE_BG] ?? ""}`}
               >
                 {scoreGrade}등급
               </Badge>
@@ -110,96 +148,48 @@ export function ReportViewer({
         </div>
       </div>
 
-      {/* ── 스코어링 지표 요약 ── */}
+      {/* ── 스코어링 지표 카드 그리드 ── */}
       {scoreDetail && (
-        <div className="px-4 flex flex-wrap gap-3 text-xs">
-          {scoreDetail.competition && (
-            <div className="flex items-start gap-1">
-              <span>🏪</span>
-              <span className="text-muted-foreground">경쟁</span>
-              <Badge variant="outline" className={`text-[10px] px-1 py-0 ${GRADE_BADGE_CLASS[scoreDetail.competition.grade] ?? ""}`}>
-                {scoreDetail.competition.grade}
-              </Badge>
-            </div>
-          )}
-          {scoreDetail.vitality && (
-            <div className="flex items-start gap-1">
-              <span>📈</span>
-              <span className="text-muted-foreground">활력</span>
-              <Badge variant="outline" className={`text-[10px] px-1 py-0 ${GRADE_BADGE_CLASS[scoreDetail.vitality.grade] ?? ""}`}>
-                {scoreDetail.vitality.grade}
-              </Badge>
-            </div>
-          )}
-          {scoreDetail.population && (
-            <div className="flex items-start gap-1">
-              <span>👥</span>
-              <span className="text-muted-foreground">인구</span>
-              <Badge variant="outline" className={`text-[10px] px-1 py-0 ${GRADE_BADGE_CLASS[scoreDetail.population.grade] ?? ""}`}>
-                {scoreDetail.population.grade}
-              </Badge>
-            </div>
-          )}
-          {scoreDetail.survival && (
-            <div className="flex items-start gap-1">
-              <span>📊</span>
-              <span className="text-muted-foreground">생존</span>
-              <Badge variant="outline" className={`text-[10px] px-1 py-0 ${GRADE_BADGE_CLASS[scoreDetail.survival.grade] ?? ""}`}>
-                {scoreDetail.survival.grade}
-              </Badge>
-            </div>
-          )}
-          {scoreDetail.infraAccess && (
-            <div className="flex items-start gap-1">
-              <span>🏗️</span>
-              <span className="text-muted-foreground">인프라</span>
-              <Badge variant="outline" className={`text-[10px] px-1 py-0 ${GRADE_BADGE_CLASS[scoreDetail.infraAccess.grade] ?? ""}`}>
-                {scoreDetail.infraAccess.grade}
-              </Badge>
-            </div>
-          )}
+        <div className="px-4">
+          <ScoreMetricCards scoreDetail={scoreDetail} />
         </div>
       )}
-
-      <Separator />
 
       {/* ── 아코디언 ── */}
       <Accordion
         type="multiple"
         defaultValue={["competition", "revenue", "survival", "population", "infra", "risk", "strategy", "location", "detail"]}
       >
-        {/* ── 경쟁 환경 (스코어링 포함) ── */}
+        {/* ── 경쟁 환경 ── */}
         {report.competitionGrade && (
-        <AccordionItem value="competition" className="border-none px-4">
-          <AccordionTrigger className="hover:no-underline py-4 items-start">
-            <div className="flex items-start gap-2 text-left">
-              <span>⚔️</span>
-              <span className="font-semibold text-sm">{report.competitionGrade.label}</span>
-              <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${GRADE_BADGE_CLASS[report.competitionGrade.grade] ?? ""}`}>
-                {report.competitionGrade.grade}등급
-              </Badge>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent className="pb-6 space-y-4">
-            {report.competitorCount && (
-            <div className="space-y-2 text-sm">
-              <p>● 직접 경쟁 <strong>약 {report.competitorCount.direct}개</strong> · 간접 약 {report.competitorCount.indirect}개 <span className="text-muted-foreground">(추정)</span></p>
-              {report.competitorCount.franchise > 0 && (
-                <p className="text-muted-foreground pl-4">🏢 프랜차이즈 약 {report.competitorCount.franchise}개 <span className="text-muted-foreground">(추정)</span></p>
+          <AccordionItem value="competition" className="border-none px-4">
+            <AccordionTrigger className="hover:no-underline py-4 items-start">
+              <div className="flex items-start gap-2 text-left">
+                <span>⚔️</span>
+                <span className="font-semibold text-sm">{report.competitionGrade.label}</span>
+                <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${GRADE_BG[report.competitionGrade.grade as keyof typeof GRADE_BG] ?? ""}`}>
+                  {report.competitionGrade.grade}등급
+                </Badge>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pb-6">
+              {report.competitorCount ? (
+                <CompetitionChart
+                  competitorCount={report.competitorCount}
+                  competitionGrade={report.competitionGrade}
+                />
+              ) : (
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {report.competitionGrade.rationale}
+                </p>
               )}
-            </div>
-            )}
-            <p className="text-xs text-muted-foreground leading-relaxed">{report.competitionGrade.rationale}</p>
-            {report.competitorCount && (
-              <p className="text-xs text-muted-foreground">{report.competitorCount.interpretation}</p>
-            )}
-          </AccordionContent>
-        </AccordionItem>
+            </AccordionContent>
+          </AccordionItem>
         )}
 
         <Separator />
 
-        {/* ── 매출 분석 (데이터 있을 때만) ── */}
+        {/* ── 매출 분석 ── */}
         {report.revenueEstimate && (
           <>
             <AccordionItem value="revenue" className="border-none px-4">
@@ -210,7 +200,7 @@ export function ReportViewer({
                     점포당 월 평균 {(report.revenueEstimate.monthlyPerStoreMaan ?? 0).toLocaleString()}만원
                   </span>
                   {scoreDetail?.vitality && (
-                    <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${GRADE_BADGE_CLASS[scoreDetail.vitality.grade] ?? ""}`}>
+                    <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${GRADE_BG[scoreDetail.vitality.grade as keyof typeof GRADE_BG] ?? ""}`}>
                       {scoreDetail.vitality.grade}등급
                     </Badge>
                   )}
@@ -236,7 +226,7 @@ export function ReportViewer({
           </>
         )}
 
-        {/* ── 폐업률·개업률 (데이터 있을 때만) ── */}
+        {/* ── 폐업률·개업률 ── */}
         {report.survivalAnalysis && (
           <>
             <AccordionItem value="survival" className="border-none px-4">
@@ -247,7 +237,7 @@ export function ReportViewer({
                     폐업률 {report.survivalAnalysis.closeRate}% · 개업률 {report.survivalAnalysis.openRate}%
                   </span>
                   {scoreDetail?.survival && (
-                    <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${GRADE_BADGE_CLASS[scoreDetail.survival.grade] ?? ""}`}>
+                    <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${GRADE_BG[scoreDetail.survival.grade as keyof typeof GRADE_BG] ?? ""}`}>
                       {scoreDetail.survival.grade}등급
                     </Badge>
                   )}
@@ -255,7 +245,7 @@ export function ReportViewer({
               </AccordionTrigger>
               <AccordionContent className="pb-6">
                 <div className="space-y-4 text-sm">
-                  <ChartContainer
+                  {mounted && <ChartContainer
                     config={{ value: { label: "비율" } } satisfies ChartConfig}
                     className="h-[80px] w-full"
                   >
@@ -274,7 +264,7 @@ export function ReportViewer({
                         <Cell fill="#3b82f6" />
                       </Bar>
                     </BarChart>
-                  </ChartContainer>
+                  </ChartContainer>}
                   <p className="text-[10px] text-muted-foreground">기준: 폐업률 5% 초과 시 주의</p>
                   <p className="text-xs text-muted-foreground leading-relaxed">{report.survivalAnalysis.interpretation}</p>
                   <p className="text-[10px] text-muted-foreground/60">출처: {report.survivalAnalysis.dataSource}</p>
@@ -285,7 +275,7 @@ export function ReportViewer({
           </>
         )}
 
-        {/* ── 배후 인구 (AI 응답) ── */}
+        {/* ── 배후 인구 ── */}
         {report.populationInsight && (
           <>
             <AccordionItem value="population" className="border-none px-4">
@@ -294,21 +284,31 @@ export function ReportViewer({
                   <span>👥</span>
                   <span className="font-semibold text-sm">{report.populationInsight.headline}</span>
                   {scoreDetail?.population && (
-                    <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${GRADE_BADGE_CLASS[scoreDetail.population.grade] ?? ""}`}>
+                    <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${GRADE_BG[scoreDetail.population.grade as keyof typeof GRADE_BG] ?? ""}`}>
                       {scoreDetail.population.grade}등급
                     </Badge>
                   )}
                 </div>
               </AccordionTrigger>
               <AccordionContent className="pb-6">
-                <p className="text-xs text-muted-foreground leading-relaxed">{report.populationInsight.body}</p>
+                {scoreDetail?.population ? (
+                  <PopulationInsightCard
+                    populationScore={scoreDetail.population}
+                    headline={report.populationInsight.headline}
+                    body={report.populationInsight.body}
+                    exteriorDependencyPercent={report.populationInsight.exteriorDependencyPercent}
+                    exteriorDependencyLabel={report.populationInsight.exteriorDependencyLabel}
+                  />
+                ) : (
+                  <p className="text-xs text-muted-foreground leading-relaxed">{report.populationInsight.body}</p>
+                )}
               </AccordionContent>
             </AccordionItem>
             <Separator />
           </>
         )}
 
-        {/* ── 주변 인프라 (AI 응답) ── */}
+        {/* ── 주변 인프라 ── */}
         {report.infrastructureInsight && (
           <>
             <AccordionItem value="infra" className="border-none px-4">
@@ -319,7 +319,10 @@ export function ReportViewer({
                 </div>
               </AccordionTrigger>
               <AccordionContent className="pb-6">
-                <p className="text-xs text-muted-foreground leading-relaxed">{report.infrastructureInsight.body}</p>
+                <InfrastructureInsightCard
+                  body={report.infrastructureInsight.body}
+                  infraAccess={scoreDetail?.infraAccess}
+                />
               </AccordionContent>
             </AccordionItem>
             <Separator />
@@ -337,23 +340,8 @@ export function ReportViewer({
                   <Badge variant="destructive" className="text-[10px] px-1.5 py-0">{report.riskWarnings!.length}</Badge>
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="pb-6 space-y-4">
-                {report.riskWarnings!.map((risk, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className="space-y-1">
-                      <div className="flex items-start gap-1.5">
-                        <Badge
-                          variant={risk.severity === "위험" ? "destructive" : "outline"}
-                          className="text-[10px] px-1.5 py-0"
-                        >
-                          {risk.severity}
-                        </Badge>
-                        <span className="text-sm font-medium">{risk.title}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{risk.detail}</p>
-                    </div>
-                  </div>
-                ))}
+              <AccordionContent className="pb-6">
+                <RiskWarningsList riskWarnings={report.riskWarnings!} />
               </AccordionContent>
             </AccordionItem>
             <Separator />
@@ -362,75 +350,87 @@ export function ReportViewer({
 
         {/* ── 맞춤형 전략 ── */}
         {report.strategy && (
-        <AccordionItem value="strategy" className="border-none px-4">
-          <AccordionTrigger className="hover:no-underline py-4 items-start">
-            <div className="flex items-start gap-2 text-left">
-              <span>🎯</span>
-              <span className="font-semibold text-sm">맞춤형 창업 전략</span>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent className="pb-6 space-y-4 text-sm">
-            <div>
-              <p className="text-[10px] text-muted-foreground mb-1">포지셔닝</p>
-              <p className="font-medium leading-relaxed">{report.strategy.positioning}</p>
-            </div>
-            <div>
-              <p className="text-[10px] text-muted-foreground mb-1">타겟 고객</p>
-              <p className="font-medium">{report.strategy.targetCustomer}</p>
-            </div>
-            {report.strategy.recommendedHours && (
-              <div>
-                <p className="text-[10px] text-muted-foreground mb-1">추천 운영 시간</p>
-                <p className="font-medium">{report.strategy.recommendedHours}</p>
+          <AccordionItem value="strategy" className="border-none px-4">
+            <AccordionTrigger className="hover:no-underline py-4 items-start">
+              <div className="flex items-start gap-2 text-left">
+                <span>🎯</span>
+                <span className="font-semibold text-sm">맞춤형 창업 전략</span>
               </div>
-            )}
-            <Separator />
-            <div>
-              <p className="text-[10px] text-muted-foreground mb-2">실행 항목</p>
-              <ul className="space-y-2">
-                {report.strategy.actionItems.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm">
-                    <span className="text-muted-foreground mt-0.5 shrink-0">●</span>
-                    <span className="leading-relaxed">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
+            </AccordionTrigger>
+            <AccordionContent className="pb-6 space-y-4 text-sm">
+              {/* 전략 카드 3열 그리드 */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="rounded-lg border bg-card p-4 space-y-1">
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <span>🎯</span>
+                    <span className="text-[10px] font-medium">포지셔닝</span>
+                  </div>
+                  <p className="text-sm font-medium leading-relaxed">{report.strategy.positioning}</p>
+                </div>
+                <div className="rounded-lg border bg-card p-4 space-y-1">
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <span>👥</span>
+                    <span className="text-[10px] font-medium">타겟 고객</span>
+                  </div>
+                  <p className="text-sm font-medium">{report.strategy.targetCustomer}</p>
+                </div>
+                {report.strategy.recommendedHours && (
+                  <div className="rounded-lg border bg-card p-4 space-y-1">
+                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                      <span>⏰</span>
+                      <span className="text-[10px] font-medium">추천 운영 시간</span>
+                    </div>
+                    <p className="text-sm font-medium">{report.strategy.recommendedHours}</p>
+                  </div>
+                )}
+              </div>
+              {/* 실행 항목 — 번호 + 체크리스트 스타일 */}
+              <div className="rounded-lg border bg-muted/30 p-4">
+                <p className="text-[10px] text-muted-foreground font-medium mb-3">📋 실행 항목</p>
+                <ul className="space-y-2.5">
+                  {report.strategy.actionItems.map((item, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm">
+                      <span className="flex items-center justify-center h-5 w-5 rounded-full text-[10px] font-bold shrink-0" style={{ backgroundColor: `${gradeColor}20`, color: gradeColor }}>{i + 1}</span>
+                      <span className="leading-relaxed">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
         )}
 
         <Separator />
 
         {/* ── 입지 활용 전략 ── */}
         {report.locationAdvice && (
-        <AccordionItem value="location" className="border-none px-4">
-          <AccordionTrigger className="hover:no-underline py-4 items-start">
-            <div className="flex items-start gap-2 text-left">
-              <span>📍</span>
-              <span className="font-semibold text-sm">입지 활용 전략</span>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent className="pb-6 space-y-4 text-sm">
-            <p className="text-xs text-muted-foreground leading-relaxed">{report.locationAdvice.currentAssessment}</p>
-            <ul className="space-y-3">
-              {report.locationAdvice.suggestions.map((s, i) => (
-                <li key={i} className="flex items-start gap-2">
-                  <span className="text-muted-foreground mt-0.5 shrink-0">●</span>
-                  <div className="leading-relaxed">
-                    <span className="font-medium">{s.direction}</span>
-                    <span className="text-muted-foreground"> — {s.rationale}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </AccordionContent>
-        </AccordionItem>
+          <AccordionItem value="location" className="border-none px-4">
+            <AccordionTrigger className="hover:no-underline py-4 items-start">
+              <div className="flex items-start gap-2 text-left">
+                <span>📍</span>
+                <span className="font-semibold text-sm">입지 활용 전략</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pb-6 space-y-4 text-sm">
+              <p className="text-xs text-muted-foreground leading-relaxed">{report.locationAdvice.currentAssessment}</p>
+              <ul className="space-y-3">
+                {report.locationAdvice.suggestions.map((s, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="text-muted-foreground mt-0.5 shrink-0">●</span>
+                    <div className="leading-relaxed">
+                      <span className="font-medium">{s.direction}</span>
+                      <span className="text-muted-foreground"> — {s.rationale}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
         )}
 
         <Separator />
 
-        {/* ── 상세 분석 ── */}
+        {/* ── 상세 분석 (탭 분할) ── */}
         <AccordionItem value="detail" className="border-none px-4">
           <AccordionTrigger className="hover:no-underline py-4 items-start">
             <div className="flex items-start gap-2 text-left">
@@ -439,9 +439,7 @@ export function ReportViewer({
             </div>
           </AccordionTrigger>
           <AccordionContent className="pb-6">
-            <div className="prose prose-sm dark:prose-invert max-w-none text-sm leading-relaxed whitespace-pre-wrap text-foreground/90">
-              {report.detailedAnalysis}
-            </div>
+            <DetailedAnalysisTabs detailedAnalysis={report.detailedAnalysis} gradeColor={gradeColor} />
           </AccordionContent>
         </AccordionItem>
       </Accordion>
@@ -453,7 +451,6 @@ export function ReportViewer({
           이 리포트는 서울시 골목상권 정보시스템, KOSIS 인구 통계, 카카오 Places, 서울교통공사 통계 등 공공·민간 데이터를 기반으로 한 참고 자료이며, 개인의 창업 판단에 도움을 줄뿐, 최종 결정 전 반드시 현장 답사(특히 운영 시간대별 유동인구, 기존 경쟁사 방문)와 전문가 상담을 병행하세요.
         </p>
       </div>
-
     </div>
   );
 }

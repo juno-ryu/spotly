@@ -9,7 +9,6 @@ async function kakaoFetch<T>(path: string, params: Record<string, string>): Prom
   const url = new URL(`${KAKAO_BASE_URL}${path}`);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
 
-  if (IS_DEV) console.log(`[API 요청] Kakao ${path} — ${JSON.stringify(params)}`);
   const res = await fetch(url.toString(), {
     headers: { Authorization: `KakaoAK ${process.env.KAKAO_REST_API_KEY}` },
   });
@@ -21,7 +20,6 @@ async function kakaoFetch<T>(path: string, params: Record<string, string>): Prom
   }
 
   const data: KakaoResponse<T> = await res.json();
-  if (IS_DEV) console.log(`[API 응답] Kakao ${path} — ${data.documents.length}건`);
   return data;
 }
 

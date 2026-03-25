@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback, type MutableRefObject } from "react";
 import { useKakaoMap } from "@/features/map/components/kakao-map-provider";
+import { BRAND_COLOR } from "@/constants/site";
 
 interface FullscreenMapProps {
   /** 지도 중심 위도 */
@@ -189,7 +190,7 @@ export function FullscreenMap({
 
     if (places.length === 0) return;
 
-    const MARKER_COLOR = "#7c3aed";
+    const MARKER_COLOR = BRAND_COLOR;
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><circle cx="10" cy="10" r="8" fill="${MARKER_COLOR}" stroke="white" stroke-width="2"/></svg>`;
     const markerImage = new kakao.maps.MarkerImage(
       `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`,

@@ -1,5 +1,6 @@
 import { searchByKeyword } from "@/server/data-sources/kakao/client";
 import { UNIVERSITY_SEARCH_RADIUS } from "@/features/analysis/lib/constants";
+import { getDistanceMeters } from "@/lib/geo-utils";
 
 
 
@@ -7,19 +8,6 @@ import { UNIVERSITY_SEARCH_RADIUS } from "@/features/analysis/lib/constants";
  * 대학교명 정규화 — "홍익대학교 세종캠퍼스 도서관" → "홍익대학교"
  * 같은 캠퍼스 내 건물들을 동일 대학으로 묶기 위해 "대학교" 이후 텍스트를 제거한다.
  */
-// Kakao distance 필드가 "0"을 반환하는 경우가 있으므로 좌표로 직접 계산
-function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 6_371_000;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLng = ((lng2 - lng1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
 function normalizeUnivName(name: string): string {
   const idx = name.indexOf("대학교");
   return idx !== -1 ? name.slice(0, idx + 3).trim() : name.trim();
@@ -122,7 +110,7 @@ export async function fetchUniversityAnalysis(params: {
     // 부속기관 키워드 포함 시 제외 (평생교육원, 기술창업원 등이 타 지역에 등록된 오탐 방지)
     .filter((doc) => !SUBSIDIARY_KEYWORDS.some((kw) => doc.place_name.includes(kw)))
     // Kakao distance 필드가 "0"을 반환하는 버그가 있으므로 Haversine으로 직접 계산
-    .filter((doc) => haversineMeters(latitude, longitude, parseFloat(doc.y), parseFloat(doc.x)) <= searchRadius)
+    .filter((doc) => getDistanceMeters(latitude, longitude, parseFloat(doc.y), parseFloat(doc.x)) <= searchRadius)
     // 시/도 불일치 제거 — 카카오가 타 지역 동명 부속기관을 반환하는 오탐 방지
     // (예: 부산에서 검색 시 "서울 마포구" 소재 서강대학교가 반환되는 경우)
     .filter((doc) => {
@@ -142,7 +130,7 @@ export async function fetchUniversityAnalysis(params: {
   const seen = new Map<string, UniversityItem>();
   for (const doc of filtered) {
     const normalized = normalizeUnivName(doc.place_name);
-    const dist = Math.round(haversineMeters(latitude, longitude, parseFloat(doc.y), parseFloat(doc.x)));
+    const dist = Math.round(getDistanceMeters(latitude, longitude, parseFloat(doc.y), parseFloat(doc.x)));
     const existing = seen.get(normalized);
     if (!existing || dist < existing.distanceMeters) {
       seen.set(normalized, {

@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import type { NextRequest } from "next/server";
+import { BRAND_COLOR } from "@/constants/site";
 
 export const dynamic = "force-dynamic";
 
@@ -24,11 +25,13 @@ const GRADE_COLORS: Record<string, { text: string; bg: string }> = {
   F: { text: "#dc2626", bg: "#fee2e2" },
 };
 
+/** scoreToGrade의 SSR/Edge 호환 인라인 버전 (OG 이미지 Edge Runtime용) */
 function getGradeInfo(score: number) {
-  if (score >= 75) return { grade: "A", label: "우수" };
-  if (score >= 60) return { grade: "B", label: "양호" };
-  if (score >= 40) return { grade: "C", label: "보통" };
-  if (score >= 20) return { grade: "D", label: "미흡" };
+  const clamped = Math.round(Math.max(0, Math.min(100, score)));
+  if (clamped >= 75) return { grade: "A", label: "우수" };
+  if (clamped >= 60) return { grade: "B", label: "양호" };
+  if (clamped >= 40) return { grade: "C", label: "보통" };
+  if (clamped >= 20) return { grade: "D", label: "미흡" };
   return { grade: "F", label: "위험" };
 }
 
@@ -36,13 +39,13 @@ function getGradeInfo(score: number) {
 function LogoIcon({ size = 48 }: { size?: number }) {
   return (
     <svg viewBox="0 0 512 512" width={size} height={size}>
-      <rect width="512" height="512" fill="#7c3aed" rx="80" />
+      <rect width="512" height="512" fill={BRAND_COLOR} rx="80" />
       <ellipse cx="256" cy="421" rx="42" ry="8" fill="black" opacity={0.3} />
       <path
         d="M256 100 C188 100 134 154 134 222 C134 310 256 420 256 420 C256 420 378 310 378 222 C378 154 324 100 256 100Z"
         fill="white"
       />
-      <circle cx="256" cy="218" r="52" fill="#7c3aed" />
+      <circle cx="256" cy="218" r="52" fill={BRAND_COLOR} />
     </svg>
   );
 }
@@ -317,7 +320,7 @@ export async function GET(request: NextRequest) {
         >
           <LogoIcon size={120} />
           <div style={{ display: "flex", gap: "4px" }}>
-            <span style={{ fontSize: "72px", fontWeight: 900, color: "#7c3aed" }}>스팟리</span>
+            <span style={{ fontSize: "72px", fontWeight: 900, color: BRAND_COLOR }}>스팟리</span>
           </div>
           <div style={{ display: "flex", fontSize: "36px", fontWeight: 900, color: "white" }}>
             AI 창업 입지 분석
@@ -343,7 +346,7 @@ export async function GET(request: NextRequest) {
             backgroundColor: "#0f172a",
           }}
         >
-          <span style={{ fontSize: "64px", fontWeight: 700, color: "#7c3aed" }}>스팟리</span>
+          <span style={{ fontSize: "64px", fontWeight: 700, color: BRAND_COLOR }}>스팟리</span>
         </div>
       ),
       { width: 1200, height: 630 },
