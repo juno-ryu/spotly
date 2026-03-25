@@ -2,8 +2,8 @@ export const SITE_CONFIG = {
   name: "스팟리 - AI 창업 입지 분석",
   shortName: "스팟리",
   description: "AI가 공공데이터를 분석해서 창업 입지를 검증해드려요. 경쟁 강도, 유동인구, 교통, 인프라를 종합 분석한 100점 만점 맞춤 리포트.",
-  url: "https://spotly-beta.vercel.app",
-  ogImage: "https://spotly-beta.vercel.app/api/og",
+  url: "https://spotly.website",
+  ogImage: "https://spotly.website/api/og",
 } as const;
 
 /** 브랜드 메인 색상 (violet-600) */
