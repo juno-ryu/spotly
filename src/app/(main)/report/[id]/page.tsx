@@ -110,16 +110,33 @@ export default async function ReportPage({
   const { data: { user } } = await supabase.auth.getUser();
   const isLoggedIn = !!user;
 
-  const report = await prisma.analysisReport.findUnique({
+  const reportRaw = await prisma.analysisReport.findUnique({
     where: { id },
   });
 
-  if (!report) notFound();
+  if (!reportRaw) notFound();
+
+  const report = reportRaw;
 
   const reportJson = report.aiReportJson as AiReport;
   const totalScore = report.totalScore;
   const { grade: scoreGrade } = scoreToGrade(totalScore);
   const scoreDetail = report.scoreDetail as ScoreBreakdown | undefined;
+
+  // 공유 CTA용 데이터 조립
+  const reportUrl = `${SITE_CONFIG.url}/report/${id}`;
+  const shareTitle = `${report.address} ${report.industryName} ${scoreGrade}등급 (${totalScore}점)`;
+  const shareText = reportJson.verdict
+    ? `AI 판정: ${reportJson.verdict}. 같이 창업 전에 확인해봐!`
+    : "AI가 8개 공공데이터를 분석한 상권 리포트";
+  const ogParams2 = new URLSearchParams({
+    address: report.address,
+    industry: report.industryName,
+    score: String(totalScore),
+    ...(reportJson.verdict && { verdict: reportJson.verdict }),
+    square: "1",
+  });
+  const shareImageUrl = `${SITE_CONFIG.url}/api/og?${ogParams2}`;
 
   // JSON-LD 구조화 데이터 — 검색 엔진 리치 스니펫용
   const jsonLd = {
@@ -163,6 +180,14 @@ export default async function ReportPage({
         totalScore={totalScore}
         scoreGrade={scoreGrade}
         scoreDetail={scoreDetail}
+        shareTitle={shareTitle}
+        shareText={shareText}
+        reportUrl={reportUrl}
+        imageUrl={shareImageUrl}
+        lat={report.lat}
+        lng={report.lng}
+        address={report.address}
+        industryName={report.industryName}
       />
     </div>
   );

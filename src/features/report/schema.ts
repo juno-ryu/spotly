@@ -82,5 +82,11 @@ export const aiReportSchema = z.object({
   }).nullable().optional(),
 
   detailedAnalysis: z.string(),
+
+  /** 연관 업종 추천 — 해당 업종에 영향을 끼치는 주변 업종 */
+  relatedIndustries: z.array(z.object({
+    name: z.string(),
+    reason: z.string(),
+  })).optional(),
 });
 export type AiReport = z.infer<typeof aiReportSchema>;

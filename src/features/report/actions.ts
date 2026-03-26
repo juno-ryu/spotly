@@ -68,6 +68,8 @@ export async function generateReport(analysisData: Omit<AnalysisData, "places">)
         industryName: analysisData.industryName,
         totalScore: analysisData.totalScore,
         scoreDetail: analysisData.scoreDetail ? JSON.parse(JSON.stringify(analysisData.scoreDetail)) : undefined,
+        lat: analysisData.centerLatitude,
+        lng: analysisData.centerLongitude,
         aiReportJson: JSON.parse(JSON.stringify(reportJson)),
         userId: user?.id ?? null,
       },

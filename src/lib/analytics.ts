@@ -19,6 +19,8 @@ export const AnalyticsEvent = {
   REPORT_VIEW: "report_view",
   /** 리포트 공유 — 공유하기 버튼 클릭 시 */
   REPORT_SHARE: "report_share",
+  /** 연관 업종 클릭 — 하단 CTA에서 연관 업종 분석 클릭 시 */
+  RELATED_INDUSTRY_CLICK: "related_industry_click",
 } as const;
 
 export type AnalyticsEvent = (typeof AnalyticsEvent)[keyof typeof AnalyticsEvent];

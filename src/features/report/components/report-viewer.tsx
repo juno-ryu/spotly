@@ -36,12 +36,23 @@ import { PopulationInsightCard } from "./population-insight-card";
 import { InfrastructureInsightCard } from "./infrastructure-insight-card";
 import { DetailedAnalysisTabs } from "./detailed-analysis-tabs";
 import { CompetitionChart } from "./competition-chart";
+import { ReportBottomCTA } from "./report-bottom-cta";
 
 interface ReportViewerProps {
   report: AiReport;
   totalScore?: number;
   scoreGrade?: string;
   scoreDetail?: ScoreBreakdown;
+  /** 공유용 데이터 */
+  shareTitle?: string;
+  shareText?: string;
+  reportUrl?: string;
+  imageUrl?: string;
+  /** 좌표 (연관 업종 재분석용) */
+  lat?: number | null;
+  lng?: number | null;
+  address?: string;
+  industryName?: string;
 }
 
 export function ReportViewer({
@@ -49,6 +60,14 @@ export function ReportViewer({
   totalScore = 0,
   scoreGrade = "C",
   scoreDetail,
+  shareTitle,
+  shareText,
+  reportUrl,
+  imageUrl,
+  lat,
+  lng,
+  address,
+  industryName,
 }: ReportViewerProps) {
   const gradeColor = GRADE_HEX[scoreGrade as keyof typeof GRADE_HEX] ?? "#6b7280";
 
@@ -442,6 +461,21 @@ export function ReportViewer({
           이 리포트는 서울시 골목상권 정보시스템, KOSIS 인구 통계, 카카오 Places, 서울교통공사 통계 등 공공·민간 데이터를 기반으로 한 참고 자료이며, 개인의 창업 판단에 도움을 줄뿐, 최종 결정 전 반드시 현장 답사(특히 운영 시간대별 유동인구, 기존 경쟁사 방문)와 전문가 상담을 병행하세요.
         </p>
       </div>
+
+      {/* ── 하단 CTA (공유 + 연관 업종) ── */}
+      {reportUrl && (
+        <ReportBottomCTA
+          shareTitle={shareTitle ?? ""}
+          shareText={shareText ?? ""}
+          reportUrl={reportUrl}
+          imageUrl={imageUrl}
+          industryName={industryName ?? ""}
+          relatedIndustries={report.relatedIndustries}
+          lat={lat}
+          lng={lng}
+          address={address ?? ""}
+        />
+      )}
     </div>
   );
 }

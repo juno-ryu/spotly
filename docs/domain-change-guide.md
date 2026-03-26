@@ -41,6 +41,7 @@ grep -r "OLD_DOMAIN" --include="*.ts" --include="*.tsx" --include="*.md" --inclu
 
 ### 카카오 개발자
 - https://developers.kakao.com → 앱 → 플랫폼 키 → JavaScript SDK 도메인에 새 도메인 추가
+- https://developers.kakao.com → 앱 → **제품 링크 관리** → 웹 도메인에 새 도메인 추가 (⚠️ 필수! 이게 빠지면 카카오톡 공유 버튼 클릭 시 지정 URL이 아닌 기본 도메인으로 이동됨)
 - 기존 도메인은 남겨둬도 됨 (리다이렉트 호환)
 
 ### Supabase Auth
@@ -92,7 +93,8 @@ grep -r "OLD_DOMAIN" --include="*.ts" --include="*.tsx" --include="*.md" --inclu
 - [ ] 잔여 구 도메인 grep 확인 (0건)
 - [ ] Vercel 새 도메인 추가
 - [ ] Vercel 기존 도메인 → 308 리다이렉트
-- [ ] 카카오 개발자 SDK 도메인 추가
+- [x] 카카오 개발자 SDK 도메인 추가
+- [x] 카카오 개발자 제품 링크 관리 → 웹 도메인 추가
 - [ ] Supabase Site URL + Redirect URL 변경
 - [ ] Google Search Console 새 속성 + 사이트맵
 - [ ] Google Analytics 스트림 URL 변경

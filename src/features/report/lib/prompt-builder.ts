@@ -136,7 +136,8 @@ export function buildAnalysisPrompt(params: {
   "locationAdvice": { "currentAssessment": "현 입지 총평 (다른 위치 추천 금지)", "suggestions": [{ "direction": "방향", "rationale": "근거" }] },
   "populationInsight": { "headline": "핵심 한 줄", "body": "2~3문장", "exteriorDependencyPercent": 0~100 외부수요의존도(유동인구/배후인구 비율·상권유형·교통 종합 판단), "exteriorDependencyLabel": "의존도 한 줄 해석" } 또는 null,
   "infrastructureInsight": { "headline": "핵심 한 줄", "body": "2~3문장" } 또는 null,
-  "detailedAnalysis": "3~5문단 상세 분석. 반드시 데이터 수치를 인용하고, 교차 분석하고, 반경·장소 맥락을 반영해줘."
+  "detailedAnalysis": "3~5문단 상세 분석. 반드시 데이터 수치를 인용하고, 교차 분석하고, 반경·장소 맥락을 반영해줘.",
+  "relatedIndustries": [{ "name": "업종명(아래 목록에서만 선택)", "reason": "이 업종이 분석 대상 업종에 어떤 영향을 끼치는지 한 줄" }]
 }`;
 
   return `<data>
@@ -168,6 +169,10 @@ ${infraData}
 <task>
 위 데이터를 분석해서 아래 JSON 형식으로 응답해줘.
 _reasoning을 반드시 첫 번째로 작성하고, 그 사고 과정에 기반해서 나머지 필드를 채워줘.
+
+relatedIndustries: "${params.industryName}"과 직접적으로 고객을 뺏거나, 같이 있으면 매출이 오르는 업종 2~3개만 추천해줘.
+조건: 1) 같은 상권에서 실제로 고객층이 겹치는 업종만. 2) 억지로 연결짓지 마. 진짜 현장에서 체감되는 관계만. 3) 분석 대상 업종 자체는 제외.
+반드시 다음 목록에서만 선택: 한식음식점, 중식음식점, 일식음식점, 서양식음식점, 치킨전문점, 피자전문점, 분식전문점, 햄버거전문점, 커피전문점, 주스/음료전문점, 제과점, 편의점, 슈퍼마켓, 미용실, 네일숍, 피부관리실, 약국, 일반의원, 치과의원, 한의원, 헬스클럽, 요가/필라테스, 학원, 어학원, 예체능학원, 부동산중개, 노래방, PC방
 
 ${outputSchema}
 </task>`;
