@@ -52,6 +52,13 @@ export function AuthRequiredModal({ onClose, returnTo }: AuthRequiredModalProps)
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const [testimonialVisible, setTestimonialVisible] = useState(true);
 
+  // 모달 열림 시 뒤쪽 스크롤 잠금
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
   useEffect(() => {
     const id = setInterval(() => {
       setTestimonialVisible(false);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { User } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -9,7 +10,6 @@ import { AuthRequiredModal } from "@/features/auth/components/auth-required-moda
 /** 비로그인 유저 아이콘 버튼 — 클릭 시 로그인 오버레이 */
 export function LoginIconButton({ returnTo }: { returnTo?: string }) {
   const [open, setOpen] = useState(false);
-  const [clicked, setClicked] = useState(false);
   const pathname = usePathname();
 
   return (
@@ -19,7 +19,7 @@ export function LoginIconButton({ returnTo }: { returnTo?: string }) {
           <TooltipTrigger asChild>
             <button
               type="button"
-              onClick={() => { setClicked(true); setOpen(true); }}
+              onClick={() => setOpen(true)}
               className="flex h-10 w-10 items-center justify-center rounded-full bg-background border shadow-sm transition-colors hover:bg-muted"
               aria-label="로그인"
             >
@@ -31,7 +31,11 @@ export function LoginIconButton({ returnTo }: { returnTo?: string }) {
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      {open && <AuthRequiredModal onClose={() => setOpen(false)} returnTo={returnTo ?? pathname} />}
+      {/* transform 부모(FloatingActionGroup scale)가 fixed 모달 containing block을 깨뜨리므로 포탈로 탈출 */}
+      {open && createPortal(
+        <AuthRequiredModal onClose={() => setOpen(false)} returnTo={returnTo ?? pathname} />,
+        document.body,
+      )}
     </>
   );
 }
