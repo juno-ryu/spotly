@@ -13,6 +13,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 import {
   RadialBarChart,
@@ -37,6 +38,9 @@ import { InfrastructureInsightCard } from "./infrastructure-insight-card";
 import { DetailedAnalysisTabs } from "./detailed-analysis-tabs";
 import { CompetitionChart } from "./competition-chart";
 import { ReportBottomCTA } from "./report-bottom-cta";
+import Link from "next/link";
+import { ClockArrowUp } from "lucide-react";
+import { AuthRequiredModal } from "@/features/auth/components/auth-required-modal";
 
 interface ReportViewerProps {
   report: AiReport;
@@ -53,6 +57,8 @@ interface ReportViewerProps {
   lng?: number | null;
   address?: string;
   industryName?: string;
+  /** 로그인 여부 */
+  isLoggedIn?: boolean;
 }
 
 export function ReportViewer({
@@ -68,8 +74,11 @@ export function ReportViewer({
   lng,
   address,
   industryName,
+  isLoggedIn,
 }: ReportViewerProps) {
   const gradeColor = GRADE_HEX[scoreGrade as keyof typeof GRADE_HEX] ?? "#6b7280";
+
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   /** SSR hydration 에러 방지 — Recharts SVG ID 불일치 우회 */
   const [mounted, setMounted] = useState(false);
@@ -91,6 +100,13 @@ export function ReportViewer({
 
   return (
     <div className="space-y-6 px-2 pt-4">
+      {showAuthModal && createPortal(
+        <AuthRequiredModal
+          onClose={() => setShowAuthModal(false)}
+          returnTo={typeof window !== "undefined" ? window.location.pathname : "/"}
+        />,
+        document.body,
+      )}
       {/* ── 종합 판단 ── */}
       <div className="px-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -156,6 +172,48 @@ export function ReportViewer({
             </p>
           </div>
         </div>
+      </div>
+
+      {/* ── 분석 이력 안내 배너 ── */}
+      <div className="px-4">
+        {isLoggedIn ? (
+          <Link
+            href="/history"
+            className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-violet-50 dark:bg-violet-950/30 border border-violet-100 dark:border-violet-900/50 transition-colors hover:bg-violet-100 dark:hover:bg-violet-950/50"
+          >
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-900/50 shrink-0">
+              <ClockArrowUp className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-foreground">
+                이 분석이 이력에 저장되었습니다
+              </p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                분석 이력에서 언제든 다시 확인하세요
+              </p>
+            </div>
+            <span className="text-violet-600 dark:text-violet-400 text-xs font-medium shrink-0">보기 →</span>
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowAuthModal(true)}
+            className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-violet-50 dark:bg-violet-950/30 border border-violet-100 dark:border-violet-900/50 transition-colors hover:bg-violet-100 dark:hover:bg-violet-950/50 w-full text-left"
+          >
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-900/50 shrink-0">
+              <ClockArrowUp className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-foreground">
+                로그인하면 분석 결과가 자동 저장됩니다
+              </p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                이력에서 언제든 다시 확인할 수 있어요
+              </p>
+            </div>
+            <span className="text-violet-600 dark:text-violet-400 text-xs font-medium shrink-0">로그인 →</span>
+          </button>
+        )}
       </div>
 
       {/* ── 스코어링 지표 카드 그리드 ── */}

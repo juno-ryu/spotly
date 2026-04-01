@@ -188,6 +188,7 @@ export default async function ReportPage({
         lng={report.lng}
         address={report.address}
         industryName={report.industryName}
+        isLoggedIn={isLoggedIn}
       />
     </div>
   );

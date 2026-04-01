@@ -17,9 +17,10 @@ interface ShareButtonProps {
   text: string;
   url: string;
   imageUrl?: string;
+  size?: "default" | "sm";
 }
 
-export function ShareButton({ title, text, url, imageUrl }: ShareButtonProps) {
+export function ShareButton({ title, text, url, imageUrl, size = "default" }: ShareButtonProps) {
   const [clicked, setClicked] = useState(false);
   const { kakaoReady, copied, appKey, handleKakaoInit, shareToKakao, copyLink, track } =
     useKakaoShare({ title, text, url, imageUrl });
@@ -63,12 +64,16 @@ export function ShareButton({ title, text, url, imageUrl }: ShareButtonProps) {
             <button
               type="button"
               onClick={handleShare}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-background border shadow-sm transition-colors hover:bg-muted"
+              className={
+                size === "sm"
+                  ? "flex h-8 w-8 items-center justify-center rounded-full bg-background border shadow-sm transition-colors hover:bg-muted"
+                  : "flex h-10 w-10 items-center justify-center rounded-full bg-background border shadow-sm transition-colors hover:bg-muted"
+              }
               aria-label="공유하기"
             >
               {copied
-                ? <Check className="h-5 w-5 text-emerald-500" />
-                : <Share2 className="h-5 w-5 text-foreground" />
+                ? <Check className={size === "sm" ? "h-3.5 w-3.5 text-emerald-500" : "h-5 w-5 text-emerald-500"} />
+                : <Share2 className={size === "sm" ? "h-3.5 w-3.5 text-foreground" : "h-5 w-5 text-foreground"} />
               }
             </button>
           </TooltipTrigger>
