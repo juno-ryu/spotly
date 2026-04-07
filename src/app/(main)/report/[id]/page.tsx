@@ -88,6 +88,8 @@ export async function generateMetadata({
       description,
       url: `${SITE_CONFIG.url}/report/${id}`,
       type: "article",
+      locale: "ko_KR",
+      siteName: SITE_CONFIG.name,
       images: [{ url: ogImageUrl, width: 1200, height: 630, alt: title }],
     },
     twitter: {
