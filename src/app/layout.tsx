@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   description: SITE_CONFIG.description,
   keywords: ["창업 입지 분석", "상권 분석", "소상공인", "AI 분석", "창업 컨설팅", "스팟리"],
   manifest: "/manifest.json",
+  verification: {
+    google: "5H9VujfcdYTCcK14G1iMszIS7f1jFWjs6Y1teljtjgE",
+  },
   openGraph: {
     type: "website",
     locale: "ko_KR",
