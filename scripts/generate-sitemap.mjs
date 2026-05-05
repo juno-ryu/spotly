@@ -39,10 +39,14 @@ async function main() {
 
     const publicDir = join(process.cwd(), "public");
     mkdirSync(publicDir, { recursive: true });
-    const outPath = join(publicDir, "sitemap.xml");
-    writeFileSync(outPath, xml, "utf-8");
 
-    console.log(`✓ sitemap.xml generated: ${reports.length} URLs → ${outPath}`);
+    // sitemap.xml은 stuck 상태 가능. GSC 캐시 우회를 위해 새 이름의 동일 파일 추가 생성.
+    const fileNames = ["sitemap.xml", "pages-index.xml"];
+    for (const name of fileNames) {
+      const outPath = join(publicDir, name);
+      writeFileSync(outPath, xml, "utf-8");
+      console.log(`✓ ${name} generated: ${reports.length} URLs → ${outPath}`);
+    }
   } finally {
     await prisma.$disconnect();
   }

@@ -56,10 +56,10 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // sitemap.xml — Google Search Console fetch 안정성을 위해
+        // sitemap 파일들 — Google Search Console fetch 안정성을 위해
         // nextjs.org/sitemap.xml과 동일한 보안/캐시 헤더 스펙으로 맞춤.
-        // (vercel/next.js#75836 유사 증상에서 헤더 일관성이 fetch 성공률에 영향)
-        source: "/sitemap.xml",
+        // pages-index.xml은 sitemap.xml stuck 우회용 동일 콘텐츠.
+        source: "/:file(sitemap\\.xml|pages-index\\.xml)",
         headers: [
           { key: "Content-Type", value: "application/xml; charset=utf-8" },
           { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
