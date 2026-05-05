@@ -28,11 +28,14 @@ async function main() {
       orderBy: { createdAt: "desc" },
     });
 
+    // Google sitemap 스펙은 W3C Datetime 권장 (YYYY-MM-DDTHH:MM:SSZ).
+    // toISOString() 기본은 milliseconds(.697Z)를 포함해서 일부 파서가 거부.
+    // milliseconds 제거해서 표준 형식으로 출력.
     const urls = reports
-      .map(
-        (r) =>
-          `  <url>\n    <loc>${SITE_URL}/report/${r.id}</loc>\n    <lastmod>${r.createdAt.toISOString()}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>`,
-      )
+      .map((r) => {
+        const lastmod = r.createdAt.toISOString().replace(/\.\d{3}Z$/, "Z");
+        return `  <url>\n    <loc>${SITE_URL}/report/${r.id}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>`;
+      })
       .join("\n");
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
