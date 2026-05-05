@@ -55,6 +55,31 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        // sitemap.xml — Google Search Console fetch 안정성을 위해
+        // nextjs.org/sitemap.xml과 동일한 보안/캐시 헤더 스펙으로 맞춤.
+        // (vercel/next.js#75836 유사 증상에서 헤더 일관성이 fetch 성공률에 영향)
+        source: "/sitemap.xml",
+        headers: [
+          { key: "Content-Type", value: "application/xml; charset=utf-8" },
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "origin-when-cross-origin" },
+          { key: "X-DNS-Prefetch-Control", value: "on" },
+          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains; preload" },
+        ],
+      },
+      {
+        // robots.txt — 동일 정책
+        source: "/robots.txt",
+        headers: [
+          { key: "Content-Type", value: "text/plain; charset=utf-8" },
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "origin-when-cross-origin" },
+        ],
+      },
     ];
   },
 };
