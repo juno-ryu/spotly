@@ -72,6 +72,8 @@ export function GeneratingProgress() {
     // 브라우저 새로고침/탭 닫기 차단
     const onBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
+      // Chrome/Edge 등 일부 Chromium 계열은 returnValue 세팅이 있어야 경고창을 띄움
+      e.returnValue = "";
     };
 
     // 브라우저 뒤로가기/앞으로가기 차단
