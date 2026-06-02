@@ -9,33 +9,102 @@ datasource db {
 
 /// AI 리포트 — 리포트 생성 시에만 저장
 model AnalysisReport {
-  id            String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  address       String   // 검색 주소
-  industryName  String   // 업종명
-  totalScore    Float    // 종합 점수 (0-100)
-  scoreDetail   Json?    // 세부 점수
+  address      String // 검색 주소
+  industryName String // 업종명
+  totalScore   Float // 종합 점수 (0-100)
+  scoreDetail  Json? // 세부 점수
 
   /// 분석 좌표 (연관 업종 재분석용, 기존 데이터는 null)
-  lat           Float?
-  lng           Float?
+  lat Float?
+  lng Float?
 
-  aiReportJson  Json     // AI 리포트 구조화 데이터
+  aiReportJson Json // AI 리포트 구조화 데이터
 
   /// Supabase Auth 사용자 ID (비로그인 시 null)
-  userId        String?
+  userId String?
 
-  createdAt     DateTime @default(now())
+  /// 비로그인 사용자 식별자 (HTTP-only 쿠키). 가입 승계 시 NULL로 비움
+  anonymousId String?
 
+  createdAt DateTime @default(now())
+
+  reviews AnalysisReview[]
+
+  @@index([userId])
+  @@index([anonymousId])
+  @@index([createdAt(sort: Desc)])
+}
+
+/// 분석 리포트 후기 — 본인이 생성한 AnalysisReport 에 한해 가입자가 남긴 별점/결정/코멘트
+model AnalysisReview {
+  id String @id @default(cuid())
+
+  /// 후기 대상 리포트
+  reportId String
+  report   AnalysisReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  /// Supabase Auth 사용자 ID — 가입자만 작성 가능 (NOT NULL)
+  userId String
+
+  /// 1~5 별점
+  rating Int
+
+  /// 창업 결정 (WILL_START / CONSIDERING / WILL_NOT / ALREADY_STARTED)
+  /// Prisma enum 대신 String 으로 저장 — zod union 으로 검증
+  decision String
+
+  /// 선택 코멘트 — 최대 500자 (서버에서 zod max(500) 검증)
+  comment String?
+
+  /// true 면 익명으로 다른 사용자에게 코멘트 노출. false 면 통계에만 반영
+  isPublic Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([reportId, userId])
+  @@index([reportId])
   @@index([userId])
   @@index([createdAt(sort: Desc)])
 }
 
+/// 익명 분석 결과 — 비로그인 사용자가 받은 1회 분석을 7일간 보관
+/// 가입 직후 userId로 승계, 7일 후 미가입 row는 cron으로 삭제
+model AnonymousAnalysis {
+  id String @id @default(cuid())
+
+  /// HTTP-only 쿠키로 관리되는 익명 식별자
+  anonymousId String
+
+  address      String // 검색 주소
+  industryName String // 업종명
+  totalScore   Float // 종합 점수 (0-100)
+  scoreDetail  Json? // 세부 점수
+
+  /// 분석 좌표
+  lat Float?
+  lng Float?
+
+  /// 가입 시 채워짐 — cron 삭제 대상에서 빠짐
+  userId String?
+
+  /// 만료 시각. 가입 승계 시 NULL로 비움
+  expiresAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([anonymousId])
+  @@index([userId])
+  @@index([expiresAt])
+}
+
 /// 전국 초중고 학교 위치 정보 (정적 데이터, CSV seed)
 model School {
-  id            String   @id @default(cuid())
+  id            String @id @default(cuid())
   /// 공공데이터 학교 고유 ID
-  schoolId      String   @unique
+  schoolId      String @unique
   /// 학교명
   name          String
   /// 학교급 (초등학교 / 중학교 / 고등학교)

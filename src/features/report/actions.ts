@@ -7,7 +7,36 @@ import { ANALYSIS_SYSTEM_PROMPT, buildAnalysisPrompt } from "./lib/prompt-builde
 import { aiReportSchema } from "./schema";
 import { scoreToGrade } from "@/features/analysis/lib/scoring/types";
 import { createSupabaseServer } from "@/server/supabase/server";
+import { getOrCreateAnonymousId } from "@/server/anonymous/cookie";
+import {
+  isAnonymousQuotaUsed,
+  markAnonymousQuotaUsed,
+} from "@/server/anonymous/quota";
 import type { AnalysisData } from "@/features/analysis/actions";
+
+/**
+ * AI 리포트 생성 자격 확인 — 클라이언트가 비싼 generation 전에 게이트 분기에 쓰는 lightweight 체크.
+ * Claude 호출이나 DB write 없음. UX 최적화 (GeneratingProgress 깜빡임 방지).
+ *
+ * 보안은 generateReport에서 다시 한 번 검증한다 (서버 신뢰의 단일 진실).
+ */
+export async function checkReportEligibility(): Promise<
+  { allowed: true } | { allowed: false; reason: "anonymous_quota_exhausted" }
+> {
+  const supabase = await createSupabaseServer();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) return { allowed: true };
+
+  const anonymousId = await getOrCreateAnonymousId();
+  const used = await isAnonymousQuotaUsed(anonymousId);
+  if (used) {
+    return { allowed: false, reason: "anonymous_quota_exhausted" };
+  }
+  return { allowed: true };
+}
 
 /** AI 리포트 생성 + DB 최초 저장. 클라이언트에서 분석 데이터를 직접 받는다. (places 제외) */
 export async function generateReport(analysisData: Omit<AnalysisData, "places">) {
@@ -16,6 +45,26 @@ export async function generateReport(analysisData: Omit<AnalysisData, "places">)
       success: false as const,
       error: "ANTHROPIC_API_KEY가 설정되지 않았습니다.",
     };
+  }
+
+  // 인증·익명 quota 사전 체크 — Claude 호출 전에 막아 비용 차단
+  const supabase = await createSupabaseServer();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let anonymousId: string | null = null;
+  if (!user) {
+    // 쿠키 없으면 발급 (직접 URL 진입 케이스 대응). 게이트는 Redis quota로만 판단
+    anonymousId = await getOrCreateAnonymousId();
+    const used = await isAnonymousQuotaUsed(anonymousId);
+    if (used) {
+      return {
+        success: false as const,
+        error: "ANONYMOUS_QUOTA_EXHAUSTED" as const,
+        reason: "anonymous_quota_exhausted" as const,
+      };
+    }
   }
 
   const { grade: scoreGrade } = scoreToGrade(analysisData.totalScore);
@@ -57,11 +106,8 @@ export async function generateReport(analysisData: Omit<AnalysisData, "places">)
 
     const reportJson = aiReportSchema.parse(parsed);
 
-    // 현재 로그인 사용자 ID 조회
-    const supabase = await createSupabaseServer();
-    const { data: { user } } = await supabase.auth.getUser();
-
     // AI 리포트 생성 시 DB 최초 INSERT
+    // 비로그인이면 anonymousId 저장 — 가입 시 migrateAnonymousToUser가 userId로 승계
     const record = await prisma.analysisReport.create({
       data: {
         address: analysisData.address,
@@ -72,8 +118,14 @@ export async function generateReport(analysisData: Omit<AnalysisData, "places">)
         lng: analysisData.centerLongitude,
         aiReportJson: JSON.parse(JSON.stringify(reportJson)),
         userId: user?.id ?? null,
+        anonymousId: user ? null : anonymousId,
       },
     });
+
+    // 비로그인 성공 시 quota 마킹 — 이후 호출 차단
+    if (!user && anonymousId) {
+      await markAnonymousQuotaUsed(anonymousId);
+    }
 
     return { success: true as const, id: record.id, data: reportJson };
   } catch (error) {

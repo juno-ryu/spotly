@@ -11,6 +11,7 @@ import { BRAND_COLOR } from "@/constants/site";
 
 const CompetitorMap = dynamic(() => import("./competitor-map").then(m => m.CompetitorMap), { ssr: false });
 import { AuthRequiredModal } from "@/features/auth/components/auth-required-modal";
+import { AnonymousFirstReportConfirmModal } from "./anonymous-first-report-confirm-modal";
 import { GeneratingProgress } from "./purchase-overlay";
 import { GradeBadge } from "./grade-badge";
 import { MetricCards } from "./metric-cards";
@@ -255,9 +256,10 @@ export function AnalysisResult({ data, isAuthenticated }: AnalysisResultProps) {
   const [isGenerating, startTransition] = useTransition();
 
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showFirstReportConfirm, setShowFirstReportConfirm] = useState(false);
 
-  // AI 리포트 생성 — 서버 액션 호출 후 리포트 페이지로 이동
-  const handleGenerateReport = () => {
+  // 실제 AI 리포트 생성 — GeneratingProgress 노출 + 결과 페이지 이동
+  const runActualGeneration = () => {
     startTransition(async () => {
       try {
         const { generateReport } = await import("@/features/report/actions");
@@ -266,6 +268,13 @@ export function AnalysisResult({ data, isAuthenticated }: AnalysisResultProps) {
         const result = await generateReport(reportData);
         if (result.success && result.id) {
           router.push(`/report/${result.id}`);
+        } else if (
+          !result.success &&
+          "reason" in result &&
+          result.reason === "anonymous_quota_exhausted"
+        ) {
+          // race condition 대비 (eligibility 체크 직후 다른 탭에서 사용됨 등)
+          setShowAuthModal(true);
         } else {
           toast.error(result.error ?? "AI 리포트 생성에 실패했어요. 다시 시도해주세요.");
         }
@@ -273,6 +282,32 @@ export function AnalysisResult({ data, isAuthenticated }: AnalysisResultProps) {
         toast.error("AI 리포트 생성 중 오류가 발생했어요. 다시 시도해주세요.");
       }
     });
+  };
+
+  // AI 리포트 버튼 클릭 핸들러
+  // - 로그인: 사전 자격 OK 시 바로 생성
+  // - 비로그인 + 자격 OK: 첫 리포트 안내 모달 → 사용자 확정 후 생성
+  // - 자격 거부: 가입 유도 모달 (GeneratingProgress 안 띄움)
+  const handleGenerateReport = async () => {
+    try {
+      const { checkReportEligibility } = await import("@/features/report/actions");
+
+      const eligibility = await checkReportEligibility();
+      if (!eligibility.allowed) {
+        setShowAuthModal(true);
+        return;
+      }
+
+      if (!isAuthenticated) {
+        // 비로그인 첫 사용자에게 "1회 무료" 알림 + 명시적 확정
+        setShowFirstReportConfirm(true);
+        return;
+      }
+
+      runActualGeneration();
+    } catch {
+      toast.error("AI 리포트 생성 중 오류가 발생했어요. 다시 시도해주세요.");
+    }
   };
 
   // 분석 결과 조회 — GA4 이벤트 전송 (최초 마운트 시 1회)
@@ -441,6 +476,16 @@ export function AnalysisResult({ data, isAuthenticated }: AnalysisResultProps) {
         returnTo={typeof window !== "undefined" ? window.location.pathname + window.location.search : "/analyze"}
       />
     )}
+    {/* 비로그인 첫 AI 리포트 확인 모달 */}
+    {showFirstReportConfirm && (
+      <AnonymousFirstReportConfirmModal
+        onConfirm={() => {
+          setShowFirstReportConfirm(false);
+          runActualGeneration();
+        }}
+        onClose={() => setShowFirstReportConfirm(false)}
+      />
+    )}
 
     <div className="fixed inset-0 pointer-events-none">
       {/* ── 배경 지도 ── */}
@@ -518,12 +563,13 @@ export function AnalysisResult({ data, isAuthenticated }: AnalysisResultProps) {
           <button
             type="button"
             onClick={() => {
-              if (isAuthenticated) {
-                handleGenerateReport();
-              } else {
-                sessionStorage.setItem("spotly_pending_report", String(Date.now()));
-                setShowAuthModal(true);
+              if (!isAuthenticated) {
+                trackEvent(AnalyticsEvent.REPORT_CTA_CLICK_ANONYMOUS, {
+                  surface: "bottom_button",
+                });
               }
+              // 비로그인 + quota 사용됨이면 서버에서 reject → handleGenerateReport 내부에서 모달
+              handleGenerateReport();
             }}
             className="flex items-center justify-center gap-1.5 w-full h-12 rounded-xl bg-violet-600 text-white font-bold text-sm transition-transform hover:bg-violet-700 active:scale-95"
           >

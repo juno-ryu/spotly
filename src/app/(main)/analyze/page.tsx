@@ -29,10 +29,15 @@ function parseSearchParams(sp: Record<string, string | string[] | undefined>): A
 /** 분석 실행 + 결과 표시 — Suspense 내부에서 비동기 실행 */
 async function AnalysisLoader({ params }: { params: AnalyzeParams }) {
   const supabase = await createSupabaseServer();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isAuthenticated = !!user;
 
+  // 분석 자체는 게이트 없음. quota·이력 합치기는 AI 리포트 생성 시점에 처리됨
   const data = await executeAnalysis(params);
-  return <AnalysisResult data={data} isAuthenticated={!!user} />;
+
+  return <AnalysisResult data={data} isAuthenticated={isAuthenticated} />;
 }
 
 export default async function AnalyzePage({

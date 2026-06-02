@@ -10,6 +10,8 @@ import { useGeolocation } from "../hooks/use-geolocation";
 import { useReverseGeocode } from "../hooks/use-reverse-geocode";
 import { useNearbyPlaces } from "../hooks/use-nearby-places";
 import { CenterPin } from "./center-pin";
+import { prepareAnalysisEntry } from "@/features/analysis/anonymous-actions";
+import { trackEvent, AnalyticsEvent } from "@/lib/analytics";
 import dynamic from "next/dynamic";
 
 const RadiusMap = dynamic(() => import("./radius-map").then(m => m.RadiusMap), { ssr: false });
@@ -77,7 +79,7 @@ export function MapRadiusStep() {
   }, []);
 
   // 분석 시작 — searchParams로 즉시 라우트 이동 (DB 저장 없음)
-  const handleAnalyze = useCallback(() => {
+  const handleAnalyze = useCallback(async () => {
     setIsSubmitting(true);
     const address =
       geocodeResult?.address ??
@@ -90,7 +92,26 @@ export function MapRadiusStep() {
       keyword: selectedIndustry?.keyword || selectedIndustry?.name || "",
       radius: String(radius),
     });
-    router.push(`/analyze?${params.toString()}`);
+    const analyzeUrl = `/analyze?${params.toString()}`;
+
+    trackEvent(AnalyticsEvent.ANALYSIS_INPUT_SUBMITTED, {
+      industry: selectedIndustry?.name,
+      radius,
+    });
+
+    try {
+      // 분석 자체 게이트 없음 — 쿠키 발급만 (가입 시 이력 승계 위해)
+      const entry = await prepareAnalysisEntry();
+      if (entry.isAnonymous) {
+        trackEvent(AnalyticsEvent.ANALYSIS_REQUEST_ANONYMOUS, {
+          industry: selectedIndustry?.name,
+        });
+      }
+      router.push(analyzeUrl);
+    } catch (error) {
+      console.error("[handleAnalyze] entry preparation failed:", error);
+      setIsSubmitting(false);
+    }
   }, [geocodeResult, selectedIndustry, radius, router]);
 
   return (
