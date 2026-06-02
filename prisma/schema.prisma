@@ -48,6 +48,9 @@ model AnalysisReview {
   /// Supabase Auth 사용자 ID — 가입자만 작성 가능 (NOT NULL)
   userId String
 
+  /// 작성 시점 닉네임 스냅샷 (user_metadata.full_name). 추후 닉네임 바꿔도 후기 표시는 그대로 유지
+  authorName String?
+
   /// 1~5 별점
   rating Int
 

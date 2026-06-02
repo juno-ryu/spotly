@@ -7,6 +7,8 @@ import { LoginIconButton } from "@/components/login-icon-button";
 import { ChatIconButton } from "@/components/chat-icon-button";
 import { FloatingActionGroup } from "@/components/floating-action-group";
 import { ReportViewer } from "@/features/report/components/report-viewer";
+import { ReviewSection } from "@/features/review/components/review-section";
+import { ReviewJumpButton } from "@/features/review/components/review-jump-button";
 import { scoreToGrade } from "@/features/analysis/lib/scoring/types";
 import { GRADIENT_TEXT_STYLE, SITE_CONFIG } from "@/constants/site";
 import type { AiReport } from "@/features/report/schema";
@@ -169,6 +171,7 @@ export default async function ReportPage({
             url={`${SITE_CONFIG.url}/report/${id}`}
             imageUrl={`${SITE_CONFIG.url}/api/og?${new URLSearchParams({ address: report.address, industry: report.industryName, score: String(totalScore), ...(reportJson.verdict && { verdict: reportJson.verdict }), square: "1" })}`}
           />
+          <ReviewJumpButton />
           <ChatIconButton />
         </FloatingActionGroup>
       </div>
@@ -191,6 +194,13 @@ export default async function ReportPage({
         address={report.address}
         industryName={report.industryName}
         isLoggedIn={isLoggedIn}
+      />
+
+      <ReviewSection
+        reportId={id}
+        reportOwnerId={report.userId}
+        currentUserId={user?.id ?? null}
+        returnTo={`/report/${id}`}
       />
     </div>
   );
