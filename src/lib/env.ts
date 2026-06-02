@@ -13,7 +13,7 @@ const envSchema = z.object({
   NEXT_PUBLIC_API_URL: z.string().url().optional(),
 
   /** PostgreSQL 데이터베이스 연결 URL */
-  DATABASE_URL: z.string().min(1, "DATABASE_URL은 필수입니다"),
+  DATABASE_URL: z.string().optional(),
 
   /** Upstash Redis REST URL (없으면 캐시 비활성) */
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),
