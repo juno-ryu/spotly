@@ -8,24 +8,15 @@ Next.js 16 (App Router) | TypeScript 5.7 | React 19 | PostgreSQL + Prisma 6 | Up
 Claude API (haiku-4-5) | shadcn-ui + Tailwind 4 | Recharts | Kakao Maps | react-hook-form + zod
 zustand | dayjs | ts-pattern | es-toolkit | npm
 
-## ⛔⛔⛔ 에이전트 오케스트레이션 — 최고 우선순위 규칙 ⛔⛔⛔
+## Claude/Codex 초기 컨텍스트 공유
 
-> 세부 규칙 전문: `.claude/rules/orchestration.md` **(필독 필수)**
+`~/work` 공통 구조와 맞추기 위해 아래 문서를 같은 초기 컨텍스트 보고서로 취급한다.
 
-### 실제 검증된 오케스트레이션 방식
+- `.claude/rules/project-information.md` → `PROJECT_PURPOSE.md`
+- `.claude/rules/project-index.md` → `PROJECT_INDEX.md`
+- `docs/dev-guide.md` — 구현 현황, 데이터소스, 스코어링, 캐시 정책
 
-```
-Claude(나) → TeamCreate → Task(팀원, team_name, name, run_in_background) → SendMessage 협업 → TeamDelete
-```
-
-**핵심 원칙**:
-- `TeamCreate`는 **Claude(나)가 직접** 호출한다
-- 팀원 spawn도 **Claude(나)가 직접** `Task` 도구로 한다 (`team_name` + `name` 파라미터 필수)
-- spawn 시 `run_in_background: true` → tmux 분할 창으로 각 팀원이 별도 창에 뜸
-- 팀원들은 `SendMessage`로 직접 소통하고, 메시지는 Claude(나)에게 자동 전달됨
-- 작업 완료 후 `SendMessage(shutdown_request)` → `TeamDelete` 순으로 정리
-
----
+`AGENTS.md`는 `CLAUDE.md`를 가리키는 symlink다. 둘 중 하나만 읽고 같은 문서로 취급한다.
 
 ## ⛔ 작업 전 필수 — 구현 현황 파악
 
