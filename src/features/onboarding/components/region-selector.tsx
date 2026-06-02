@@ -13,6 +13,7 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { hapticLight } from "../lib/haptic";
 import { useTypingAnimation } from "../hooks/use-typing-animation";
 import { useRecentSearches } from "../hooks/use-recent-searches";
@@ -34,26 +35,30 @@ const DEFAULT_MAP_ZOOM = 4;
 interface RegionSelectorProps {
   selectedIndustry: OnboardingIndustry;
   onNext: (region: OnboardingRegion) => void;
+  /** "view": 메인 인트로 미리보기 — 인터랙션 차단, 타이핑 즉시 완료 */
+  mode?: "interactive" | "view";
 }
 
 export function RegionSelector({
   selectedIndustry,
   onNext,
+  mode = "interactive",
 }: RegionSelectorProps) {
+  const isView = mode === "view";
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showContent, setShowContent] = useState(false);
+  const [showContent, setShowContent] = useState(isView);
   const [geoLoading, setGeoLoading] = useState(false);
   const { items: recentRegions, add: addRecentRegion } =
     useRecentSearches<OnboardingRegion>("recent-regions");
 
   const headerText = `창업,\n어디에서 시작할까요?`;
 
-  const { displayText, isDone: headerDone } = useTypingAnimation(
-    headerText,
-    TYPING_SPEED,
-    true,
-  );
+  const { displayText: typedDisplay, isDone: typedHeaderDone } =
+    useTypingAnimation(headerText, TYPING_SPEED, !isView);
+  // view 모드: 타이핑 건너뛰고 풀텍스트 즉시
+  const displayText = isView ? headerText : typedDisplay;
+  const headerDone = isView ? true : typedHeaderDone;
 
   // 타이핑 완료 후 컨텐츠 표시
   useEffect(() => {
@@ -220,7 +225,15 @@ export function RegionSelector({
 
   // ─── 메인 화면 ───
   return (
-    <div className="flex min-h-dvh flex-col bg-background px-6 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+    <div
+      className={cn(
+        "flex flex-col bg-background px-6",
+        isView
+          ? "min-h-0 pointer-events-none select-none"
+          : "min-h-dvh pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]",
+      )}
+      aria-hidden={isView}
+    >
       {/* 대화 텍스트 — 타이핑 애니메이션 + 업종명 그라데이션 */}
       <div className="pt-16 pb-6">
         <h2 className="text-xl font-bold text-left leading-snug">

@@ -56,7 +56,8 @@ const GENERATION_STEPS = [
 
 const GEN_STEP_INTERVAL = 2500;
 
-export function GeneratingProgress() {
+export function GeneratingProgress({ mode = "interactive" }: { mode?: "interactive" | "view" } = {}) {
+  const isView = mode === "view";
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -67,8 +68,9 @@ export function GeneratingProgress() {
     return () => clearTimeout(timer);
   }, [activeIndex]);
 
-  // 리포트 생성 중 모든 네비게이션 차단
+  // view 모드는 네비게이션 차단 비활성화 (인트로용)
   useEffect(() => {
+    if (isView) return;
     // 브라우저 새로고침/탭 닫기 차단
     const onBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
@@ -90,7 +92,7 @@ export function GeneratingProgress() {
       window.removeEventListener("beforeunload", onBeforeUnload);
       window.removeEventListener("popstate", onPopState);
     };
-  }, []);
+  }, [isView]);
 
   // 마지막 단계(AI 리포트 작성)에서는 프로그레스 고정
   const lastIdx = GENERATION_STEPS.length - 1;
@@ -100,8 +102,12 @@ export function GeneratingProgress() {
     : "거의 완료되었어요...";
 
   return (
-    <div className="fixed inset-0 z-[100] bg-background flex flex-col items-center justify-center px-6">
-      <div className="w-[320px] space-y-6">
+    <div
+      className={`fixed inset-0 z-[100] bg-background flex flex-col items-center justify-center ${
+        isView ? "px-8" : "px-6"
+      }`}
+    >
+      <div className={isView ? "w-full max-w-[300px] space-y-6" : "w-[320px] space-y-6"}>
         <div className="text-center space-y-2">
           <p className="text-lg font-bold">AI 전문가가 분석 중이에요</p>
           <p className="text-sm text-muted-foreground">

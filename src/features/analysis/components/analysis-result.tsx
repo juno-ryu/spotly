@@ -243,12 +243,18 @@ function HeaderWithGrade({
 interface AnalysisResultProps {
   data: AnalysisData;
   isAuthenticated: boolean;
-
+  /** "view": 메인 인트로 미리보기 — 인터랙션 차단 */
+  mode?: "interactive" | "view";
 }
 
 const SHEET_MIN_HEIGHT = 140;
 
-export function AnalysisResult({ data, isAuthenticated }: AnalysisResultProps) {
+export function AnalysisResult({
+  data,
+  isAuthenticated,
+  mode = "interactive",
+}: AnalysisResultProps) {
+  const isView = mode === "view";
   const sheetRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<HTMLDivElement>(null);
   const contentHeightRef = useRef<number>(0);

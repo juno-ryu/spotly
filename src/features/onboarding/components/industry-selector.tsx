@@ -31,24 +31,38 @@ import { GRADIENT_TEXT_STYLE as GRADIENT_STYLE } from "@/constants/site";
 
 interface IndustrySelectorProps {
   onNext: (industry: OnboardingIndustry) => void;
+  /** "view": 메인 인트로 미리보기 전용 — 모든 인터랙션 차단, 타이핑 즉시 완료 */
+  mode?: "interactive" | "view";
+  /** view 모드에서 미리 선택된 것처럼 highlight 할 업종명 */
+  initialSelectedName?: string;
 }
 
 /** Step 2: 업종 선택 — 검색 + 핫한 창업 아이템 추천 */
-export function IndustrySelector({ onNext }: IndustrySelectorProps) {
-  const [selected, setSelected] = useState<string | null>(null);
+export function IndustrySelector({
+  onNext,
+  mode = "interactive",
+  initialSelectedName,
+}: IndustrySelectorProps) {
+  const isView = mode === "view";
+  const [selected, setSelected] = useState<string | null>(
+    initialSelectedName ?? null,
+  );
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showContent, setShowContent] = useState(false);
+  const [showContent, setShowContent] = useState(isView);
   const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { items: recentIndustries, add: addRecentIndustry } =
     useRecentSearches<OnboardingIndustry>("recent-industries");
 
-  const { displayText: headerText, isDone: headerDone } = useTypingAnimation(
+  const { displayText: typedText, isDone: typedDone } = useTypingAnimation(
     HEADER_TEXT,
     TYPING_SPEED,
-    true,
+    !isView,
   );
+  // view 모드에서는 타이핑 건너뛰고 즉시 풀텍스트
+  const headerText = isView ? HEADER_TEXT : typedText;
+  const headerDone = isView ? true : typedDone;
 
   // 타이핑 완료 후 컨텐츠 표시
   useEffect(() => {
@@ -241,7 +255,15 @@ export function IndustrySelector({ onNext }: IndustrySelectorProps) {
 
   // ─── 메인 화면 ───
   return (
-    <div className="flex min-h-dvh flex-col bg-background px-6 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+    <div
+      className={cn(
+        "flex flex-col bg-background px-6",
+        isView
+          ? "min-h-0 pointer-events-none select-none"
+          : "min-h-dvh pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]",
+      )}
+      aria-hidden={isView}
+    >
       {/* 대화 텍스트 — 타이핑 애니메이션 */}
       <div className="pt-16 pb-6">
         <h2 className="text-xl font-bold text-left leading-snug">

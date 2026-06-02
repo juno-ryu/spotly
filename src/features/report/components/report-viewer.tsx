@@ -59,6 +59,8 @@ interface ReportViewerProps {
   industryName?: string;
   /** 로그인 여부 */
   isLoggedIn?: boolean;
+  /** "view": 메인 인트로 미리보기 — 인터랙션 차단 */
+  mode?: "interactive" | "view";
 }
 
 export function ReportViewer({
@@ -75,7 +77,9 @@ export function ReportViewer({
   address,
   industryName,
   isLoggedIn,
+  mode = "interactive",
 }: ReportViewerProps) {
+  const isView = mode === "view";
   const gradeColor = GRADE_HEX[scoreGrade as keyof typeof GRADE_HEX] ?? "#6b7280";
 
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -99,7 +103,10 @@ export function ReportViewer({
   const showRadar = radarData.length >= 3;
 
   return (
-    <div className="space-y-6 px-2 pt-4">
+    <div
+      className={`space-y-6 px-2 pt-4 ${isView ? "pointer-events-none select-none" : ""}`}
+      aria-hidden={isView}
+    >
       {showAuthModal && createPortal(
         <AuthRequiredModal
           onClose={() => setShowAuthModal(false)}
@@ -109,7 +116,7 @@ export function ReportViewer({
       )}
       {/* ── 종합 판단 ── */}
       <div className="px-4">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <div className={`flex flex-col gap-4 ${isView ? "" : "sm:flex-row sm:items-center"}`}>
           {/* 차트: 도넛 + 레이더 (모바일: 가로 나란히, 데스크톱: 가로 나란히) */}
           <div className="flex items-center justify-center gap-2 shrink-0">
             {/* 종합 점수 Radial Chart */}
@@ -427,7 +434,7 @@ export function ReportViewer({
             </AccordionTrigger>
             <AccordionContent className="pb-6 space-y-4 text-sm">
               {/* 전략 카드 3열 그리드 */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className={`grid grid-cols-1 gap-3 ${isView ? "" : "sm:grid-cols-3"}`}>
                 <div className="rounded-lg border bg-card p-4 space-y-1">
                   <div className="flex items-center gap-1.5 text-muted-foreground">
                     <span>🎯</span>

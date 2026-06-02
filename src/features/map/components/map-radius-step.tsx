@@ -16,8 +16,27 @@ import dynamic from "next/dynamic";
 
 const RadiusMap = dynamic(() => import("./radius-map").then(m => m.RadiusMap), { ssr: false });
 
+interface MapRadiusStepProps {
+  /** "view": 메인 인트로 미리보기 — 인터랙션 차단, 뒤로가기 숨김, 외부 좌표 사용 */
+  mode?: "interactive" | "view";
+  /** view 모드에서 사용할 정적 주소 */
+  viewAddress?: string;
+  /** view 모드에서 사용할 정적 좌표 */
+  viewLat?: number;
+  viewLng?: number;
+  /** view 모드에서 표시할 업종명 */
+  viewIndustryName?: string;
+}
+
 /** Step 4+5 통합: 지도 드래그로 위치/반경 동시 설정 → 단일 화면 */
-export function MapRadiusStep() {
+export function MapRadiusStep({
+  mode = "interactive",
+  viewAddress,
+  viewLat,
+  viewLng,
+  viewIndustryName,
+}: MapRadiusStepProps = {}) {
+  const isView = mode === "view";
   const { position } = useGeolocation();
   const { selectedRegion, selectedIndustry } = useWizardStore();
   const {
@@ -29,9 +48,9 @@ export function MapRadiusStep() {
   // 지도 이동 상태 (중심 핀 애니메이션)
   const [isMapMoving, setIsMapMoving] = useState(false);
 
-  // 온보딩에서 선택한 지역 좌표 (없으면 GPS 폴백)
-  const initialLat = selectedRegion?.latitude ?? position.latitude;
-  const initialLng = selectedRegion?.longitude ?? position.longitude;
+  // 온보딩에서 선택한 지역 좌표 (없으면 GPS 폴백). view 모드는 prop 좌표 사용.
+  const initialLat = isView ? viewLat ?? 37.5665 : selectedRegion?.latitude ?? position.latitude;
+  const initialLng = isView ? viewLng ?? 126.978 : selectedRegion?.longitude ?? position.longitude;
   const initialZoom = selectedRegion?.zoom ?? DEFAULT_MAP_ZOOM;
 
   // 동적 중심 좌표 — state로 관리해야 useNearbyPlaces가 재검색됨
@@ -115,9 +134,9 @@ export function MapRadiusStep() {
   }, [geocodeResult, selectedIndustry, radius, router]);
 
   return (
-    <div className="fixed inset-0">
-      {/* 뒤로가기 → /region */}
-      <BackButton />
+    <div className={`fixed inset-0 ${isView ? "pointer-events-none select-none" : ""}`}>
+      {/* 뒤로가기 → /region (view 모드는 숨김) */}
+      {!isView && <BackButton />}
 
       {/* 반경 원 포함 지도 (드래그 → 원도 함께 이동) */}
       <RadiusMap
@@ -137,10 +156,10 @@ export function MapRadiusStep() {
 
       {/* 바텀시트: 주소 + 반경 선택 + 분석하기 */}
       <RadiusBottomSheet
-        address={currentAddress ?? "위치를 선택하세요"}
-        industryName={selectedIndustry?.keyword || selectedIndustry?.name || ""}
+        address={isView ? viewAddress ?? "위치 미리보기" : currentAddress ?? "위치를 선택하세요"}
+        industryName={isView ? viewIndustryName ?? "" : selectedIndustry?.keyword || selectedIndustry?.name || ""}
         radius={radius}
-        nearbyCount={nearbyTotalCount}
+        nearbyCount={isView ? 0 : nearbyTotalCount}
         onRadiusChange={handleRadiusChange}
         onAnalyze={handleAnalyze}
         isSubmitting={isSubmitting}

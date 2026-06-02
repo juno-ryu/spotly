@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { WelcomePageClient } from "@/features/onboarding/components/welcome-page-client";
+import { getRandomPreviewData } from "@/features/onboarding/lib/get-random-preview-report";
+import { ReviewSection } from "@/features/review/components/review-section";
 
 export const metadata: Metadata = {
   title: "스팟리 - AI 창업 입지 분석",
@@ -25,7 +27,22 @@ export const metadata: Metadata = {
   },
 };
 
+/** 매 요청마다 새 랜덤 prview 선택 — Math.random() SSR/hydration mismatch 방지 */
+export const dynamic = "force-dynamic";
+
 /** 웰컴 페이지 */
 export default async function HomePage() {
-  return <WelcomePageClient />;
+  const preview = await getRandomPreviewData();
+
+  // ReviewSection 은 server component — page 에서 element 로 만들어 client 컴포넌트에 ReactNode 로 전달
+  const reviewSection = preview ? (
+    <ReviewSection
+      reportId={preview.id}
+      reportOwnerId={null}
+      currentUserId={null}
+      returnTo={`/report/${preview.id}`}
+    />
+  ) : null;
+
+  return <WelcomePageClient preview={preview} reviewSection={reviewSection} />;
 }
