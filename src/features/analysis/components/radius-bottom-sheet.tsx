@@ -1,10 +1,7 @@
 "use client";
 
 import { RADIUS_OPTIONS } from "@/constants/enums/radius-option";
-
-function formatRadius(m: number): string {
-  return m >= 1000 ? `${(m / 1000).toFixed(1).replace(/\.0$/, "")}km` : `${m}m`;
-}
+import { formatRadius } from "@/lib/format";
 
 interface RadiusBottomSheetProps {
   address: string;
